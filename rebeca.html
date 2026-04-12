@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🦋 Rebeca - Mesada</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fdf4ff;
+  --main: #8b5cf6;
+  --grad: linear-gradient(135deg, #8b5cf6, #ec4899);
+  --light: #fdf4ff;
+  --gold: #f59e0b;
+  --green: #22c55e;
+  --red: #ef4444;
+  --text: #1a1a2e;
+  --muted: #9ca3af;
+  --shadow: 0 4px 20px rgba(0,0,0,0.09);
+  --radius: 20px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Nunito', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px 10px; background: white;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-title { font-family: 'Fredoka One', cursive; font-size: 1.4rem; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.sync-dot { width: 9px; height: 9px; border-radius: 50%; background: #d1d5db; display: inline-block; margin-right: 4px; transition: background .3s; }
+.sync-dot.ok { background: var(--green); }
+.sync-dot.err { background: var(--red); }
+.sync-label { font-size: .72rem; font-weight: 700; color: var(--muted); }
+
+.date-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  background: white; border-radius: 14px; padding: 10px 14px;
+  margin-bottom: 12px; box-shadow: var(--shadow);
+}
+.date-nav button { border: none; background: none; font-size: 1.3rem; cursor: pointer; padding: 2px 10px; }
+.date-label { font-weight: 800; font-size: .93rem; }
+
+.wallet-card {
+  border-radius: var(--radius); padding: 18px;
+  margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow); position: relative; overflow: hidden;
+  background: var(--grad);
+}
+.wallet-card::after { content:''; position:absolute; top:-40px; right:-40px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,.12); }
+.wallet-info { color: white; }
+.wallet-info h3 { font-family: 'Fredoka One', cursive; font-size: 1.35rem; margin-bottom: 1px; }
+.wallet-info .sub { font-size: .78rem; opacity: .88; margin-bottom: 5px; }
+.wallet-amount { font-family: 'Fredoka One', cursive; font-size: 1.9rem; color: white; line-height: 1; }
+.wallet-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.wallet-emoji { font-size: 2.8rem; filter: drop-shadow(2px 4px 8px rgba(0,0,0,.25)); }
+.prog-bg { background: rgba(255,255,255,.3); border-radius: 99px; height: 8px; width: 110px; }
+.prog-fill { background: white; border-radius: 99px; height: 8px; transition: width .5s; }
+.prog-label { color: white; font-size: .7rem; font-weight: 700; opacity: .9; text-align: right; margin-top: 2px; }
+
+.penalty-banner {
+  background: #fff0f0; border: 2px solid #fca5a5; border-radius: 12px;
+  padding: 9px 12px; margin-bottom: 12px;
+  font-size: .82rem; font-weight: 700; color: var(--red);
+  display: flex; align-items: center; gap: 8px;
+}
+.pending-notice {
+  background: #fefce8; border: 2px solid #fde047; border-radius: 12px;
+  padding: 9px 12px; margin-bottom: 12px;
+  font-size: .8rem; font-weight: 700; color: #854d0e;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.content { padding: 16px 14px 110px; }
+
+.section-title {
+  font-family: 'Fredoka One', cursive; font-size: .98rem;
+  margin: 14px 0 7px; display: flex; align-items: center; gap: 6px;
+}
+
+.task-card {
+  background: white; border-radius: 14px; padding: 11px 13px;
+  margin-bottom: 8px; display: flex; align-items: center; gap: 11px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05); cursor: pointer;
+  transition: transform .12s; border: 2px solid transparent;
+  user-select: none; -webkit-user-select: none;
+}
+.task-card:active { transform: scale(.97); }
+.task-card.pending   { border-color: #d1d5db; background: #fafafa; }
+.task-card.validated { border-color: var(--main); background: var(--light); }
+.task-card.rejected  { border-color: #fca5a5; background: #fff5f5; opacity: .6; }
+
+.task-check {
+  width: 27px; height: 27px; border-radius: 50%; border: 2.5px solid #e5e7eb;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: .85rem; transition: all .2s;
+}
+.task-card.pending   .task-check { background: #e5e7eb; border-color: #e5e7eb; color: #9ca3af; }
+.task-card.validated .task-check { background: var(--main); border-color: var(--main); color: white; }
+.task-card.rejected  .task-check { background: #fca5a5; border-color: #fca5a5; color: white; }
+
+.task-icon { font-size: 1.4rem; flex-shrink: 0; }
+.task-body { flex: 1; min-width: 0; }
+.task-name { font-weight: 800; font-size: .88rem; }
+.task-desc { font-size: .73rem; color: var(--muted); margin-top: 1px; }
+.task-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+.task-value { font-family: 'Fredoka One', cursive; font-size: .92rem; color: var(--green); }
+.badge { font-size: .6rem; font-weight: 800; padding: 2px 6px; border-radius: 99px; }
+.badge-obrig   { background: #fef3c7; color: #92400e; }
+.badge-aguard  { background: #fef9c3; color: #78716c; }
+.badge-ok      { background: #dcfce7; color: #166534; }
+.badge-rejected{ background: #fee2e2; color: #991b1b; }
+
+.month-box {
+  background: white; border-radius: var(--radius); padding: 14px;
+  box-shadow: var(--shadow); margin-bottom: 12px;
+}
+.stat-row { display: flex; justify-content: space-around; }
+.stat-box { text-align: center; }
+.stat-box .val { font-family: 'Fredoka One', cursive; font-size: 1.35rem; }
+.stat-box .lbl { font-size: .7rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+.val.green { color: var(--green); }
+.val.gold  { color: var(--gold); }
+.val.red   { color: var(--red); }
+
+.reward-card {
+  background: white; border-radius: 14px; padding: 13px 14px;
+  margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow);
+}
+.reward-card.unlocked { border: 2px solid var(--gold); background: linear-gradient(135deg,#fffbeb,#fef9c3); cursor: pointer; }
+.r-icon { font-size: 1.9rem; flex-shrink: 0; }
+.r-body { flex: 1; }
+.r-title { font-weight: 800; font-size: .88rem; }
+.r-sub   { font-size: .73rem; color: var(--muted); margin-top: 1px; }
+.r-progress { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+.r-prog-bg   { flex: 1; background: #f3f4f6; border-radius: 99px; height: 6px; }
+.r-prog-fill { background: var(--gold); border-radius: 99px; height: 6px; transition: width .5s; }
+.r-days { font-family: 'Fredoka One', cursive; font-size: .78rem; color: var(--gold); flex-shrink: 0; }
+.reward-badge { font-size: .68rem; font-weight: 800; padding: 3px 9px; border-radius: 99px; flex-shrink: 0; }
+.reward-badge.done   { background: #fef08a; color: #78350f; }
+.reward-badge.locked { background: #f3f4f6; color: var(--muted); }
+
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: white; border-radius: var(--radius); padding: 24px 20px;
+  max-width: 300px; width: 90%; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25); animation: popIn .22s ease;
+}
+@keyframes popIn { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal .m-icon { font-size: 2.8rem; margin-bottom: 6px; }
+.modal h3 { font-family: 'Fredoka One', cursive; font-size: 1.2rem; margin-bottom: 5px; }
+.modal p  { font-size: .84rem; color: #555; line-height: 1.5; margin-bottom: 16px; }
+.modal-btn { padding: 9px 22px; border-radius: 99px; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .88rem; background: var(--main); color: white; }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(90px);
+  background: #1a1a2e; color: white; padding: 10px 20px;
+  border-radius: 99px; font-weight: 700; font-size: .85rem;
+  z-index: 300; transition: transform .3s ease;
+  max-width: 88vw; text-align: center;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+.loading {
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px; flex-direction: column; gap: 12px; color: var(--muted);
+}
+.spinner {
+  width: 36px; height: 36px; border: 3px solid #f0f0f0;
+  border-top-color: var(--main); border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-title">🦋 Rebeca</span>
+  <span><span class="sync-dot" id="sync-dot"></span><span class="sync-label" id="sync-label">conectando...</span></span>
+</div>
+
+<div class="content">
+  <div class="date-nav">
+    <button onclick="changeDate(-1)">‹</button>
+    <span class="date-label" id="date-label"></span>
+    <button onclick="changeDate(1)">›</button>
+  </div>
+
+  <div id="penalty-banner"></div>
+
+  <div class="wallet-card">
+    <div class="wallet-info">
+      <h3>Rebeca 🦋</h3>
+      <div class="sub">Hoje você ganhou</div>
+      <div class="wallet-amount">R$ <span id="earned">0,00</span></div>
+    </div>
+    <div class="wallet-right">
+      <div class="wallet-emoji">🦋</div>
+      <div class="prog-bg"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+      <div class="prog-label" id="prog-label">0/0</div>
+    </div>
+  </div>
+
+  <div id="pending-notice"></div>
+
+  <div id="loading" class="loading"><div class="spinner"></div><span>Carregando tarefas...</span></div>
+  <div id="main-content" style="display:none">
+    <div class="section-title">⚡ Obrigatórias</div>
+    <div id="tasks-mand"></div>
+    <div class="section-title">🌟 Extras</div>
+    <div id="tasks-bonus"></div>
+
+    <div class="section-title" style="color:var(--gold)">📅 Mês de <span id="month-label"></span></div>
+    <div class="month-box">
+      <div class="stat-row">
+        <div class="stat-box"><div class="val green" id="m-earned">R$ 0</div><div class="lbl">Ganho</div></div>
+        <div class="stat-box"><div class="val gold"  id="m-days">0</div><div class="lbl">Dias completos</div></div>
+        <div class="stat-box"><div class="val red"   id="m-punish">0</div><div class="lbl">Punições</div></div>
+      </div>
+    </div>
+
+    <div class="section-title" style="color:var(--gold)">🏆 Recompensas</div>
+    <div id="rewards"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reward-modal">
+  <div class="modal">
+    <div class="m-icon" id="r-icon">🏆</div>
+    <h3 id="r-title"></h3>
+    <p id="r-desc"></p>
+    <button class="modal-btn" onclick="document.getElementById('reward-modal').classList.remove('show')">🎉 Incrível!</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBj4ijJQDD1kSuhCqBWund5kt8ijVKFJw8",
+  authDomain: "kids-allowance-8dc74.firebaseapp.com",
+  projectId: "kids-allowance-8dc74",
+  storageBucket: "kids-allowance-8dc74.firebasestorage.app",
+  messagingSenderId: "640632026277",
+  appId: "1:640632026277:web:77241724e86b27b96cc94c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const KID = 'rebeca';
+
+const TASKS = [
+  { id:'b1',  name:'Lição de casa',             icon:'📚', value:0.80, mandatory:true,  desc:'Fazer com atenção e capricho' },
+  { id:'b2',  name:'Tomar banho',               icon:'🚿', value:0.50, mandatory:true,  desc:'Banho completo (pode pedir ajuda)' },
+  { id:'b3',  name:'Escovar os dentes',         icon:'🦷', value:0.40, mandatory:true,  desc:'Manhã e noite — com pastinha!' },
+  { id:'b4',  name:'Arrumar o material',        icon:'🎒', value:0.50, mandatory:true,  desc:'Colocar tudo na mochila com papai/mamãe' },
+  { id:'b5',  name:'Acordar na hora',           icon:'⏰', value:0.30, mandatory:true,  desc:'Levantar rápido e de bom humor 😄' },
+  { id:'b6',  name:'Arrumar a cama',            icon:'🛏️', value:0.30, mandatory:true,  desc:'Cobrir e deixar bonitinha' },
+  { id:'b7',  name:'Comer as refeições',        icon:'🍽️', value:0.50, mandatory:true,  desc:'Comer de tudo um pouco sem birra' },
+  { id:'b8',  name:'Guardar os brinquedos',     icon:'🧸', value:0.40, mandatory:false, desc:'Guardar tudo no lugar depois de brincar' },
+  { id:'b9',  name:'Ajudar a pôr a mesa',       icon:'🥄', value:0.30, mandatory:false, desc:'Ajudar na hora das refeições' },
+  { id:'b10', name:'Desenhar ou colorir',       icon:'🎨', value:0.30, mandatory:false, desc:'Atividade criativa por 20 min' },
+  { id:'b11', name:'Brincar sem brigar',        icon:'😊', value:0.30, mandatory:false, desc:'Dia inteiro sem brigar com irmão' },
+  { id:'b12', name:'Escolher e vestir a roupa', icon:'👗', value:0.40, mandatory:false, desc:'Escolher sozinha e se vestir direitinho' },
+];
+
+const REWARDS = [
+  { days:20, icon:'🎬', title:'Escolher o filme!',  desc:'Com 20 dias completos você escolhe o próximo filme da família! 🍿' },
+  { days:25, icon:'🍕', title:'Escolher o jantar!', desc:'Com 25 dias completos você escolhe o jantar da família! 😋' },
+  { days:30, icon:'🎁', title:'Prêmio surpresa!',   desc:'Com 30 dias completos você ganha um presente surpresa especial! 🎉' },
+];
+
+const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DAYS_W = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+let curDate = new Date();
+let dayData = {};
+let unsubDay = null;
+
+function ds(d) { return d.toISOString().slice(0,10); }
+function docRef(dateStr) { return doc(db, 'mesada', KID, 'dias', dateStr); }
+
+function setSynced(ok) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = 'sync-dot ' + (ok ? 'ok' : 'err');
+  lbl.textContent = ok ? 'sincronizado' : 'sem conexão';
+}
+
+function listenDay(d) {
+  if (unsubDay) unsubDay();
+  const dateStr = ds(d);
+  unsubDay = onSnapshot(docRef(dateStr), snap => {
+    dayData[dateStr] = snap.exists() ? snap.data() : { tasks: {}, flag: 'none' };
+    setSynced(true);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    renderDay();
+  }, () => setSynced(false));
+}
+
+window.toggleTask = async function(taskId) {
+  const dateStr = ds(curDate);
+  const cur = (dayData[dateStr]?.tasks?.[taskId]) || 'none';
+  if (cur === 'validated' || cur === 'rejected') return;
+  const next = cur === 'pending' ? 'none' : 'pending';
+  if (!dayData[dateStr]) dayData[dateStr] = { tasks:{}, flag:'none' };
+  dayData[dateStr].tasks[taskId] = next;
+  renderDay();
+  try {
+    const snap = await getDoc(docRef(dateStr));
+    const existing = snap.exists() ? snap.data() : { tasks:{}, flag:'none' };
+    existing.tasks = existing.tasks || {};
+    existing.tasks[taskId] = next;
+    await setDoc(docRef(dateStr), existing);
+    if (next === 'pending') {
+      const t = TASKS.find(x=>x.id===taskId);
+      showToast(`${t.icon} Marcado! Aguarda validação ⏳`);
+    }
+  } catch(e) { setSynced(false); }
+};
+
+function renderDay() {
+  const dateStr = ds(curDate);
+  const data = dayData[dateStr] || { tasks:{}, flag:'none' };
+  const flag = data.flag || 'none';
+
+  document.getElementById('date-label').textContent =
+    `${DAYS_W[curDate.getDay()]}, ${curDate.getDate()} de ${MONTHS[curDate.getMonth()]}`;
+  document.getElementById('month-label').textContent = MONTHS[curDate.getMonth()];
+
+  document.getElementById('penalty-banner').innerHTML = flag === 'lied'
+    ? `<div class="penalty-banner">🤥 Bônus perdidos hoje por mentira! Só as obrigatórias contam.</div>` : '';
+
+  const hasPending = TASKS.some(t => (data.tasks?.[t.id]||'none') === 'pending');
+  document.getElementById('pending-notice').innerHTML = hasPending
+    ? `<div class="pending-notice">⏳ Tarefas marcadas aguardam validação dos pais!</div>` : '';
+
+  renderList('tasks-mand',  TASKS.filter(t=>t.mandatory),  data, flag);
+  renderList('tasks-bonus', TASKS.filter(t=>!t.mandatory), data, flag);
+  updateWallet(data, flag);
+  loadMonthStats();
+}
+
+function renderList(cid, tasks, data, flag) {
+  const el = document.getElementById(cid);
+  el.innerHTML = '';
+  tasks.forEach(task => {
+    const lied = flag === 'lied' && !task.mandatory;
+    const status = lied ? 'lied' : (data.tasks?.[task.id] || 'none');
+    let cls = 'task-card', check = '', badge = task.mandatory ? '<span class="badge badge-obrig">obrig.</span>' : '';
+    if (status==='validated')       { cls+=' validated'; check='✓'; badge='<span class="badge badge-ok">✓ validado</span>'; }
+    else if (status==='pending')    { cls+=' pending';   check='✓'; badge='<span class="badge badge-aguard">⏳ aguardando</span>'; }
+    else if (status==='rejected'||status==='lied') { cls+=' rejected'; check='✗'; badge='<span class="badge badge-rejected">✗ não conta</span>'; }
+    const canToggle = status==='none'||status==='pending';
+    const card = document.createElement('div');
+    card.className = cls;
+    card.innerHTML = `
+      <div class="task-check">${check}</div>
+      <div class="task-icon">${task.icon}</div>
+      <div class="task-body"><div class="task-name">${task.name}</div><div class="task-desc">${task.desc}</div></div>
+      <div class="task-right"><div class="task-value">+R$${task.value.toFixed(2).replace('.',',')}</div>${badge}</div>`;
+    if (canToggle) card.addEventListener('click', ()=>toggleTask(task.id));
+    el.appendChild(card);
+  });
+}
+
+function updateWallet(data, flag) {
+  let earned=0, counted=0, validated=0;
+  TASKS.forEach(t => {
+    const lied = flag==='lied'&&!t.mandatory;
+    const s = lied ? 'lied' : (data.tasks?.[t.id]||'none');
+    if (!lied && s==='validated') { earned+=t.value; counted++; validated++; }
+    else if (!lied && s==='pending') counted++;
+  });
+  const pct = TASKS.length ? Math.round((counted/TASKS.length)*100) : 0;
+  document.getElementById('earned').textContent = earned.toFixed(2).replace('.',',');
+  document.getElementById('prog').style.width = pct+'%';
+  document.getElementById('prog-label').textContent = `${validated}/${TASKS.length} validadas`;
+}
+
+async function loadMonthStats() {
+  const d = curDate;
+  const dim = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  const promises = [];
+  for(let day=1;day<=dim;day++){
+    const dd = new Date(d.getFullYear(),d.getMonth(),day);
+    const dateStr = ds(dd);
+    if (dayData[dateStr]) { promises.push(Promise.resolve()); continue; }
+    promises.push(getDoc(docRef(dateStr)).then(snap=>{
+      dayData[dateStr] = snap.exists() ? snap.data() : {tasks:{},flag:'none'};
+    }).catch(()=>{}));
+  }
+  await Promise.all(promises);
+  let totalEarned=0, completeDays=0, liedDays=0;
+  for(let day=1;day<=dim;day++){
+    const dd = new Date(d.getFullYear(),d.getMonth(),day);
+    const data2 = dayData[ds(dd)] || {tasks:{},flag:'none'};
+    const flag2 = data2.flag||'none';
+    if(flag2==='lied') liedDays++;
+    let dayEarned=0, allDone=true;
+    TASKS.forEach(t=>{
+      const lied=flag2==='lied'&&!t.mandatory;
+      const s=lied?'lied':(data2.tasks?.[t.id]||'none');
+      if(!lied&&s==='validated') dayEarned+=t.value;
+      if(lied||s!=='validated') allDone=false;
+    });
+    totalEarned+=dayEarned;
+    if(allDone&&TASKS.length>0) completeDays++;
+  }
+  document.getElementById('m-earned').textContent = `R$ ${totalEarned.toFixed(2).replace('.',',')}`;
+  document.getElementById('m-days').textContent   = completeDays;
+  document.getElementById('m-punish').textContent = liedDays;
+  renderRewards(completeDays);
+}
+
+function renderRewards(days) {
+  const el = document.getElementById('rewards');
+  el.innerHTML='';
+  REWARDS.forEach(r=>{
+    const unlocked = days>=r.days;
+    const pct = Math.min(100,Math.round((days/r.days)*100));
+    const card = document.createElement('div');
+    card.className = `reward-card ${unlocked?'unlocked':''}`;
+    card.innerHTML=`
+      <div class="r-icon">${r.icon}</div>
+      <div class="r-body">
+        <div class="r-title">${r.title}</div>
+        <div class="r-sub">${r.days} dias completos</div>
+        <div class="r-progress">
+          <div class="r-prog-bg"><div class="r-prog-fill" style="width:${pct}%"></div></div>
+          <div class="r-days">${days}/${r.days}</div>
+        </div>
+      </div>
+      <div class="reward-badge ${unlocked?'done':'locked'}">${unlocked?'🏆 Ganhou!':'🔒'}</div>`;
+    if(unlocked){ card.style.cursor='pointer'; card.addEventListener('click',()=>showReward(r)); }
+    el.appendChild(card);
+  });
+}
+
+function showReward(r) {
+  document.getElementById('r-icon').textContent  = r.icon;
+  document.getElementById('r-title').textContent = r.title;
+  document.getElementById('r-desc').textContent  = r.desc;
+  document.getElementById('reward-modal').classList.add('show');
+}
+
+window.changeDate = function(delta) {
+  curDate.setDate(curDate.getDate()+delta);
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('main-content').style.display='none';
+  listenDay(curDate);
+};
+
+let tt;
+window.showToast = function(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),2400);
+};
+
+listenDay(curDate);
+</script>
+</body>
+</html>

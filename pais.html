@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🔐 Pais - Mesada</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f4ff;
+  --parent: #1e3a5f;
+  --grad: linear-gradient(135deg, #1e3a5f, #2d6a9f);
+  --light: #eef4fb;
+  --rafael: #f76c2f;
+  --rebeca: #8b5cf6;
+  --gold: #f59e0b;
+  --green: #22c55e;
+  --red: #ef4444;
+  --text: #1a1a2e;
+  --muted: #9ca3af;
+  --shadow: 0 4px 20px rgba(0,0,0,0.09);
+  --radius: 20px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Nunito', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px 10px; background: white;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-title { font-family: 'Fredoka One', cursive; font-size: 1.4rem; color: var(--parent); }
+.sync-dot { width: 9px; height: 9px; border-radius: 50%; background: #d1d5db; display: inline-block; margin-right: 4px; }
+.sync-dot.ok  { background: var(--green); }
+.sync-dot.err { background: var(--red); }
+.sync-label { font-size: .72rem; font-weight: 700; color: var(--muted); }
+
+.content { padding: 16px 14px 100px; }
+
+.hero {
+  background: var(--grad); border-radius: var(--radius);
+  padding: 16px 18px; color: white; margin-bottom: 16px; box-shadow: var(--shadow);
+}
+.hero h2 { font-family: 'Fredoka One', cursive; font-size: 1.2rem; margin-bottom: 2px; }
+.hero p  { font-size: .8rem; opacity: .85; }
+
+.date-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  background: white; border-radius: 14px; padding: 10px 14px;
+  margin-bottom: 14px; box-shadow: var(--shadow);
+}
+.date-nav button { border: none; background: none; font-size: 1.3rem; cursor: pointer; padding: 2px 10px; }
+.date-label { font-weight: 800; font-size: .93rem; }
+
+.kid-card {
+  background: white; border-radius: var(--radius);
+  padding: 15px; margin-bottom: 14px; box-shadow: var(--shadow);
+}
+.kid-title {
+  font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.kid-title.rafael { color: var(--rafael); }
+.kid-title.rebeca  { color: var(--rebeca); }
+
+.stat-row { display: flex; justify-content: space-around; margin-bottom: 12px; }
+.stat-box { text-align: center; }
+.stat-box .val { font-family: 'Fredoka One', cursive; font-size: 1.3rem; }
+.stat-box .lbl { font-size: .7rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+.val.green { color: var(--green); }
+.val.gold  { color: var(--gold); }
+
+.section-lbl { font-size: .75rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+
+.validate-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 0; border-bottom: 1px solid #f3f4f6; gap: 6px;
+}
+.validate-item:last-child { border-bottom: none; }
+.vi-left { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; }
+.vi-icon { font-size: 1.1rem; flex-shrink: 0; }
+.vi-name { font-weight: 700; font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vi-val  { font-family: 'Fredoka One', cursive; font-size: .82rem; color: var(--green); flex-shrink: 0; }
+.vi-actions { display: flex; gap: 5px; flex-shrink: 0; }
+.btn-v {
+  padding: 5px 11px; border-radius: 99px; border: none; cursor: pointer;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .75rem; transition: all .15s;
+}
+.btn-ok  { background: #dcfce7; color: #166534; }
+.btn-ok:active  { background: var(--green); color: white; }
+.btn-lie { background: #fee2e2; color: #991b1b; }
+.btn-lie:active { background: var(--red); color: white; }
+.btn-done { background: var(--green); color: white; border: none; padding: 5px 11px; border-radius: 99px; font-weight: 800; font-size: .75rem; }
+
+.lie-all-btn {
+  display: block; margin: 10px auto 0; background: #fff0f0; color: #991b1b;
+  border: none; border-radius: 99px; padding: 7px 16px;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .78rem; cursor: pointer;
+}
+
+.month-footer {
+  background: var(--light); border-radius: 12px; padding: 11px 14px;
+  display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
+}
+.month-footer .lbl { font-weight: 800; font-size: .83rem; color: var(--parent); }
+.month-footer .val { font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: var(--parent); }
+
+.penalty-active {
+  background: #fff0f0; border: 2px solid #fca5a5; border-radius: 10px;
+  padding: 8px 12px; font-size: .8rem; font-weight: 700; color: var(--red);
+  margin-bottom: 8px;
+}
+
+.rules-card {
+  background: white; border-radius: var(--radius); padding: 15px;
+  box-shadow: var(--shadow); border-left: 4px solid var(--parent);
+}
+.rules-card h4 { font-weight: 800; color: var(--parent); margin-bottom: 8px; font-size: .88rem; }
+.rules-card li { font-size: .8rem; color: #555; padding: 3px 0; line-height: 1.5; list-style: none; }
+
+/* MODALS */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: white; border-radius: var(--radius); padding: 22px 20px;
+  max-width: 310px; width: 90%; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25); animation: popIn .22s ease;
+}
+@keyframes popIn { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal .m-icon { font-size: 2.6rem; margin-bottom: 6px; }
+.modal h3 { font-family: 'Fredoka One', cursive; font-size: 1.2rem; margin-bottom: 5px; }
+.modal p  { font-size: .83rem; color: #555; line-height: 1.5; margin-bottom: 14px; }
+.modal-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.modal-btn { padding: 8px 18px; border-radius: 99px; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .86rem; }
+.btn-cancel { background: #f3f4f6; color: #6b7280; }
+.btn-red    { background: var(--red); color: white; }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(90px);
+  background: #1a1a2e; color: white; padding: 10px 20px;
+  border-radius: 99px; font-weight: 700; font-size: .85rem;
+  z-index: 300; transition: transform .3s ease;
+  max-width: 88vw; text-align: center;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+.spinner-inline {
+  display: inline-block; width: 16px; height: 16px; border: 2px solid #e5e7eb;
+  border-top-color: var(--muted); border-radius: 50%;
+  animation: spin .7s linear infinite; vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-title">🔐 Pais</span>
+  <span><span class="sync-dot" id="sync-dot"></span><span class="sync-label" id="sync-label">conectando...</span></span>
+</div>
+
+<div class="content">
+  <div class="hero">
+    <h2>Painel dos Pais</h2>
+    <p>Valide as tarefas e acompanhe em tempo real ⚡</p>
+  </div>
+
+  <div class="date-nav">
+    <button onclick="changeDate(-1)">‹</button>
+    <span class="date-label" id="date-label"></span>
+    <button onclick="changeDate(1)">›</button>
+  </div>
+
+  <!-- RAFAEL -->
+  <div class="kid-card">
+    <div class="kid-title rafael">🚀 Rafael (9 anos)</div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="val green" id="r-today">R$ 0</div><div class="lbl">Hoje</div></div>
+      <div class="stat-box"><div class="val gold"  id="r-month">R$ 0</div><div class="lbl">Mês</div></div>
+      <div class="stat-box"><div class="val"       id="r-done">0/0</div><div class="lbl">Tarefas</div></div>
+    </div>
+    <div id="r-penalty"></div>
+    <div class="section-lbl">Aguardando validação</div>
+    <div id="validate-rafael"><span class="spinner-inline"></span></div>
+    <div class="month-footer">
+      <span class="lbl">💰 Total do mês</span>
+      <span class="val" id="r-total">R$ 0,00</span>
+    </div>
+  </div>
+
+  <!-- REBECA -->
+  <div class="kid-card">
+    <div class="kid-title rebeca">🦋 Rebeca (6 anos)</div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="val green" id="b-today">R$ 0</div><div class="lbl">Hoje</div></div>
+      <div class="stat-box"><div class="val gold"  id="b-month">R$ 0</div><div class="lbl">Mês</div></div>
+      <div class="stat-box"><div class="val"       id="b-done">0/0</div><div class="lbl">Tarefas</div></div>
+    </div>
+    <div id="b-penalty"></div>
+    <div class="section-lbl">Aguardando validação</div>
+    <div id="validate-rebeca"><span class="spinner-inline"></span></div>
+    <div class="month-footer">
+      <span class="lbl">💰 Total do mês</span>
+      <span class="val" id="b-total">R$ 0,00</span>
+    </div>
+  </div>
+
+  <div class="rules-card">
+    <h4>📋 Regras</h4>
+    <ul>
+      <li>✅ Tarefas só contam após <strong>sua validação</strong></li>
+      <li>⏳ Marcado pela criança = aguarda validação aqui</li>
+      <li>❌ Não marcou = não ganha aquele valor</li>
+      <li>🤥 <strong>Mentira</strong> = perde todos os bônus do dia</li>
+      <li>🏆 20 dias → escolhe o filme · 25 → jantar · 30 → surpresa</li>
+      <li>💰 Meta: <strong>R$ 150,00/mês</strong> por criança</li>
+    </ul>
+  </div>
+</div>
+
+<!-- MODAL MENTIRA -->
+<div class="modal-overlay" id="lie-modal">
+  <div class="modal">
+    <div class="m-icon">🤥</div>
+    <h3>Mentira detectada!</h3>
+    <p><strong id="lie-name"></strong> vai perder todos os bônus de hoje.<br>Somente as obrigatórias validadas são mantidas.</p>
+    <div class="modal-btns">
+      <button class="modal-btn btn-cancel" onclick="closeLieModal()">Cancelar</button>
+      <button class="modal-btn btn-red"    onclick="confirmLie()">Aplicar punição</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBj4ijJQDD1kSuhCqBWund5kt8ijVKFJw8",
+  authDomain: "kids-allowance-8dc74.firebaseapp.com",
+  projectId: "kids-allowance-8dc74",
+  storageBucket: "kids-allowance-8dc74.firebasestorage.app",
+  messagingSenderId: "640632026277",
+  appId: "1:640632026277:web:77241724e86b27b96cc94c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+const TASKS = {
+  rafael: [
+    { id:'r1',  name:'Lição de casa',            icon:'📚', value:0.80, mandatory:true  },
+    { id:'r2',  name:'Tomar banho',              icon:'🚿', value:0.50, mandatory:true  },
+    { id:'r3',  name:'Escovar os dentes',        icon:'🦷', value:0.40, mandatory:true  },
+    { id:'r4',  name:'Arrumar o material',       icon:'🎒', value:0.50, mandatory:true  },
+    { id:'r5',  name:'Acordar na hora',          icon:'⏰', value:0.40, mandatory:true  },
+    { id:'r6',  name:'Arrumar a cama',           icon:'🛏️', value:0.30, mandatory:true  },
+    { id:'r7',  name:'Comer as refeições',       icon:'🍽️', value:0.40, mandatory:true  },
+    { id:'r8',  name:'Ajudar na arrumação',      icon:'🧹', value:0.40, mandatory:false },
+    { id:'r9',  name:'Ler por 20 minutos',       icon:'📖', value:0.30, mandatory:false },
+    { id:'r10', name:'Praticar esporte',         icon:'⚽', value:0.30, mandatory:false },
+    { id:'r11', name:'Ajudar a Rebeca',          icon:'🤝', value:0.30, mandatory:false },
+    { id:'r12', name:'Telas só após as tarefas', icon:'📵', value:0.40, mandatory:false },
+  ],
+  rebeca: [
+    { id:'b1',  name:'Lição de casa',             icon:'📚', value:0.80, mandatory:true  },
+    { id:'b2',  name:'Tomar banho',               icon:'🚿', value:0.50, mandatory:true  },
+    { id:'b3',  name:'Escovar os dentes',         icon:'🦷', value:0.40, mandatory:true  },
+    { id:'b4',  name:'Arrumar o material',        icon:'🎒', value:0.50, mandatory:true  },
+    { id:'b5',  name:'Acordar na hora',           icon:'⏰', value:0.30, mandatory:true  },
+    { id:'b6',  name:'Arrumar a cama',            icon:'🛏️', value:0.30, mandatory:true  },
+    { id:'b7',  name:'Comer as refeições',        icon:'🍽️', value:0.50, mandatory:true  },
+    { id:'b8',  name:'Guardar os brinquedos',     icon:'🧸', value:0.40, mandatory:false },
+    { id:'b9',  name:'Ajudar a pôr a mesa',       icon:'🥄', value:0.30, mandatory:false },
+    { id:'b10', name:'Desenhar ou colorir',       icon:'🎨', value:0.30, mandatory:false },
+    { id:'b11', name:'Brincar sem brigar',        icon:'😊', value:0.30, mandatory:false },
+    { id:'b12', name:'Escolher e vestir a roupa', icon:'👗', value:0.40, mandatory:false },
+  ]
+};
+
+const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DAYS_W = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+let curDate = new Date();
+let dayCache = { rafael: {}, rebeca: {} };
+let unsubs = [];
+let pendingLie = null;
+
+function ds(d) { return d.toISOString().slice(0,10); }
+function docRef(kid, dateStr) { return doc(db, 'mesada', kid, 'dias', dateStr); }
+
+function setSynced(ok) {
+  document.getElementById('sync-dot').className = 'sync-dot '+(ok?'ok':'err');
+  document.getElementById('sync-label').textContent = ok?'sincronizado':'sem conexão';
+}
+
+function listenToday() {
+  unsubs.forEach(u=>u());
+  unsubs = [];
+  const dateStr = ds(curDate);
+  document.getElementById('date-label').textContent =
+    `${DAYS_W[curDate.getDay()]}, ${curDate.getDate()} de ${MONTHS[curDate.getMonth()]}`;
+
+  ['rafael','rebeca'].forEach(kid => {
+    const u = onSnapshot(docRef(kid, dateStr), snap => {
+      dayCache[kid][dateStr] = snap.exists() ? snap.data() : { tasks:{}, flag:'none' };
+      setSynced(true);
+      renderKid(kid);
+      loadMonthTotal(kid);
+    }, () => setSynced(false));
+    unsubs.push(u);
+  });
+}
+
+function renderKid(kid) {
+  const prefix = kid === 'rafael' ? 'r' : 'b';
+  const tasks   = TASKS[kid];
+  const dateStr = ds(curDate);
+  const data    = dayCache[kid][dateStr] || { tasks:{}, flag:'none' };
+  const flag    = data.flag || 'none';
+
+  // Penalty
+  document.getElementById(`${prefix}-penalty`).innerHTML = flag === 'lied'
+    ? `<div class="penalty-active">🤥 Punição ativa — bônus do dia foram removidos</div>` : '';
+
+  // Stats
+  let todayEarned=0, todayDone=0;
+  tasks.forEach(t => {
+    const lied = flag==='lied'&&!t.mandatory;
+    const s = lied ? 'lied' : (data.tasks?.[t.id]||'none');
+    if (!lied && s==='validated') { todayEarned+=t.value; todayDone++; }
+  });
+  document.getElementById(`${prefix}-today`).textContent = `R$ ${todayEarned.toFixed(2).replace('.',',')}`;
+  document.getElementById(`${prefix}-done`).textContent  = `${todayDone}/${tasks.length}`;
+
+  // Validate list
+  const container = document.getElementById(`validate-${kid}`);
+  const pending   = tasks.filter(t => (data.tasks?.[t.id]||'none')==='pending');
+  const validated = tasks.filter(t => (data.tasks?.[t.id]||'none')==='validated');
+
+  if (!pending.length && !validated.length) {
+    container.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:8px 0;text-align:center;">Nenhuma tarefa marcada hoje</div>';
+    return;
+  }
+  container.innerHTML = '';
+  [...pending, ...validated].forEach(task => {
+    const s = data.tasks?.[task.id]||'none';
+    const row = document.createElement('div');
+    row.className = 'validate-item';
+    let acts = '';
+    if (s === 'pending') {
+      acts = `<div class="vi-actions">
+        <button class="btn-v btn-ok"  onclick="valTask('${kid}','${task.id}',true)">✓ OK</button>
+        <button class="btn-v btn-lie" onclick="openLieModal('${kid}','${task.id}')">🤥</button>
+      </div>`;
+    } else if (s === 'validated') {
+      acts = `<button class="btn-done">✓ OK</button>`;
+    }
+    row.innerHTML = `
+      <div class="vi-left">
+        <span class="vi-icon">${task.icon}</span>
+        <span class="vi-name">${task.name}</span>
+        <span class="vi-val">R$${task.value.toFixed(2).replace('.',',')}</span>
+      </div>${acts}`;
+    container.appendChild(row);
+  });
+
+  if (flag !== 'lied' && (pending.length || validated.length)) {
+    const btn = document.createElement('button');
+    btn.className = 'lie-all-btn';
+    btn.textContent = '🤥 Punir dia inteiro por mentira';
+    btn.onclick = () => openLieModal(kid, null);
+    container.appendChild(btn);
+  }
+}
+
+async function loadMonthTotal(kid) {
+  const prefix = kid === 'rafael' ? 'r' : 'b';
+  const tasks   = TASKS[kid];
+  const d = curDate;
+  const dim = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  const promises = [];
+  for(let day=1;day<=dim;day++){
+    const dd = new Date(d.getFullYear(),d.getMonth(),day);
+    const dateStr = ds(dd);
+    if (dayCache[kid][dateStr]) { promises.push(Promise.resolve()); continue; }
+    promises.push(getDoc(docRef(kid,dateStr)).then(snap=>{
+      dayCache[kid][dateStr] = snap.exists()?snap.data():{tasks:{},flag:'none'};
+    }).catch(()=>{}));
+  }
+  await Promise.all(promises);
+  let total=0;
+  for(let day=1;day<=dim;day++){
+    const dd = new Date(d.getFullYear(),d.getMonth(),day);
+    const data2 = dayCache[kid][ds(dd)]||{tasks:{},flag:'none'};
+    const f2 = data2.flag||'none';
+    tasks.forEach(t=>{
+      const lied=f2==='lied'&&!t.mandatory;
+      const s=lied?'lied':(data2.tasks?.[t.id]||'none');
+      if(!lied&&s==='validated') total+=t.value;
+    });
+  }
+  document.getElementById(`${prefix}-month`).textContent = `R$ ${total.toFixed(2).replace('.',',')}`;
+  document.getElementById(`${prefix}-total`).textContent = `R$ ${total.toFixed(2).replace('.',',')}`;
+}
+
+// ── Validate task ──
+window.valTask = async function(kid, taskId, approve) {
+  const dateStr = ds(curDate);
+  try {
+    const snap = await getDoc(docRef(kid, dateStr));
+    const data = snap.exists() ? snap.data() : { tasks:{}, flag:'none' };
+    data.tasks = data.tasks || {};
+    data.tasks[taskId] = approve ? 'validated' : 'rejected';
+    await setDoc(docRef(kid, dateStr), data);
+    showToast(approve ? '✅ Tarefa validada!' : '❌ Tarefa rejeitada');
+  } catch(e) { showToast('Erro ao salvar'); }
+};
+
+// ── Lie modal ──
+window.openLieModal = function(kid, taskId) {
+  pendingLie = { kid, taskId };
+  const names = { rafael: 'Rafael', rebeca: 'Rebeca' };
+  document.getElementById('lie-name').textContent = names[kid];
+  document.getElementById('lie-modal').classList.add('show');
+};
+window.closeLieModal = function() {
+  document.getElementById('lie-modal').classList.remove('show');
+  pendingLie = null;
+};
+window.confirmLie = async function() {
+  if (!pendingLie) return;
+  const { kid } = pendingLie;
+  const dateStr = ds(curDate);
+  try {
+    const snap = await getDoc(docRef(kid, dateStr));
+    const data = snap.exists() ? snap.data() : { tasks:{}, flag:'none' };
+    data.flag = 'lied';
+    data.tasks = data.tasks || {};
+    TASKS[kid].filter(t=>!t.mandatory).forEach(t => { data.tasks[t.id] = 'rejected'; });
+    await setDoc(docRef(kid, dateStr), data);
+    const names = { rafael: 'Rafael', rebeca: 'Rebeca' };
+    showToast(`🤥 ${names[kid]} perdeu os bônus de hoje`);
+  } catch(e) { showToast('Erro ao salvar'); }
+  closeLieModal();
+};
+
+// ── Date nav ──
+window.changeDate = function(delta) {
+  curDate.setDate(curDate.getDate()+delta);
+  dayCache = { rafael:{}, rebeca:{} };
+  listenToday();
+};
+
+let tt;
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+listenToday();
+</script>
+</body>
+</html>
