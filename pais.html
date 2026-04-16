@@ -1,473 +1,494 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🔐 Pais - Mesada</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
-:root {
-  --bg: #f0f4ff;
-  --parent: #1e3a5f;
-  --grad: linear-gradient(135deg, #1e3a5f, #2d6a9f);
-  --light: #eef4fb;
-  --rafael: #f76c2f;
-  --rebeca: #8b5cf6;
-  --gold: #f59e0b;
-  --green: #22c55e;
-  --red: #ef4444;
-  --text: #1a1a2e;
-  --muted: #9ca3af;
-  --shadow: 0 4px 20px rgba(0,0,0,0.09);
-  --radius: 20px;
+:root{
+  --bg:#f0f4ff;--parent:#1e3a5f;--grad:linear-gradient(135deg,#1e3a5f,#2d6a9f);
+  --light:#eef4fb;--rafael:#f76c2f;--rebeca:#8b5cf6;
+  --gold:#f59e0b;--green:#22c55e;--red:#ef4444;
+  --blue:#3b82f6;--invest:#8b5cf6;--text:#1a1a2e;--muted:#9ca3af;
+  --shadow:0 4px 20px rgba(0,0,0,0.09);--radius:20px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Nunito', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;background:white;box-shadow:0 2px 12px rgba(0,0,0,.07);position:sticky;top:0;z-index:100;}
+.topbar-title{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--parent);}
+.sync-dot{width:9px;height:9px;border-radius:50%;background:#d1d5db;display:inline-block;margin-right:4px;}
+.sync-dot.ok{background:var(--green);}.sync-dot.err{background:var(--red);}
+.sync-label{font-size:.72rem;font-weight:700;color:var(--muted);}
+.tabs{display:flex;background:white;border-bottom:3px solid #f0f0f0;position:sticky;top:58px;z-index:99;}
+.tab-btn{flex:1;padding:11px 4px 9px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;background:transparent;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-3px;transition:all .2s;}
+.tab-btn.active{color:var(--parent);border-color:var(--parent);background:var(--light);}
+.panel{display:none;padding:16px 14px 100px;}
+.panel.active{display:block;}
+.hero{background:var(--grad);border-radius:var(--radius);padding:16px 18px;color:white;margin-bottom:14px;box-shadow:var(--shadow);}
+.hero h2{font-family:'Fredoka One',cursive;font-size:1.2rem;margin-bottom:2px;}
+.hero p{font-size:.8rem;opacity:.85;}
+.date-nav{display:flex;align-items:center;justify-content:space-between;background:white;border-radius:14px;padding:10px 14px;margin-bottom:14px;box-shadow:var(--shadow);}
+.date-nav button{border:none;background:none;font-size:1.3rem;cursor:pointer;padding:2px 10px;}
+.date-label{font-weight:800;font-size:.93rem;}
+.kid-card{background:white;border-radius:var(--radius);padding:15px;margin-bottom:14px;box-shadow:var(--shadow);}
+.kid-title{font-family:'Fredoka One',cursive;font-size:1.05rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.kid-title.rafael{color:var(--rafael);}.kid-title.rebeca{color:var(--rebeca);}
+.stat-row{display:flex;justify-content:space-around;margin-bottom:12px;}
+.stat-box{text-align:center;}
+.stat-box .val{font-family:'Fredoka One',cursive;font-size:1.3rem;}
+.stat-box .lbl{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+.val.green{color:var(--green);}.val.gold{color:var(--gold);}
+.section-lbl{font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}
+.validate-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f3f4f6;gap:6px;}
+.validate-item:last-child{border-bottom:none;}
+.vi-left{display:flex;align-items:center;gap:7px;flex:1;min-width:0;}
+.vi-icon{font-size:1.1rem;flex-shrink:0;}
+.vi-name{font-weight:700;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vi-val{font-family:'Fredoka One',cursive;font-size:.82rem;color:var(--green);flex-shrink:0;}
+.vi-actions{display:flex;gap:5px;flex-shrink:0;}
+.btn-v{padding:5px 11px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.75rem;transition:all .15s;}
+.btn-ok{background:#dcfce7;color:#166634;}
+.btn-lie{background:#fee2e2;color:#991b1b;}
+.btn-done{background:var(--green);color:white;border:none;padding:5px 11px;border-radius:99px;font-weight:800;font-size:.75rem;}
+.lie-all-btn{display:block;margin:10px auto 0;background:#fff0f0;color:#991b1b;border:none;border-radius:99px;padding:7px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;cursor:pointer;}
+.month-footer{background:var(--light);border-radius:12px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.month-footer .lbl{font-weight:800;font-size:.83rem;color:var(--parent);}
+.month-footer .val{font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--parent);}
+.penalty-active{background:#fff0f0;border:2px solid #fca5a5;border-radius:10px;padding:8px 12px;font-size:.8rem;font-weight:700;color:var(--red);margin-bottom:8px;}
 
-.topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px 10px; background: white;
-  box-shadow: 0 2px 12px rgba(0,0,0,.07);
-  position: sticky; top: 0; z-index: 100;
-}
-.topbar-title { font-family: 'Fredoka One', cursive; font-size: 1.4rem; color: var(--parent); }
-.sync-dot { width: 9px; height: 9px; border-radius: 50%; background: #d1d5db; display: inline-block; margin-right: 4px; }
-.sync-dot.ok  { background: var(--green); }
-.sync-dot.err { background: var(--red); }
-.sync-label { font-size: .72rem; font-weight: 700; color: var(--muted); }
+/* COMPORTAMENTO pais */
+.comp-section{border-top:1px solid #f3f4f6;margin-top:10px;padding-top:10px;}
+.comp-section-title{font-size:.78rem;font-weight:800;color:var(–muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+.comp-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.comp-nome{font-weight:800;font-size:.85rem;}
+.comp-buttons{display:flex;gap:5px;}
+.comp-bnt{padding:5px 11px;border-radius:99px;border:2px solid #e5e7eb;background:white;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.75rem;transition:all .15s;}
+.comp-bnt.sel-bom{background:#f0fdf4;border-color:var(–green);color:#166534;}
+.comp-bnt.sel-ruim{background:#fff5f5;border-color:var(–red);color:#991b1b;}
 
-.content { padding: 16px 14px 100px; }
-
-.hero {
-  background: var(--grad); border-radius: var(--radius);
-  padding: 16px 18px; color: white; margin-bottom: 16px; box-shadow: var(--shadow);
-}
-.hero h2 { font-family: 'Fredoka One', cursive; font-size: 1.2rem; margin-bottom: 2px; }
-.hero p  { font-size: .8rem; opacity: .85; }
-
-.date-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  background: white; border-radius: 14px; padding: 10px 14px;
-  margin-bottom: 14px; box-shadow: var(--shadow);
-}
-.date-nav button { border: none; background: none; font-size: 1.3rem; cursor: pointer; padding: 2px 10px; }
-.date-label { font-weight: 800; font-size: .93rem; }
-
-.kid-card {
-  background: white; border-radius: var(--radius);
-  padding: 15px; margin-bottom: 14px; box-shadow: var(--shadow);
-}
-.kid-title {
-  font-family: 'Fredoka One', cursive; font-size: 1.1rem;
-  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
-}
-.kid-title.rafael { color: var(--rafael); }
-.kid-title.rebeca  { color: var(--rebeca); }
-
-.stat-row { display: flex; justify-content: space-around; margin-bottom: 12px; }
-.stat-box { text-align: center; }
-.stat-box .val { font-family: 'Fredoka One', cursive; font-size: 1.3rem; }
-.stat-box .lbl { font-size: .7rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
-.val.green { color: var(--green); }
-.val.gold  { color: var(--gold); }
-
-.section-lbl { font-size: .75rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
-
-.validate-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 9px 0; border-bottom: 1px solid #f3f4f6; gap: 6px;
-}
-.validate-item:last-child { border-bottom: none; }
-.vi-left { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; }
-.vi-icon { font-size: 1.1rem; flex-shrink: 0; }
-.vi-name { font-weight: 700; font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.vi-val  { font-family: 'Fredoka One', cursive; font-size: .82rem; color: var(--green); flex-shrink: 0; }
-.vi-actions { display: flex; gap: 5px; flex-shrink: 0; }
-.btn-v {
-  padding: 5px 11px; border-radius: 99px; border: none; cursor: pointer;
-  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .75rem; transition: all .15s;
-}
-.btn-ok  { background: #dcfce7; color: #166534; }
-.btn-ok:active  { background: var(--green); color: white; }
-.btn-lie { background: #fee2e2; color: #991b1b; }
-.btn-lie:active { background: var(--red); color: white; }
-.btn-done { background: var(--green); color: white; border: none; padding: 5px 11px; border-radius: 99px; font-weight: 800; font-size: .75rem; }
-
-.lie-all-btn {
-  display: block; margin: 10px auto 0; background: #fff0f0; color: #991b1b;
-  border: none; border-radius: 99px; padding: 7px 16px;
-  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .78rem; cursor: pointer;
-}
-
-.month-footer {
-  background: var(--light); border-radius: 12px; padding: 11px 14px;
-  display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
-}
-.month-footer .lbl { font-weight: 800; font-size: .83rem; color: var(--parent); }
-.month-footer .val { font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: var(--parent); }
-
-.penalty-active {
-  background: #fff0f0; border: 2px solid #fca5a5; border-radius: 10px;
-  padding: 8px 12px; font-size: .8rem; font-weight: 700; color: var(--red);
-  margin-bottom: 8px;
-}
-
-.rules-card {
-  background: white; border-radius: var(--radius); padding: 15px;
-  box-shadow: var(--shadow); border-left: 4px solid var(--parent);
-}
-.rules-card h4 { font-weight: 800; color: var(--parent); margin-bottom: 8px; font-size: .88rem; }
-.rules-card li { font-size: .8rem; color: #555; padding: 3px 0; line-height: 1.5; list-style: none; }
-
-/* MODALS */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center;
-}
-.modal-overlay.show { display: flex; }
-.modal {
-  background: white; border-radius: var(--radius); padding: 22px 20px;
-  max-width: 310px; width: 90%; text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25); animation: popIn .22s ease;
-}
-@keyframes popIn { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal .m-icon { font-size: 2.6rem; margin-bottom: 6px; }
-.modal h3 { font-family: 'Fredoka One', cursive; font-size: 1.2rem; margin-bottom: 5px; }
-.modal p  { font-size: .83rem; color: #555; line-height: 1.5; margin-bottom: 14px; }
-.modal-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-.modal-btn { padding: 8px 18px; border-radius: 99px; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .86rem; }
-.btn-cancel { background: #f3f4f6; color: #6b7280; }
-.btn-red    { background: var(--red); color: white; }
-
-.toast {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(90px);
-  background: #1a1a2e; color: white; padding: 10px 20px;
-  border-radius: 99px; font-weight: 700; font-size: .85rem;
-  z-index: 300; transition: transform .3s ease;
-  max-width: 88vw; text-align: center;
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-
-.spinner-inline {
-  display: inline-block; width: 16px; height: 16px; border: 2px solid #e5e7eb;
-  border-top-color: var(--muted); border-radius: 50%;
-  animation: spin .7s linear infinite; vertical-align: middle;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+/* DEPÓSITO */
+.deposito-card{background:white;border-radius:var(–radius);padding:16px;margin-bottom:14px;box-shadow:var(–shadow);}
+.deposito-card h3{font-family:‘Fredoka One’,cursive;font-size:1.05rem;margin-bottom:4px;}
+.deposito-card p{font-size:.8rem;color:var(–muted);margin-bottom:14px;}
+.kid-deposito{border:2px solid #f0f0f0;border-radius:16px;padding:14px;margin-bottom:12px;}
+.kid-deposito:last-child{margin-bottom:0;}
+.kd-name{font-weight:800;font-size:.92rem;margin-bottom:8px;}
+.kd-name.rafael{color:var(–rafael);}.kd-name.rebeca{color:var(–rebeca);}
+.kd-saldos{display:flex;gap:8px;margin-bottom:10px;}
+.kd-saldo{flex:1;padding:8px 10px;border-radius:10px;text-align:center;}
+.kd-saldo.corrente{background:#eff6ff;}.kd-saldo.invest{background:#f5f3ff;}
+.kd-saldo .ks-val{font-family:‘Fredoka One’,cursive;font-size:1rem;}
+.kd-saldo .ks-lbl{font-size:.65rem;font-weight:800;color:var(–muted);}
+.kd-saldo.corrente .ks-val{color:var(–blue);}.kd-saldo.invest .ks-val{color:var(–invest);}
+.dep-pct-info{background:#f8f9fa;border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:.78rem;font-weight:700;color:#555;}
+.dep-form{display:flex;gap:8px;}
+.dep-input{flex:1;border:2px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-family:‘Nunito’,sans-serif;font-size:.9rem;font-weight:700;outline:none;}
+.dep-input:focus{border-color:var(–parent);}
+.dep-btn{padding:9px 14px;border-radius:12px;border:none;background:var(–grad);color:white;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;}
+.carteira-overview{background:white;border-radius:var(–radius);padding:15px;margin-bottom:14px;box-shadow:var(–shadow);}
+.carteira-overview h3{font-family:‘Fredoka One’,cursive;font-size:1.05rem;margin-bottom:12px;}
+.co-kid{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.co-kid:last-child{margin-bottom:0;}
+.co-name{font-weight:800;font-size:.85rem;width:70px;flex-shrink:0;}
+.co-name.rafael{color:var(–rafael);}.co-name.rebeca{color:var(–rebeca);}
+.co-bars{flex:1;}
+.co-bar-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.co-bar-bg{flex:1;background:#f0f0f0;border-radius:99px;height:8px;}
+.co-bar-fill{border-radius:99px;height:8px;transition:width .5s;}
+.co-bar-fill.corrente{background:var(–blue);}.co-bar-fill.invest{background:var(–invest);}
+.co-bar-val{font-family:‘Fredoka One’,cursive;font-size:.75rem;width:65px;text-align:right;}
+.co-bar-val.corrente{color:var(–blue);}.co-bar-val.invest{color:var(–invest);}
+.rules-card{background:white;border-radius:var(–radius);padding:15px;margin-top:4px;box-shadow:var(–shadow);border-left:4px solid var(–parent);}
+.rules-card h4{font-weight:800;color:var(–parent);margin-bottom:8px;font-size:.88rem;}
+.rules-card li{font-size:.8rem;color:#555;padding:3px 0;line-height:1.5;list-style:none;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:white;border-radius:var(–radius);padding:22px 20px;max-width:310px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:popIn .22s ease;}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal .m-icon{font-size:2.6rem;margin-bottom:6px;}
+.modal h3{font-family:‘Fredoka One’,cursive;font-size:1.2rem;margin-bottom:5px;}
+.modal p{font-size:.83rem;color:#555;line-height:1.5;margin-bottom:14px;}
+.modal-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.mbtn{padding:8px 18px;border-radius:99px;border:none;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.86rem;}
+.mbtn-cancel{background:#f3f4f6;color:#6b7280;}.mbtn-red{background:var(–red);color:white;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:#1a1a2e;color:white;padding:10px 20px;border-radius:99px;font-weight:700;font-size:.85rem;z-index:300;transition:transform .3s ease;max-width:88vw;text-align:center;}
+.toast.show{transform:translateX(-50%) translateY(0);}
 </style>
+
 </head>
 <body>
-
 <div class="topbar">
   <span class="topbar-title">🔐 Pais</span>
   <span><span class="sync-dot" id="sync-dot"></span><span class="sync-label" id="sync-label">conectando...</span></span>
 </div>
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('validar')">✅ Validar</button>
+  <button class="tab-btn" onclick="showTab('depositar')">💰 Mesada</button>
+</div>
 
-<div class="content">
+<!-- VALIDAR -->
+
+<div class="panel active" id="panel-validar">
   <div class="hero">
     <h2>Painel dos Pais</h2>
-    <p>Valide as tarefas e acompanhe em tempo real ⚡</p>
+    <p>Valide tarefas, avalie comportamento e acompanhe em tempo real ⚡</p>
   </div>
-
   <div class="date-nav">
     <button onclick="changeDate(-1)">‹</button>
     <span class="date-label" id="date-label"></span>
     <button onclick="changeDate(1)">›</button>
   </div>
 
-  <!-- RAFAEL -->
+  <!-- Rafael -->
+
   <div class="kid-card">
     <div class="kid-title rafael">🚀 Rafael (9 anos)</div>
     <div class="stat-row">
       <div class="stat-box"><div class="val green" id="r-today">R$ 0</div><div class="lbl">Hoje</div></div>
-      <div class="stat-box"><div class="val gold"  id="r-month">R$ 0</div><div class="lbl">Mês</div></div>
-      <div class="stat-box"><div class="val"       id="r-done">0/0</div><div class="lbl">Tarefas</div></div>
+      <div class="stat-box"><div class="val gold" id="r-month">R$ 0</div><div class="lbl">Mês</div></div>
+      <div class="stat-box"><div class="val" id="r-done">0/0</div><div class="lbl">Tarefas</div></div>
     </div>
     <div id="r-penalty"></div>
     <div class="section-lbl">Aguardando validação</div>
-    <div id="validate-rafael"><span class="spinner-inline"></span></div>
-    <div class="month-footer">
-      <span class="lbl">💰 Total do mês</span>
-      <span class="val" id="r-total">R$ 0,00</span>
+    <div id="validate-rafael"></div>
+    <!-- Comportamento -->
+    <div class="comp-section">
+      <div class="comp-section-title">😊 Comportamento de hoje</div>
+      <div class="comp-row">
+        <span class="comp-nome rafael" style="color:var(--rafael)">Rafael</span>
+        <div class="comp-buttons">
+          <button class="comp-bnt" id="r-comp-bom"  onclick="avaliarComportamento('rafael','bom')">😊 Bom</button>
+          <button class="comp-bnt" id="r-comp-ruim" onclick="avaliarComportamento('rafael','ruim')">😤 Ruim</button>
+          <button class="comp-bnt" id="r-comp-none" onclick="avaliarComportamento('rafael','none')" style="font-size:.7rem;">↩ Limpar</button>
+        </div>
+      </div>
     </div>
+    <div class="month-footer"><span class="lbl">💰 Total do mês</span><span class="val" id="r-total">R$ 0,00</span></div>
   </div>
 
-  <!-- REBECA -->
+  <!-- Rebeca -->
+
   <div class="kid-card">
     <div class="kid-title rebeca">🦋 Rebeca (6 anos)</div>
     <div class="stat-row">
       <div class="stat-box"><div class="val green" id="b-today">R$ 0</div><div class="lbl">Hoje</div></div>
-      <div class="stat-box"><div class="val gold"  id="b-month">R$ 0</div><div class="lbl">Mês</div></div>
-      <div class="stat-box"><div class="val"       id="b-done">0/0</div><div class="lbl">Tarefas</div></div>
+      <div class="stat-box"><div class="val gold" id="b-month">R$ 0</div><div class="lbl">Mês</div></div>
+      <div class="stat-box"><div class="val" id="b-done">0/0</div><div class="lbl">Tarefas</div></div>
     </div>
     <div id="b-penalty"></div>
     <div class="section-lbl">Aguardando validação</div>
-    <div id="validate-rebeca"><span class="spinner-inline"></span></div>
-    <div class="month-footer">
-      <span class="lbl">💰 Total do mês</span>
-      <span class="val" id="b-total">R$ 0,00</span>
+    <div id="validate-rebeca"></div>
+    <!-- Comportamento -->
+    <div class="comp-section">
+      <div class="comp-section-title">😊 Comportamento de hoje</div>
+      <div class="comp-row">
+        <span class="comp-nome" style="color:var(--rebeca)">Rebeca</span>
+        <div class="comp-buttons">
+          <button class="comp-bnt" id="b-comp-bom"  onclick="avaliarComportamento('rebeca','bom')">😊 Bom</button>
+          <button class="comp-bnt" id="b-comp-ruim" onclick="avaliarComportamento('rebeca','ruim')">😤 Ruim</button>
+          <button class="comp-bnt" id="b-comp-none" onclick="avaliarComportamento('rebeca','none')" style="font-size:.7rem;">↩ Limpar</button>
+        </div>
+      </div>
     </div>
+    <div class="month-footer"><span class="lbl">💰 Total do mês</span><span class="val" id="b-total">R$ 0,00</span></div>
   </div>
 
   <div class="rules-card">
     <h4>📋 Regras</h4>
     <ul>
       <li>✅ Tarefas só contam após <strong>sua validação</strong></li>
-      <li>⏳ Marcado pela criança = aguarda validação aqui</li>
-      <li>❌ Não marcou = não ganha aquele valor</li>
       <li>🤥 <strong>Mentira</strong> = perde todos os bônus do dia</li>
-      <li>🏆 20 dias → escolhe o filme · 25 → jantar · 30 → surpresa</li>
+      <li>😊 <strong>Mais dias bons que ruins</strong> = pode resgatar recompensas</li>
+      <li>😤 <strong>Mais dias ruins que bons</strong> = recompensas bloqueadas</li>
+      <li>🏆 20 dias → filme · 25 → jantar · 30 → surpresa</li>
       <li>💰 Meta: <strong>R$ 150,00/mês</strong> por criança</li>
     </ul>
   </div>
 </div>
 
-<!-- MODAL MENTIRA -->
-<div class="modal-overlay" id="lie-modal">
-  <div class="modal">
-    <div class="m-icon">🤥</div>
-    <h3>Mentira detectada!</h3>
-    <p><strong id="lie-name"></strong> vai perder todos os bônus de hoje.<br>Somente as obrigatórias validadas são mantidas.</p>
-    <div class="modal-btns">
-      <button class="modal-btn btn-cancel" onclick="closeLieModal()">Cancelar</button>
-      <button class="modal-btn btn-red"    onclick="confirmLie()">Aplicar punição</button>
+<!-- MESADA -->
+
+<div class="panel" id="panel-depositar">
+  <div class="carteira-overview">
+    <h3>👛 Carteiras agora</h3>
+    <div class="co-kid">
+      <div class="co-name rafael">🚀 Rafael</div>
+      <div class="co-bars">
+        <div class="co-bar-row"><div class="co-bar-bg"><div class="co-bar-fill corrente" id="bar-r-corrente" style="width:0%"></div></div><div class="co-bar-val corrente" id="val-r-corrente">R$ 0,00</div></div>
+        <div class="co-bar-row"><div class="co-bar-bg"><div class="co-bar-fill invest" id="bar-r-invest" style="width:0%"></div></div><div class="co-bar-val invest" id="val-r-invest">R$ 0,00</div></div>
+      </div>
+    </div>
+    <div class="co-kid">
+      <div class="co-name rebeca">🦋 Rebeca</div>
+      <div class="co-bars">
+        <div class="co-bar-row"><div class="co-bar-bg"><div class="co-bar-fill corrente" id="bar-b-corrente" style="width:0%"></div></div><div class="co-bar-val corrente" id="val-b-corrente">R$ 0,00</div></div>
+        <div class="co-bar-row"><div class="co-bar-bg"><div class="co-bar-fill invest" id="bar-b-invest" style="width:0%"></div></div><div class="co-bar-val invest" id="val-b-invest">R$ 0,00</div></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:10px;font-size:.72rem;font-weight:700;">
+      <span style="color:var(--blue)">💳 Conta Corrente</span>
+      <span style="color:var(--invest)">📈 Investimento</span>
+    </div>
+  </div>
+
+  <div class="deposito-card">
+    <h3>💸 Depositar mesada</h3>
+    <p>Dividido automaticamente conforme a escolha de cada filho.</p>
+    <!-- Rafael -->
+    <div class="kid-deposito">
+      <div class="kd-name rafael">🚀 Rafael</div>
+      <div class="kd-saldos">
+        <div class="kd-saldo corrente"><div class="ks-val" id="dep-r-corrente">R$ 0,00</div><div class="ks-lbl">💳 Corrente</div></div>
+        <div class="kd-saldo invest"><div class="ks-val" id="dep-r-invest">R$ 0,00</div><div class="ks-lbl">📈 Invest.</div></div>
+      </div>
+      <div class="dep-pct-info" id="pct-info-rafael">⚖️ Divisão: <span id="pct-r-corrente">50</span>% corrente · <span id="pct-r-invest">50</span>% investimento</div>
+      <div class="dep-form">
+        <input class="dep-input" type="number" id="dep-val-rafael" placeholder="R$ valor" step="0.01" min="0">
+        <button class="dep-btn" onclick="depositar('rafael')">Depositar</button>
+      </div>
+    </div>
+    <!-- Rebeca -->
+    <div class="kid-deposito">
+      <div class="kd-name rebeca">🦋 Rebeca</div>
+      <div class="kd-saldos">
+        <div class="kd-saldo corrente"><div class="ks-val" id="dep-b-corrente">R$ 0,00</div><div class="ks-lbl">💳 Corrente</div></div>
+        <div class="kd-saldo invest"><div class="ks-val" id="dep-b-invest">R$ 0,00</div><div class="ks-lbl">📈 Invest.</div></div>
+      </div>
+      <div class="dep-pct-info" id="pct-info-rebeca">⚖️ Divisão: <span id="pct-b-corrente">50</span>% corrente · <span id="pct-b-invest">50</span>% investimento</div>
+      <div class="dep-form">
+        <input class="dep-input" type="number" id="dep-val-rebeca" placeholder="R$ valor" step="0.01" min="0">
+        <button class="dep-btn" onclick="depositar('rebeca')">Depositar</button>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- MODAL MENTIRA -->
+
+<div class="modal-overlay" id="lie-modal">
+  <div class="modal">
+    <div class="m-icon">🤥</div>
+    <h3>Mentira detectada!</h3>
+    <p><strong id="lie-name"></strong> vai perder todos os bônus de hoje.</p>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeLieModal()">Cancelar</button>
+      <button class="mbtn mbtn-red" onclick="confirmLie()">Aplicar punição</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyBj4ijJQDD1kSuhCqBWund5kt8ijVKFJw8",
+  authDomain:"kids-allowance-8dc74.firebaseapp.com",
+  projectId:"kids-allowance-8dc74",
+  storageBucket:"kids-allowance-8dc74.firebasestorage.app",
+  messagingSenderId:"640632026277",
+  appId:"1:640632026277:web:77241724e86b27b96cc94c"
+});
+const db=firebase.firestore();
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBj4ijJQDD1kSuhCqBWund5kt8ijVKFJw8",
-  authDomain: "kids-allowance-8dc74.firebaseapp.com",
-  projectId: "kids-allowance-8dc74",
-  storageBucket: "kids-allowance-8dc74.firebasestorage.app",
-  messagingSenderId: "640632026277",
-  appId: "1:640632026277:web:77241724e86b27b96cc94c"
-};
-
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-const TASKS = {
-  rafael: [
-    { id:'r1',  name:'Lição de casa',            icon:'📚', value:0.80, mandatory:true  },
-    { id:'r2',  name:'Tomar banho',              icon:'🚿', value:0.50, mandatory:true  },
-    { id:'r3',  name:'Escovar os dentes',        icon:'🦷', value:0.40, mandatory:true  },
-    { id:'r4',  name:'Arrumar o material',       icon:'🎒', value:0.50, mandatory:true  },
-    { id:'r5',  name:'Acordar na hora',          icon:'⏰', value:0.40, mandatory:true  },
-    { id:'r6',  name:'Arrumar a cama',           icon:'🛏️', value:0.30, mandatory:true  },
-    { id:'r7',  name:'Comer as refeições',       icon:'🍽️', value:0.40, mandatory:true  },
-    { id:'r8',  name:'Ajudar na arrumação',      icon:'🧹', value:0.40, mandatory:false },
-    { id:'r9',  name:'Ler por 20 minutos',       icon:'📖', value:0.30, mandatory:false },
-    { id:'r10', name:'Praticar esporte',         icon:'⚽', value:0.30, mandatory:false },
-    { id:'r11', name:'Ajudar a Rebeca',          icon:'🤝', value:0.30, mandatory:false },
-    { id:'r12', name:'Telas só após as tarefas', icon:'📵', value:0.40, mandatory:false },
+const TASKS={
+  rafael:[
+    {id:'r1',name:'Lição de casa',           icon:'📚',value:0.80,mandatory:true},
+    {id:'r2',name:'Tomar banho',             icon:'🚿',value:0.50,mandatory:true},
+    {id:'r3',name:'Escovar os dentes',       icon:'🦷',value:0.40,mandatory:true},
+    {id:'r4',name:'Arrumar o material',      icon:'🎒',value:0.50,mandatory:true},
+    {id:'r5',name:'Acordar na hora',         icon:'⏰',value:0.40,mandatory:true},
+    {id:'r6',name:'Arrumar a cama',          icon:'🛏️',value:0.30,mandatory:true},
+    {id:'r7',name:'Comer as refeições',      icon:'🍽️',value:0.40,mandatory:true},
+    {id:'r8',name:'Ajudar na arrumação',     icon:'🧹',value:0.40,mandatory:false},
+    {id:'r9',name:'Ler por 20 minutos',      icon:'📖',value:0.30,mandatory:false},
+    {id:'r10',name:'Praticar esporte',       icon:'⚽',value:0.30,mandatory:false},
+    {id:'r11',name:'Ajudar a Rebeca',        icon:'🤝',value:0.30,mandatory:false},
+    {id:'r12',name:'Telas só após tarefas',  icon:'📵',value:0.40,mandatory:false},
   ],
-  rebeca: [
-    { id:'b1',  name:'Lição de casa',             icon:'📚', value:0.80, mandatory:true  },
-    { id:'b2',  name:'Tomar banho',               icon:'🚿', value:0.50, mandatory:true  },
-    { id:'b3',  name:'Escovar os dentes',         icon:'🦷', value:0.40, mandatory:true  },
-    { id:'b4',  name:'Arrumar o material',        icon:'🎒', value:0.50, mandatory:true  },
-    { id:'b5',  name:'Acordar na hora',           icon:'⏰', value:0.30, mandatory:true  },
-    { id:'b6',  name:'Arrumar a cama',            icon:'🛏️', value:0.30, mandatory:true  },
-    { id:'b7',  name:'Comer as refeições',        icon:'🍽️', value:0.50, mandatory:true  },
-    { id:'b8',  name:'Guardar os brinquedos',     icon:'🧸', value:0.40, mandatory:false },
-    { id:'b9',  name:'Ajudar a pôr a mesa',       icon:'🥄', value:0.30, mandatory:false },
-    { id:'b10', name:'Desenhar ou colorir',       icon:'🎨', value:0.30, mandatory:false },
-    { id:'b11', name:'Brincar sem brigar',        icon:'😊', value:0.30, mandatory:false },
-    { id:'b12', name:'Escolher e vestir a roupa', icon:'👗', value:0.40, mandatory:false },
+  rebeca:[
+    {id:'b1',name:'Lição de casa',            icon:'📚',value:0.80,mandatory:true},
+    {id:'b2',name:'Tomar banho',              icon:'🚿',value:0.50,mandatory:true},
+    {id:'b3',name:'Escovar os dentes',        icon:'🦷',value:0.40,mandatory:true},
+    {id:'b4',name:'Arrumar o material',       icon:'🎒',value:0.50,mandatory:true},
+    {id:'b5',name:'Acordar na hora',          icon:'⏰',value:0.30,mandatory:true},
+    {id:'b6',name:'Arrumar a cama',           icon:'🛏️',value:0.30,mandatory:true},
+    {id:'b7',name:'Comer as refeições',       icon:'🍽️',value:0.50,mandatory:true},
+    {id:'b8',name:'Guardar os brinquedos',    icon:'🧸',value:0.40,mandatory:false},
+    {id:'b9',name:'Ajudar a pôr a mesa',      icon:'🥄',value:0.30,mandatory:false},
+    {id:'b10',name:'Desenhar ou colorir',     icon:'🎨',value:0.30,mandatory:false},
+    {id:'b11',name:'Brincar sem brigar',      icon:'😊',value:0.30,mandatory:false},
+    {id:'b12',name:'Escolher e vestir roupa', icon:'👗',value:0.40,mandatory:false},
   ]
 };
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DAYS_W=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
-const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const DAYS_W = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+let curDate=new Date(),dayCache={rafael:{},rebeca:{}},unsubs=[],pendingLie=null;
 
-let curDate = new Date();
-let dayCache = { rafael: {}, rebeca: {} };
-let unsubs = [];
-let pendingLie = null;
+function ds(d){return d.toISOString().slice(0,10);}
+function dayRef(kid,s){return db.collection('mesada').doc(kid).collection('dias').doc(s);}
+function walletRef(kid){return db.collection('mesada').doc(kid).collection('carteira').doc('saldo');}
+function gastosRef(kid){return db.collection('mesada').doc(kid).collection('gastos');}
 
-function ds(d) { return d.toISOString().slice(0,10); }
-function docRef(kid, dateStr) { return doc(db, 'mesada', kid, 'dias', dateStr); }
+function setSynced(ok){document.getElementById('sync-dot').className='sync-dot '+(ok?'ok':'err');document.getElementById('sync-label').textContent=ok?'sincronizado':'sem conexão';}
 
-function setSynced(ok) {
-  document.getElementById('sync-dot').className = 'sync-dot '+(ok?'ok':'err');
-  document.getElementById('sync-label').textContent = ok?'sincronizado':'sem conexão';
+function showTab(t){
+  ['validar','depositar'].forEach((n,i)=>{
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active',n===t);
+    document.getElementById('panel-'+n).style.display=n===t?'block':'none';
+  });
+  if(t==='depositar')loadDepositar();
 }
+document.getElementById('panel-depositar').style.display='none';
 
-function listenToday() {
-  unsubs.forEach(u=>u());
-  unsubs = [];
-  const dateStr = ds(curDate);
-  document.getElementById('date-label').textContent =
-    `${DAYS_W[curDate.getDay()]}, ${curDate.getDate()} de ${MONTHS[curDate.getMonth()]}`;
-
-  ['rafael','rebeca'].forEach(kid => {
-    const u = onSnapshot(docRef(kid, dateStr), snap => {
-      dayCache[kid][dateStr] = snap.exists() ? snap.data() : { tasks:{}, flag:'none' };
-      setSynced(true);
-      renderKid(kid);
-      loadMonthTotal(kid);
-    }, () => setSynced(false));
+function listenToday(){
+  unsubs.forEach(u=>u());unsubs=[];
+  document.getElementById('date-label').textContent=DAYS_W[curDate.getDay()]+', '+curDate.getDate()+' de '+MONTHS[curDate.getMonth()];
+  ['rafael','rebeca'].forEach(kid=>{
+    const u=dayRef(kid,ds(curDate)).onSnapshot(snap=>{
+      dayCache[kid][ds(curDate)]=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
+      setSynced(true);renderKid(kid);loadMonthTotal(kid);
+    },()=>setSynced(false));
     unsubs.push(u);
   });
 }
 
-function renderKid(kid) {
-  const prefix = kid === 'rafael' ? 'r' : 'b';
-  const tasks   = TASKS[kid];
-  const dateStr = ds(curDate);
-  const data    = dayCache[kid][dateStr] || { tasks:{}, flag:'none' };
-  const flag    = data.flag || 'none';
+function renderKid(kid){
+  const p=kid==='rafael'?'r':'b';
+  const tasks=TASKS[kid],dateStr=ds(curDate);
+  const data=dayCache[kid][dateStr]||{tasks:{},flag:'none',comportamento:'none'};
+  const flag=data.flag||'none',comp=data.comportamento||'none';
+  document.getElementById(p+'-penalty').innerHTML=flag==='lied'?'<div class="penalty-active">🤥 Punição ativa hoje</div>':'';
+  let todayEarned=0,todayDone=0;
+  tasks.forEach(t=>{const lied=flag==='lied'&&!t.mandatory,s=lied?'lied':((data.tasks&&data.tasks[t.id])||'none');if(!lied&&s==='validated'){todayEarned+=t.value;todayDone++;}});
+  document.getElementById(p+'-today').textContent='R$ '+todayEarned.toFixed(2).replace('.',',');
+  document.getElementById(p+'-done').textContent=todayDone+'/'+tasks.length;
 
-  // Penalty
-  document.getElementById(`${prefix}-penalty`).innerHTML = flag === 'lied'
-    ? `<div class="penalty-active">🤥 Punição ativa — bônus do dia foram removidos</div>` : '';
+  // comportamento buttons
+  const prefix=kid==='rafael'?'r':'b';
+  document.getElementById(prefix+'-comp-bom').className='comp-bnt'+(comp==='bom'?' sel-bom':'');
+  document.getElementById(prefix+'-comp-ruim').className='comp-bnt'+(comp==='ruim'?' sel-ruim':'');
 
-  // Stats
-  let todayEarned=0, todayDone=0;
-  tasks.forEach(t => {
-    const lied = flag==='lied'&&!t.mandatory;
-    const s = lied ? 'lied' : (data.tasks?.[t.id]||'none');
-    if (!lied && s==='validated') { todayEarned+=t.value; todayDone++; }
-  });
-  document.getElementById(`${prefix}-today`).textContent = `R$ ${todayEarned.toFixed(2).replace('.',',')}`;
-  document.getElementById(`${prefix}-done`).textContent  = `${todayDone}/${tasks.length}`;
-
-  // Validate list
-  const container = document.getElementById(`validate-${kid}`);
-  const pending   = tasks.filter(t => (data.tasks?.[t.id]||'none')==='pending');
-  const validated = tasks.filter(t => (data.tasks?.[t.id]||'none')==='validated');
-
-  if (!pending.length && !validated.length) {
-    container.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:8px 0;text-align:center;">Nenhuma tarefa marcada hoje</div>';
-    return;
-  }
-  container.innerHTML = '';
-  [...pending, ...validated].forEach(task => {
-    const s = data.tasks?.[task.id]||'none';
-    const row = document.createElement('div');
-    row.className = 'validate-item';
-    let acts = '';
-    if (s === 'pending') {
-      acts = `<div class="vi-actions">
-        <button class="btn-v btn-ok"  onclick="valTask('${kid}','${task.id}',true)">✓ OK</button>
-        <button class="btn-v btn-lie" onclick="openLieModal('${kid}','${task.id}')">🤥</button>
-      </div>`;
-    } else if (s === 'validated') {
-      acts = `<button class="btn-done">✓ OK</button>`;
-    }
-    row.innerHTML = `
-      <div class="vi-left">
-        <span class="vi-icon">${task.icon}</span>
-        <span class="vi-name">${task.name}</span>
-        <span class="vi-val">R$${task.value.toFixed(2).replace('.',',')}</span>
-      </div>${acts}`;
+  const container=document.getElementById('validate-'+kid);
+  const pending=tasks.filter(t=>(data.tasks&&data.tasks[t.id]||'none')==='pending');
+  const validated=tasks.filter(t=>(data.tasks&&data.tasks[t.id]||'none')==='validated');
+  if(!pending.length&&!validated.length){container.innerHTML='<div style="color:var(--muted);font-size:.82rem;padding:8px 0;text-align:center;">Nenhuma tarefa marcada hoje</div>';return;}
+  container.innerHTML='';
+  [...pending,...validated].forEach(task=>{
+    const s=(data.tasks&&data.tasks[task.id])||'none';
+    const row=document.createElement('div');row.className='validate-item';
+    let acts='';
+    if(s==='pending')acts='<div class="vi-actions"><button class="btn-v btn-ok" onclick="valTask(\''+kid+'\',\''+task.id+'\',true)">✓ OK</button><button class="btn-v btn-lie" onclick="openLieModal(\''+kid+'\',\''+task.id+'\')">🤥</button></div>';
+    else if(s==='validated')acts='<button class="btn-done">✓ OK</button>';
+    row.innerHTML='<div class="vi-left"><span class="vi-icon">'+task.icon+'</span><span class="vi-name">'+task.name+'</span><span class="vi-val">R$'+task.value.toFixed(2).replace('.',',')+'</span></div>'+acts;
     container.appendChild(row);
   });
-
-  if (flag !== 'lied' && (pending.length || validated.length)) {
-    const btn = document.createElement('button');
-    btn.className = 'lie-all-btn';
-    btn.textContent = '🤥 Punir dia inteiro por mentira';
-    btn.onclick = () => openLieModal(kid, null);
-    container.appendChild(btn);
+  if(flag!=='lied'&&(pending.length||validated.length)){
+    const btn=document.createElement('button');btn.className='lie-all-btn';btn.textContent='🤥 Punir dia inteiro por mentira';btn.onclick=function(){openLieModal(kid,null);};container.appendChild(btn);
   }
 }
 
-async function loadMonthTotal(kid) {
-  const prefix = kid === 'rafael' ? 'r' : 'b';
-  const tasks   = TASKS[kid];
-  const d = curDate;
-  const dim = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
-  const promises = [];
-  for(let day=1;day<=dim;day++){
-    const dd = new Date(d.getFullYear(),d.getMonth(),day);
-    const dateStr = ds(dd);
-    if (dayCache[kid][dateStr]) { promises.push(Promise.resolve()); continue; }
-    promises.push(getDoc(docRef(kid,dateStr)).then(snap=>{
-      dayCache[kid][dateStr] = snap.exists()?snap.data():{tasks:{},flag:'none'};
-    }).catch(()=>{}));
-  }
-  await Promise.all(promises);
-  let total=0;
-  for(let day=1;day<=dim;day++){
-    const dd = new Date(d.getFullYear(),d.getMonth(),day);
-    const data2 = dayCache[kid][ds(dd)]||{tasks:{},flag:'none'};
-    const f2 = data2.flag||'none';
-    tasks.forEach(t=>{
-      const lied=f2==='lied'&&!t.mandatory;
-      const s=lied?'lied':(data2.tasks?.[t.id]||'none');
-      if(!lied&&s==='validated') total+=t.value;
-    });
-  }
-  document.getElementById(`${prefix}-month`).textContent = `R$ ${total.toFixed(2).replace('.',',')}`;
-  document.getElementById(`${prefix}-total`).textContent = `R$ ${total.toFixed(2).replace('.',',')}`;
+function avaliarComportamento(kid,val){
+  const dateStr=ds(curDate);
+  dayRef(kid,dateStr).get().then(snap=>{
+    const data=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
+    data.comportamento=val;
+    return dayRef(kid,dateStr).set(data);
+  }).then(()=>{
+    const nome=kid==='rafael'?'Rafael':'Rebeca';
+    if(val==='bom')showToast('😊 '+nome+': bom comportamento registrado!');
+    else if(val==='ruim')showToast('😤 '+nome+': mal comportamento registrado');
+    else showToast('↩ Avaliação de '+nome+' removida');
+  }).catch(()=>showToast('Erro ao salvar'));
 }
 
-// ── Validate task ──
-window.valTask = async function(kid, taskId, approve) {
-  const dateStr = ds(curDate);
-  try {
-    const snap = await getDoc(docRef(kid, dateStr));
-    const data = snap.exists() ? snap.data() : { tasks:{}, flag:'none' };
-    data.tasks = data.tasks || {};
-    data.tasks[taskId] = approve ? 'validated' : 'rejected';
-    await setDoc(docRef(kid, dateStr), data);
-    showToast(approve ? '✅ Tarefa validada!' : '❌ Tarefa rejeitada');
-  } catch(e) { showToast('Erro ao salvar'); }
-};
+function loadMonthTotal(kid){
+  const p=kid==='rafael'?'r':'b',tasks=TASKS[kid],d=curDate;
+  const dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),promises=[];
+  for(let day=1;day<=dim;day++){const dd=new Date(d.getFullYear(),d.getMonth(),day),s=ds(dd);if(dayCache[kid][s]){promises.push(Promise.resolve());continue;}promises.push(dayRef(kid,s).get().then(snap=>{dayCache[kid][s]=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};}).catch(()=>{}));}
+  Promise.all(promises).then(()=>{
+    let total=0;
+    for(let day=1;day<=dim;day++){const dd=new Date(d.getFullYear(),d.getMonth(),day),data2=dayCache[kid][ds(dd)]||{tasks:{},flag:'none'},f2=data2.flag||'none';tasks.forEach(t=>{const lied=f2==='lied'&&!t.mandatory,s=lied?'lied':((data2.tasks&&data2.tasks[t.id])||'none');if(!lied&&s==='validated')total+=t.value;});}
+    document.getElementById(p+'-month').textContent='R$ '+total.toFixed(2).replace('.',',');
+    document.getElementById(p+'-total').textContent='R$ '+total.toFixed(2).replace('.',',');
+  });
+}
 
-// ── Lie modal ──
-window.openLieModal = function(kid, taskId) {
-  pendingLie = { kid, taskId };
-  const names = { rafael: 'Rafael', rebeca: 'Rebeca' };
-  document.getElementById('lie-name').textContent = names[kid];
-  document.getElementById('lie-modal').classList.add('show');
-};
-window.closeLieModal = function() {
-  document.getElementById('lie-modal').classList.remove('show');
-  pendingLie = null;
-};
-window.confirmLie = async function() {
-  if (!pendingLie) return;
-  const { kid } = pendingLie;
-  const dateStr = ds(curDate);
-  try {
-    const snap = await getDoc(docRef(kid, dateStr));
-    const data = snap.exists() ? snap.data() : { tasks:{}, flag:'none' };
-    data.flag = 'lied';
-    data.tasks = data.tasks || {};
-    TASKS[kid].filter(t=>!t.mandatory).forEach(t => { data.tasks[t.id] = 'rejected'; });
-    await setDoc(docRef(kid, dateStr), data);
-    const names = { rafael: 'Rafael', rebeca: 'Rebeca' };
-    showToast(`🤥 ${names[kid]} perdeu os bônus de hoje`);
-  } catch(e) { showToast('Erro ao salvar'); }
+function valTask(kid,taskId,approve){
+  const dateStr=ds(curDate);
+  dayRef(kid,dateStr).get().then(snap=>{
+    const data=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
+    data.tasks=data.tasks||{};data.tasks[taskId]=approve?'validated':'rejected';
+    return dayRef(kid,dateStr).set(data);
+  }).then(()=>showToast(approve?'✅ Tarefa validada!':'❌ Tarefa rejeitada')).catch(()=>showToast('Erro'));
+}
+
+function openLieModal(kid,taskId){pendingLie={kid,taskId};document.getElementById('lie-name').textContent=kid==='rafael'?'Rafael':'Rebeca';document.getElementById('lie-modal').classList.add('show');}
+function closeLieModal(){document.getElementById('lie-modal').classList.remove('show');pendingLie=null;}
+function confirmLie(){
+  if(!pendingLie)return;const{kid}=pendingLie,dateStr=ds(curDate);
+  dayRef(kid,dateStr).get().then(snap=>{
+    const data=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
+    data.flag='lied';data.tasks=data.tasks||{};
+    TASKS[kid].filter(t=>!t.mandatory).forEach(t=>{data.tasks[t.id]='rejected';});
+    return dayRef(kid,dateStr).set(data);
+  }).then(()=>showToast('🤥 '+(pendingLie.kid==='rafael'?'Rafael':'Rebeca')+' perdeu os bônus de hoje')).catch(()=>showToast('Erro'));
   closeLieModal();
-};
+}
 
-// ── Date nav ──
-window.changeDate = function(delta) {
-  curDate.setDate(curDate.getDate()+delta);
-  dayCache = { rafael:{}, rebeca:{} };
-  listenToday();
-};
+function changeDate(delta){curDate.setDate(curDate.getDate()+delta);dayCache={rafael:{},rebeca:{}};listenToday();}
+
+function loadDepositar(){
+  ['rafael','rebeca'].forEach(kid=>{
+    const p=kid==='rafael'?'r':'b';
+    walletRef(kid).get().then(snap=>{
+      const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50};
+      const corrente=parseFloat(data.corrente||0),invest=parseFloat(data.invest||0),total=corrente+invest;
+      document.getElementById('dep-'+p+'-corrente').textContent='R$ '+corrente.toFixed(2).replace('.',',');
+      document.getElementById('dep-'+p+'-invest').textContent='R$ '+invest.toFixed(2).replace('.',',');
+      document.getElementById('val-'+p+'-corrente').textContent='R$ '+corrente.toFixed(2).replace('.',',');
+      document.getElementById('val-'+p+'-invest').textContent='R$ '+invest.toFixed(2).replace('.',',');
+      const maxBar=Math.max(total,10);
+      document.getElementById('bar-'+p+'-corrente').style.width=Math.round((corrente/maxBar)*100)+'%';
+      document.getElementById('bar-'+p+'-invest').style.width=Math.round((invest/maxBar)*100)+'%';
+      const pct=data.pctCorrente!=null?data.pctCorrente:50;
+      document.getElementById('pct-'+p+'-corrente').textContent=pct;
+      document.getElementById('pct-'+p+'-invest').textContent=100-pct;
+    }).catch(()=>{});
+  });
+}
+
+function depositar(kid){
+  const p=kid==='rafael'?'r':'b';
+  const val=parseFloat(document.getElementById('dep-val-'+kid).value);
+  if(!val||val<=0){showToast('💰 Coloca o valor a depositar!');return;}
+  walletRef(kid).get().then(snap=>{
+    const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50};
+    const pct=data.pctCorrente!=null?data.pctCorrente:50;
+    const valorCorrente=Math.round((val*(pct/100))*100)/100;
+    const valorInvest=Math.round((val-valorCorrente)*100)/100;
+    data.corrente=Math.round(((parseFloat(data.corrente)||0)+valorCorrente)*100)/100;
+    data.invest=Math.round(((parseFloat(data.invest)||0)+valorInvest)*100)/100;
+    walletRef(kid).set(data).then(()=>{
+      const mes=new Date().toLocaleDateString('pt-BR',{month:'long'});
+      gastosRef(kid).add({desc:'Mesada de '+mes,valor:valorCorrente,fonte:'corrente',data:new Date().toISOString(),tipo:'deposito'});
+      if(valorInvest>0)gastosRef(kid).add({desc:'Mesada de '+mes,valor:valorInvest,fonte:'invest',data:new Date().toISOString(),tipo:'deposito'});
+      document.getElementById('dep-val-'+kid).value='';
+      const nome=kid==='rafael'?'Rafael':'Rebeca';
+      showToast('✅ '+nome+' recebeu R$ '+val.toFixed(2).replace('.',',')+'! 💳R$'+valorCorrente.toFixed(2).replace('.',',')+'·📈R$'+valorInvest.toFixed(2).replace('.',','));
+      loadDepositar();
+    });
+  }).catch(()=>showToast('Erro ao depositar'));
+}
 
 let tt;
-function showToast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),2400);
-}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3200);}
 
 listenToday();
 </script>
+
 </body>
 </html>
