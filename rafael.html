@@ -1,203 +1,177 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🚀 Rafael - Mesada</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
 :root {
-  --bg: #fff8f0;
-  --main: #f76c2f;
-  --grad: linear-gradient(135deg, #f76c2f, #fbbf24);
-  --light: #fff5f0;
-  --gold: #f59e0b;
-  --green: #22c55e;
-  --red: #ef4444;
-  --text: #1a1a2e;
-  --muted: #9ca3af;
-  --shadow: 0 4px 20px rgba(0,0,0,0.09);
-  --radius: 20px;
+  --bg:#fff8f0; --main:#f76c2f; --grad:linear-gradient(135deg,#f76c2f,#fbbf24);
+  --light:#fff5f0; --gold:#f59e0b; --green:#22c55e; --red:#ef4444;
+  --blue:#3b82f6; --invest:#8b5cf6; --text:#1a1a2e; --muted:#9ca3af;
+  --shadow:0 4px 20px rgba(0,0,0,0.09); --radius:20px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Nunito', sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;background:white;box-shadow:0 2px 12px rgba(0,0,0,.07);position:sticky;top:0;z-index:100;}
+.topbar-title{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--main);}
+.sync-dot{width:9px;height:9px;border-radius:50%;background:#d1d5db;display:inline-block;margin-right:4px;transition:background .3s;}
+.sync-dot.ok{background:var(--green);}.sync-dot.err{background:var(--red);}
+.sync-label{font-size:.72rem;font-weight:700;color:var(--muted);}
+.tabs{display:flex;background:white;border-bottom:3px solid #f0f0f0;position:sticky;top:58px;z-index:99;}
+.tab-btn{flex:1;padding:11px 4px 9px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;background:transparent;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-3px;transition:all .2s;}
+.tab-btn.active{color:var(--main);border-color:var(--main);background:var(--light);}
+.panel{display:none;padding:16px 14px 110px;}
+.panel.active{display:block;}
+.date-nav{display:flex;align-items:center;justify-content:space-between;background:white;border-radius:14px;padding:10px 14px;margin-bottom:12px;box-shadow:var(--shadow);}
+.date-nav button{border:none;background:none;font-size:1.3rem;cursor:pointer;padding:2px 10px;}
+.date-label{font-weight:800;font-size:.93rem;}
+.wallet-card{border-radius:var(--radius);padding:18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);position:relative;overflow:hidden;background:var(--grad);}
+.wallet-card::after{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.12);}
+.wallet-info{color:white;}
+.wallet-info h3{font-family:'Fredoka One',cursive;font-size:1.35rem;margin-bottom:1px;}
+.wallet-info .sub{font-size:.78rem;opacity:.88;margin-bottom:5px;}
+.wallet-amount{font-family:'Fredoka One',cursive;font-size:1.9rem;color:white;line-height:1;}
+.wallet-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.wallet-emoji{font-size:2.8rem;filter:drop-shadow(2px 4px 8px rgba(0,0,0,.25));}
+.prog-bg{background:rgba(255,255,255,.3);border-radius:99px;height:8px;width:110px;}
+.prog-fill{background:white;border-radius:99px;height:8px;transition:width .5s;}
+.prog-label{color:white;font-size:.7rem;font-weight:700;opacity:.9;text-align:right;margin-top:2px;}
 
-.topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px 10px; background: white;
-  box-shadow: 0 2px 12px rgba(0,0,0,.07);
-  position: sticky; top: 0; z-index: 100;
-}
-.topbar-title { font-family: 'Fredoka One', cursive; font-size: 1.4rem; color: var(--main); }
-.sync-dot { width: 9px; height: 9px; border-radius: 50%; background: #d1d5db; display: inline-block; margin-right: 4px; transition: background .3s; }
-.sync-dot.ok { background: var(--green); }
-.sync-dot.err { background: var(--red); }
-.sync-label { font-size: .72rem; font-weight: 700; color: var(--muted); }
+/* COMPORTAMENTO */
+.comportamento-card{background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:var(–shadow);}
+.comp-title{font-family:‘Fredoka One’,cursive;font-size:.95rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.comp-btns{display:flex;gap:8px;}
+.comp-btn{flex:1;padding:10px 8px;border-radius:12px;border:2px solid #e5e7eb;background:white;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.85rem;transition:all .15s;text-align:center;}
+.comp-btn.sel-bom{border-color:var(–green);background:#f0fdf4;color:#166534;}
+.comp-btn.sel-ruim{border-color:var(–red);background:#fff5f5;color:#991b1b;}
+.comp-status{margin-top:8px;font-size:.78rem;font-weight:700;color:var(–muted);text-align:center;}
+.comp-status.bom{color:var(–green);}
+.comp-status.ruim{color:var(–red);}
 
-.date-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  background: white; border-radius: 14px; padding: 10px 14px;
-  margin-bottom: 12px; box-shadow: var(--shadow);
-}
-.date-nav button { border: none; background: none; font-size: 1.3rem; cursor: pointer; padding: 2px 10px; }
-.date-label { font-weight: 800; font-size: .93rem; }
+/* PONTOS NO MÊS */
+.pontos-card{background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:var(–shadow);}
+.pontos-bar-wrap{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.pontos-bar-bg{flex:1;background:#f0f0f0;border-radius:99px;height:12px;overflow:hidden;}
+.pontos-bar-bom{background:var(–green);height:12px;border-radius:99px;transition:width .5s;}
+.pontos-nums{display:flex;justify-content:space-between;margin-top:4px;font-size:.72rem;font-weight:800;}
+.pontos-status{margin-top:8px;border-radius:10px;padding:8px 12px;font-size:.8rem;font-weight:700;text-align:center;}
+.pontos-status.pode{background:#f0fdf4;color:#166534;}
+.pontos-status.nao{background:#fff5f5;color:#991b1b;}
 
-.wallet-card {
-  border-radius: var(--radius); padding: 18px;
-  margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
-  box-shadow: var(--shadow); position: relative; overflow: hidden;
-  background: var(--grad);
-}
-.wallet-card::after { content:''; position:absolute; top:-40px; right:-40px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,.12); }
-.wallet-info { color: white; }
-.wallet-info h3 { font-family: 'Fredoka One', cursive; font-size: 1.35rem; margin-bottom: 1px; }
-.wallet-info .sub { font-size: .78rem; opacity: .88; margin-bottom: 5px; }
-.wallet-amount { font-family: 'Fredoka One', cursive; font-size: 1.9rem; color: white; line-height: 1; }
-.wallet-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-.wallet-emoji { font-size: 2.8rem; filter: drop-shadow(2px 4px 8px rgba(0,0,0,.25)); }
-.prog-bg { background: rgba(255,255,255,.3); border-radius: 99px; height: 8px; width: 110px; }
-.prog-fill { background: white; border-radius: 99px; height: 8px; transition: width .5s; }
-.prog-label { color: white; font-size: .7rem; font-weight: 700; opacity: .9; text-align: right; margin-top: 2px; }
+.penalty-banner{background:#fff0f0;border:2px solid #fca5a5;border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:.82rem;font-weight:700;color:var(–red);display:flex;align-items:center;gap:8px;}
+.pending-notice{background:#fefce8;border:2px solid #fde047;border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:.8rem;font-weight:700;color:#854d0e;display:flex;align-items:center;gap:6px;}
+.section-title{font-family:‘Fredoka One’,cursive;font-size:.98rem;margin:14px 0 7px;display:flex;align-items:center;gap:6px;}
+.task-card{background:white;border-radius:14px;padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;transition:transform .12s;border:2px solid transparent;user-select:none;-webkit-user-select:none;}
+.task-card:active{transform:scale(.97);}
+.task-card.pending{border-color:#d1d5db;background:#fafafa;}
+.task-card.validated{border-color:var(–main);background:var(–light);}
+.task-card.rejected{border-color:#fca5a5;background:#fff5f5;opacity:.6;}
+.task-check{width:27px;height:27px;border-radius:50%;border:2.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;transition:all .2s;}
+.task-card.pending  .task-check{background:#e5e7eb;border-color:#e5e7eb;color:#9ca3af;}
+.task-card.validated .task-check{background:var(–main);border-color:var(–main);color:white;}
+.task-card.rejected .task-check{background:#fca5a5;border-color:#fca5a5;color:white;}
+.task-icon{font-size:1.4rem;flex-shrink:0;}
+.task-body{flex:1;min-width:0;}
+.task-name{font-weight:800;font-size:.88rem;}
+.task-desc{font-size:.73rem;color:var(–muted);margin-top:1px;}
+.task-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;}
+.task-value{font-family:‘Fredoka One’,cursive;font-size:.92rem;color:var(–green);}
+.badge{font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:99px;}
+.badge-obrig{background:#fef3c7;color:#92400e;}
+.badge-aguard{background:#fef9c3;color:#78716c;}
+.badge-ok{background:#dcfce7;color:#166534;}
+.badge-rejected{background:#fee2e2;color:#991b1b;}
+.month-box{background:white;border-radius:var(–radius);padding:14px;box-shadow:var(–shadow);margin-bottom:12px;}
+.stat-row{display:flex;justify-content:space-around;}
+.stat-box{text-align:center;}
+.stat-box .val{font-family:‘Fredoka One’,cursive;font-size:1.35rem;}
+.stat-box .lbl{font-size:.7rem;color:var(–muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+.val.green{color:var(–green);}.val.gold{color:var(–gold);}.val.red{color:var(–red);}
+.reward-card{background:white;border-radius:14px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(–shadow);}
+.reward-card.unlocked{border:2px solid var(–gold);background:linear-gradient(135deg,#fffbeb,#fef9c3);cursor:pointer;}
+.reward-card.locked-behavior{border:2px solid #fca5a5;opacity:.7;}
+.r-icon{font-size:1.9rem;flex-shrink:0;}.r-body{flex:1;}
+.r-title{font-weight:800;font-size:.88rem;}.r-sub{font-size:.73rem;color:var(–muted);margin-top:1px;}
+.r-progress{display:flex;align-items:center;gap:8px;margin-top:5px;}
+.r-prog-bg{flex:1;background:#f3f4f6;border-radius:99px;height:6px;}
+.r-prog-fill{background:var(–gold);border-radius:99px;height:6px;transition:width .5s;}
+.r-days{font-family:‘Fredoka One’,cursive;font-size:.78rem;color:var(–gold);flex-shrink:0;}
+.reward-badge{font-size:.68rem;font-weight:800;padding:3px 9px;border-radius:99px;flex-shrink:0;}
+.reward-badge.done{background:#fef08a;color:#78350f;}.reward-badge.locked{background:#f3f4f6;color:var(–muted);}
+.reward-badge.blocked{background:#fee2e2;color:#991b1b;}
 
-.penalty-banner {
-  background: #fff0f0; border: 2px solid #fca5a5; border-radius: 12px;
-  padding: 9px 12px; margin-bottom: 12px;
-  font-size: .82rem; font-weight: 700; color: var(--red);
-  display: flex; align-items: center; gap: 8px;
-}
-.pending-notice {
-  background: #fefce8; border: 2px solid #fde047; border-radius: 12px;
-  padding: 9px 12px; margin-bottom: 12px;
-  font-size: .8rem; font-weight: 700; color: #854d0e;
-  display: flex; align-items: center; gap: 6px;
-}
+/* CARTEIRA */
+.carteira-row{display:flex;gap:10px;margin-bottom:14px;}
+.carteira-card{flex:1;border-radius:16px;padding:14px 12px;box-shadow:var(–shadow);position:relative;overflow:hidden;}
+.carteira-card.corrente{background:linear-gradient(135deg,#3b82f6,#06b6d4);}
+.carteira-card.invest{background:linear-gradient(135deg,#8b5cf6,#ec4899);}
+.carteira-card h4{font-family:‘Fredoka One’,cursive;font-size:.82rem;color:rgba(255,255,255,.85);margin-bottom:2px;}
+.carteira-card .c-val{font-family:‘Fredoka One’,cursive;font-size:1.4rem;color:white;line-height:1.1;}
+.carteira-card .c-sub{font-size:.68rem;color:rgba(255,255,255,.75);margin-top:2px;}
+.carteira-icon{position:absolute;bottom:-6px;right:8px;font-size:2.2rem;opacity:.25;}
+.gasto-section{background:white;border-radius:16px;padding:14px;box-shadow:var(–shadow);margin-bottom:14px;}
+.gasto-section h4{font-family:‘Fredoka One’,cursive;font-size:.95rem;margin-bottom:10px;color:var(–text);}
+.gasto-input{width:100%;border:2px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-family:‘Nunito’,sans-serif;font-size:.88rem;font-weight:700;outline:none;margin-bottom:8px;}
+.gasto-input:focus{border-color:var(–main);}
+.fonte-btns{display:flex;gap:6px;margin-bottom:10px;}
+.fonte-btn{flex:1;padding:7px 6px;border-radius:10px;border:2px solid #e5e7eb;background:white;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.78rem;transition:all .15s;color:var(–muted);}
+.fonte-btn.sel-corrente{border-color:var(–blue);background:#eff6ff;color:var(–blue);}
+.fonte-btn.sel-invest{border-color:var(–invest);background:#f5f3ff;color:var(–invest);}
+.btn-registrar{width:100%;padding:10px;border-radius:12px;border:none;background:var(–main);color:white;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;}
+.div-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.div-label{font-weight:800;font-size:.83rem;width:100px;flex-shrink:0;}
+.div-slider{flex:1;accent-color:var(–main);}
+.div-pct{font-family:‘Fredoka One’,cursive;font-size:.95rem;width:40px;text-align:right;color:var(–main);}
+.historico-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6;}
+.historico-item:last-child{border-bottom:none;}
+.hi-left{display:flex;align-items:center;gap:8px;}
+.hi-desc{font-weight:700;font-size:.83rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hi-date{font-size:.7rem;color:var(–muted);}
+.hi-val{font-family:‘Fredoka One’,cursive;font-size:.9rem;}
+.hi-badge{font-size:.62rem;font-weight:800;padding:2px 6px;border-radius:99px;}
+.hi-corrente{background:#eff6ff;color:var(–blue);}.hi-invest{background:#f5f3ff;color:var(–invest);}
 
-.content { padding: 16px 14px 110px; }
-
-.section-title {
-  font-family: 'Fredoka One', cursive; font-size: .98rem;
-  margin: 14px 0 7px; display: flex; align-items: center; gap: 6px;
-}
-
-.task-card {
-  background: white; border-radius: 14px; padding: 11px 13px;
-  margin-bottom: 8px; display: flex; align-items: center; gap: 11px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.05); cursor: pointer;
-  transition: transform .12s; border: 2px solid transparent;
-  user-select: none; -webkit-user-select: none;
-}
-.task-card:active { transform: scale(.97); }
-.task-card.pending  { border-color: #d1d5db; background: #fafafa; }
-.task-card.validated { border-color: var(--main); background: var(--light); }
-.task-card.rejected  { border-color: #fca5a5; background: #fff5f5; opacity: .6; }
-
-.task-check {
-  width: 27px; height: 27px; border-radius: 50%; border: 2.5px solid #e5e7eb;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; font-size: .85rem; transition: all .2s;
-}
-.task-card.pending   .task-check { background: #e5e7eb; border-color: #e5e7eb; color: #9ca3af; }
-.task-card.validated .task-check { background: var(--main); border-color: var(--main); color: white; }
-.task-card.rejected  .task-check { background: #fca5a5; border-color: #fca5a5; color: white; }
-
-.task-icon { font-size: 1.4rem; flex-shrink: 0; }
-.task-body { flex: 1; min-width: 0; }
-.task-name { font-weight: 800; font-size: .88rem; }
-.task-desc { font-size: .73rem; color: var(--muted); margin-top: 1px; }
-.task-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
-.task-value { font-family: 'Fredoka One', cursive; font-size: .92rem; color: var(--green); }
-.badge {
-  font-size: .6rem; font-weight: 800; padding: 2px 6px; border-radius: 99px;
-}
-.badge-obrig   { background: #fef3c7; color: #92400e; }
-.badge-aguard  { background: #fef9c3; color: #78716c; }
-.badge-ok      { background: #dcfce7; color: #166534; }
-.badge-rejected{ background: #fee2e2; color: #991b1b; }
-
-.month-box {
-  background: white; border-radius: var(--radius); padding: 14px;
-  box-shadow: var(--shadow); margin-bottom: 12px;
-}
-.stat-row { display: flex; justify-content: space-around; }
-.stat-box { text-align: center; }
-.stat-box .val { font-family: 'Fredoka One', cursive; font-size: 1.35rem; }
-.stat-box .lbl { font-size: .7rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
-.val.green { color: var(--green); }
-.val.gold  { color: var(--gold); }
-.val.red   { color: var(--red); }
-
-.reward-card {
-  background: white; border-radius: 14px; padding: 13px 14px;
-  margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
-  box-shadow: var(--shadow); position: relative; overflow: hidden;
-}
-.reward-card.unlocked { border: 2px solid var(--gold); background: linear-gradient(135deg,#fffbeb,#fef9c3); cursor: pointer; }
-.r-icon { font-size: 1.9rem; flex-shrink: 0; }
-.r-body { flex: 1; }
-.r-title { font-weight: 800; font-size: .88rem; }
-.r-sub   { font-size: .73rem; color: var(--muted); margin-top: 1px; }
-.r-progress { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
-.r-prog-bg   { flex: 1; background: #f3f4f6; border-radius: 99px; height: 6px; }
-.r-prog-fill { background: var(--gold); border-radius: 99px; height: 6px; transition: width .5s; }
-.r-days { font-family: 'Fredoka One', cursive; font-size: .78rem; color: var(--gold); flex-shrink: 0; }
-.reward-badge { font-size: .68rem; font-weight: 800; padding: 3px 9px; border-radius: 99px; flex-shrink: 0; }
-.reward-badge.done   { background: #fef08a; color: #78350f; }
-.reward-badge.locked { background: #f3f4f6; color: var(--muted); }
-
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center;
-}
-.modal-overlay.show { display: flex; }
-.modal {
-  background: white; border-radius: var(--radius); padding: 24px 20px;
-  max-width: 300px; width: 90%; text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25); animation: popIn .22s ease;
-}
-@keyframes popIn { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal .m-icon { font-size: 2.8rem; margin-bottom: 6px; }
-.modal h3 { font-family: 'Fredoka One', cursive; font-size: 1.2rem; margin-bottom: 5px; }
-.modal p  { font-size: .84rem; color: #555; line-height: 1.5; margin-bottom: 16px; }
-.modal-btn { padding: 9px 22px; border-radius: 99px; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .88rem; background: var(--main); color: white; }
-
-.toast {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(90px);
-  background: #1a1a2e; color: white; padding: 10px 20px;
-  border-radius: 99px; font-weight: 700; font-size: .85rem;
-  z-index: 300; transition: transform .3s ease;
-  max-width: 88vw; text-align: center;
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-
-.loading {
-  display: flex; align-items: center; justify-content: center;
-  padding: 40px; flex-direction: column; gap: 12px; color: var(--muted);
-}
-.spinner {
-  width: 36px; height: 36px; border: 3px solid #f0f0f0;
-  border-top-color: var(--main); border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:white;border-radius:var(–radius);padding:22px 20px;max-width:320px;width:92%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:popIn .22s ease;}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal .m-icon{font-size:2.6rem;margin-bottom:6px;}
+.modal h3{font-family:‘Fredoka One’,cursive;font-size:1.2rem;margin-bottom:5px;}
+.modal p{font-size:.83rem;color:#555;line-height:1.5;margin-bottom:14px;}
+.mbtn{padding:9px 20px;border-radius:99px;border:none;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.86rem;}
+.mbtn-main{background:var(–main);color:white;}.mbtn-cancel{background:#f3f4f6;color:#6b7280;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:#1a1a2e;color:white;padding:10px 20px;border-radius:99px;font-weight:700;font-size:.85rem;z-index:300;transition:transform .3s ease;max-width:88vw;text-align:center;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;flex-direction:column;gap:12px;color:var(–muted);}
+.spinner{width:36px;height:36px;border:3px solid #f0f0f0;border-top-color:var(–main);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
+
 </head>
 <body>
-
 <div class="topbar">
   <span class="topbar-title">🚀 Rafael</span>
   <span><span class="sync-dot" id="sync-dot"></span><span class="sync-label" id="sync-label">conectando...</span></span>
 </div>
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('tarefas')">📋 Tarefas</button>
+  <button class="tab-btn" onclick="showTab('carteira')">💰 Carteira</button>
+</div>
 
-<div class="content">
+<!-- TAREFAS -->
+
+<div class="panel active" id="panel-tarefas">
   <div class="date-nav">
     <button onclick="changeDate(-1)">‹</button>
     <span class="date-label" id="date-label"></span>
     <button onclick="changeDate(1)">›</button>
   </div>
-
   <div id="penalty-banner"></div>
-
   <div class="wallet-card">
     <div class="wallet-info">
       <h3>Rafael 🚀</h3>
@@ -210,280 +184,425 @@ body { font-family: 'Nunito', sans-serif; background: var(--bg); min-height: 100
       <div class="prog-label" id="prog-label">0/0</div>
     </div>
   </div>
-
   <div id="pending-notice"></div>
 
-  <div id="loading" class="loading"><div class="spinner"></div><span>Carregando tarefas...</span></div>
+  <!-- Comportamento do dia -->
+
+  <div class="comportamento-card">
+    <div class="comp-title">😊 Comportamento de hoje</div>
+    <div class="comp-btns">
+      <button class="comp-btn" id="comp-bom"  onclick="setComportamento('bom')">😊 Bom comportamento</button>
+      <button class="comp-btn" id="comp-ruim" onclick="setComportamento('ruim')">😤 Mal comportamento</button>
+    </div>
+    <div class="comp-status" id="comp-status">Aguardando avaliação dos pais</div>
+  </div>
+
+  <div id="loading" class="loading"><div class="spinner"></div><span>Carregando...</span></div>
   <div id="main-content" style="display:none">
     <div class="section-title">⚡ Obrigatórias</div>
     <div id="tasks-mand"></div>
     <div class="section-title">🌟 Extras</div>
     <div id="tasks-bonus"></div>
 
-    <div class="section-title" style="color:var(--gold)">📅 Mês de <span id="month-label"></span></div>
-    <div class="month-box">
-      <div class="stat-row">
-        <div class="stat-box"><div class="val green" id="m-earned">R$ 0</div><div class="lbl">Ganho</div></div>
-        <div class="stat-box"><div class="val gold"  id="m-days">0</div><div class="lbl">Dias completos</div></div>
-        <div class="stat-box"><div class="val red"   id="m-punish">0</div><div class="lbl">Punições</div></div>
-      </div>
-    </div>
-
-    <div class="section-title" style="color:var(--gold)">🏆 Recompensas</div>
-    <div id="rewards"></div>
+```
+<div class="section-title" style="color:var(--gold)">📅 Mês de <span id="month-label"></span></div>
+<div class="month-box">
+  <div class="stat-row">
+    <div class="stat-box"><div class="val green" id="m-earned">R$ 0</div><div class="lbl">Ganho</div></div>
+    <div class="stat-box"><div class="val gold" id="m-days">0</div><div class="lbl">Dias completos</div></div>
+    <div class="stat-box"><div class="val red" id="m-punish">0</div><div class="lbl">Punições</div></div>
   </div>
 </div>
+
+<!-- Pontos de comportamento -->
+<div class="section-title">😊 Comportamento do mês</div>
+<div class="pontos-card">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+    <span style="font-weight:800;font-size:.85rem;">Dias avaliados este mês</span>
+    <span style="font-size:.78rem;color:var(--muted);font-weight:700;" id="comp-avaliados">0 dias</span>
+  </div>
+  <div class="pontos-bar-wrap">
+    <span style="font-size:1rem;">😊</span>
+    <div class="pontos-bar-bg"><div class="pontos-bar-bom" id="comp-bar" style="width:0%"></div></div>
+    <span style="font-size:1rem;">😤</span>
+  </div>
+  <div class="pontos-nums">
+    <span style="color:var(--green);font-weight:800;" id="comp-bom-count">0 bons</span>
+    <span style="color:var(--red);font-weight:800;" id="comp-ruim-count">0 ruins</span>
+  </div>
+  <div class="pontos-status" id="comp-month-status">Sem avaliações ainda este mês</div>
+</div>
+
+<div class="section-title" style="color:var(--gold)">🏆 Recompensas</div>
+<div id="rewards"></div>
+```
+
+  </div>
+</div>
+
+<!-- CARTEIRA -->
+
+<div class="panel" id="panel-carteira">
+  <div class="carteira-row">
+    <div class="carteira-card corrente">
+      <h4>💳 Conta Corrente</h4>
+      <div class="c-val">R$ <span id="saldo-corrente">0,00</span></div>
+      <div class="c-sub">disponível para gastar</div>
+      <div class="carteira-icon">💳</div>
+    </div>
+    <div class="carteira-card invest">
+      <h4>📈 Investimento</h4>
+      <div class="c-val">R$ <span id="saldo-invest">0,00</span></div>
+      <div class="c-sub">guardado para o futuro</div>
+      <div class="carteira-icon">🏦</div>
+    </div>
+  </div>
+  <div class="gasto-section">
+    <h4>⚖️ Minha divisão da mesada</h4>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:10px;">Quanto da sua mesada vai para cada lugar?</div>
+    <div class="div-row">
+      <div class="div-label" style="color:var(--blue)">💳 Corrente</div>
+      <input type="range" class="div-slider" id="slider-corrente" min="0" max="100" value="50" oninput="updateSlider(this.value)">
+      <div class="div-pct" id="pct-corrente" style="color:var(--blue)">50%</div>
+    </div>
+    <div class="div-row">
+      <div class="div-label" style="color:var(--invest)">📈 Investimento</div>
+      <input type="range" style="flex:1;accent-color:var(--invest)" id="slider-invest" min="0" max="100" value="50" disabled>
+      <div class="div-pct" id="pct-invest" style="color:var(--invest)">50%</div>
+    </div>
+    <button class="btn-registrar" onclick="saveDivisao()" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">Salvar minha divisão</button>
+  </div>
+  <div class="gasto-section">
+    <h4>🛍️ Registrar gasto</h4>
+    <input class="gasto-input" type="text" id="gasto-desc" placeholder="No que gastou? (ex: sorvete)">
+    <input class="gasto-input" type="number" id="gasto-val" placeholder="R$ 0,00" step="0.01" min="0">
+    <div class="fonte-btns">
+      <button class="fonte-btn" id="btn-corrente" onclick="selecionarFonte('corrente')">💳 Conta Corrente</button>
+      <button class="fonte-btn" id="btn-invest" onclick="selecionarFonte('invest')">📈 Investimento</button>
+    </div>
+    <button class="btn-registrar" onclick="registrarGasto()">Registrar gasto</button>
+  </div>
+  <div class="section-title">🧾 Histórico</div>
+  <div style="background:white;border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);">
+    <div id="historico-lista"><div style="color:var(--muted);font-size:.83rem;text-align:center;padding:12px;">Nenhum registro ainda</div></div>
+  </div>
+</div>
+
+<!-- MODAL RECOMPENSA -->
 
 <div class="modal-overlay" id="reward-modal">
   <div class="modal">
     <div class="m-icon" id="r-icon">🏆</div>
-    <h3 id="r-title"></h3>
-    <p id="r-desc"></p>
-    <button class="modal-btn" onclick="document.getElementById('reward-modal').classList.remove('show')">🎉 Incrível!</button>
+    <h3 id="r-title"></h3><p id="r-desc"></p>
+    <button class="mbtn mbtn-main" onclick="document.getElementById('reward-modal').classList.remove('show')">🎉 Incrível!</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, getDocs }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBj4ijJQDD1kSuhCqBWund5kt8ijVKFJw8",
-  authDomain: "kids-allowance-8dc74.firebaseapp.com",
-  projectId: "kids-allowance-8dc74",
-  storageBucket: "kids-allowance-8dc74.firebasestorage.app",
-  messagingSenderId: "640632026277",
-  appId: "1:640632026277:web:77241724e86b27b96cc94c"
-};
-
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyBj4ijJQDD1kSuhCqBWund5kt8ijVKFJw8",
+  authDomain:"kids-allowance-8dc74.firebaseapp.com",
+  projectId:"kids-allowance-8dc74",
+  storageBucket:"kids-allowance-8dc74.firebasestorage.app",
+  messagingSenderId:"640632026277",
+  appId:"1:640632026277:web:77241724e86b27b96cc94c"
+});
+const db = firebase.firestore();
 const KID = 'rafael';
 
 const TASKS = [
-  { id:'r1',  name:'Lição de casa',            icon:'📚', value:0.80, mandatory:true,  desc:'Toda lição antes de qualquer tela' },
-  { id:'r2',  name:'Tomar banho',              icon:'🚿', value:0.50, mandatory:true,  desc:'Banho completo com shampoo' },
-  { id:'r3',  name:'Escovar os dentes',        icon:'🦷', value:0.40, mandatory:true,  desc:'Manhã, após almoço e à noite' },
-  { id:'r4',  name:'Arrumar o material',       icon:'🎒', value:0.50, mandatory:true,  desc:'Separar tudo para o dia seguinte' },
-  { id:'r5',  name:'Acordar na hora',          icon:'⏰', value:0.40, mandatory:true,  desc:'Sem precisar ser chamado mais de 1x' },
-  { id:'r6',  name:'Arrumar a cama',           icon:'🛏️', value:0.30, mandatory:true,  desc:'Cama arrumada antes de sair do quarto' },
-  { id:'r7',  name:'Comer as refeições',       icon:'🍽️', value:0.40, mandatory:true,  desc:'Café, almoço e jantar sem reclamar' },
-  { id:'r8',  name:'Ajudar na arrumação',      icon:'🧹', value:0.40, mandatory:false, desc:'Varrer, aspirar ou organizar um cômodo' },
-  { id:'r9',  name:'Ler por 20 minutos',       icon:'📖', value:0.30, mandatory:false, desc:'Livro, gibi ou revista — não escolar' },
-  { id:'r10', name:'Praticar esporte',         icon:'⚽', value:0.30, mandatory:false, desc:'30 min de atividade física ativa' },
-  { id:'r11', name:'Ajudar a Rebeca',          icon:'🤝', value:0.30, mandatory:false, desc:'Ajudar com tarefa ou brincadeira' },
-  { id:'r12', name:'Telas só após as tarefas', icon:'📵', value:0.40, mandatory:false, desc:'Nenhuma tela antes de tudo feito' },
+  {id:'r1', name:'Lição de casa',           icon:'📚',value:0.80,mandatory:true, desc:'Toda lição antes de qualquer tela'},
+  {id:'r2', name:'Tomar banho',             icon:'🚿',value:0.50,mandatory:true, desc:'Banho completo com shampoo'},
+  {id:'r3', name:'Escovar os dentes',       icon:'🦷',value:0.40,mandatory:true, desc:'Manhã, após almoço e à noite'},
+  {id:'r4', name:'Arrumar o material',      icon:'🎒',value:0.50,mandatory:true, desc:'Separar tudo para o dia seguinte'},
+  {id:'r5', name:'Acordar na hora',         icon:'⏰',value:0.40,mandatory:true, desc:'Sem precisar ser chamado mais de 1x'},
+  {id:'r6', name:'Arrumar a cama',          icon:'🛏️',value:0.30,mandatory:true, desc:'Cama arrumada antes de sair do quarto'},
+  {id:'r7', name:'Comer as refeições',      icon:'🍽️',value:0.40,mandatory:true, desc:'Café, almoço e jantar sem reclamar'},
+  {id:'r8', name:'Ajudar na arrumação',     icon:'🧹',value:0.40,mandatory:false,desc:'Varrer, aspirar ou organizar um cômodo'},
+  {id:'r9', name:'Ler por 20 minutos',      icon:'📖',value:0.30,mandatory:false,desc:'Livro, gibi ou revista'},
+  {id:'r10',name:'Praticar esporte',        icon:'⚽',value:0.30,mandatory:false,desc:'30 min de atividade física'},
+  {id:'r11',name:'Ajudar a Rebeca',         icon:'🤝',value:0.30,mandatory:false,desc:'Ajudar com tarefa ou brincadeira'},
+  {id:'r12',name:'Telas só após as tarefas',icon:'📵',value:0.40,mandatory:false,desc:'Nenhuma tela antes de tudo feito'},
 ];
-
 const REWARDS = [
-  { days:20, icon:'🎬', title:'Escolher o filme!',  desc:'Com 20 dias completos você escolhe o próximo filme da família! 🍿' },
-  { days:25, icon:'🍕', title:'Escolher o jantar!', desc:'Com 25 dias completos você escolhe o jantar da família! 😋' },
-  { days:30, icon:'🎁', title:'Prêmio surpresa!',   desc:'Com 30 dias completos você ganha um presente surpresa especial! 🎉' },
+  {days:20,icon:'🎬',title:'Escolher o filme!', desc:'Com 20 dias completos e bom comportamento você escolhe o próximo filme da família! 🍿'},
+  {days:25,icon:'🍕',title:'Escolher o jantar!',desc:'Com 25 dias completos e bom comportamento você escolhe o jantar da família! 😋'},
+  {days:30,icon:'🎁',title:'Prêmio surpresa!',  desc:'Com 30 dias completos e bom comportamento você ganha um presente surpresa especial! 🎉'},
 ];
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DAYS_W=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
-const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const DAYS_W = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+let curDate=new Date(), dayData={}, unsubDay=null, fonteGasto='corrente';
 
-let curDate = new Date();
-let dayData = {}; // cache: { 'YYYY-MM-DD': { tasks:{id:status}, flag:'none'|'lied' } }
-let unsubDay = null;
+function ds(d){return d.toISOString().slice(0,10);}
+function dayRef(s){return db.collection('mesada').doc(KID).collection('dias').doc(s);}
+function walletRef(){return db.collection('mesada').doc(KID).collection('carteira').doc('saldo');}
+function gastosRef(){return db.collection('mesada').doc(KID).collection('gastos');}
 
-function ds(d) { return d.toISOString().slice(0,10); }
-function docRef(dateStr) { return doc(db, 'mesada', KID, 'dias', dateStr); }
-
-// ── SYNC indicator ──
-function setSynced(ok) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  dot.className = 'sync-dot ' + (ok ? 'ok' : 'err');
-  lbl.textContent = ok ? 'sincronizado' : 'sem conexão';
+function setSynced(ok){
+  document.getElementById('sync-dot').className='sync-dot '+(ok?'ok':'err');
+  document.getElementById('sync-label').textContent=ok?'sincronizado':'sem conexão';
 }
 
-// ── Load day with realtime listener ──
-function listenDay(d) {
-  if (unsubDay) unsubDay();
-  const dateStr = ds(d);
-  unsubDay = onSnapshot(docRef(dateStr), snap => {
-    dayData[dateStr] = snap.exists() ? snap.data() : { tasks: {}, flag: 'none' };
+function showTab(t){
+  ['tarefas','carteira'].forEach((n,i)=>{
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active',n===t);
+    document.getElementById('panel-'+n).classList.toggle('active',n===t);
+    document.getElementById('panel-'+n).style.display=n===t?'block':'none';
+  });
+  if(t==='carteira')loadCarteira();
+}
+// fix initial display
+document.getElementById('panel-carteira').style.display='none';
+
+function listenDay(d){
+  if(unsubDay)unsubDay();
+  unsubDay=dayRef(ds(d)).onSnapshot(snap=>{
+    dayData[ds(d)]=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
     setSynced(true);
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('loading').style.display='none';
+    document.getElementById('main-content').style.display='block';
     renderDay();
-  }, () => setSynced(false));
+  },()=>setSynced(false));
 }
 
-// ── Toggle task ──
-window.toggleTask = async function(taskId) {
-  const dateStr = ds(curDate);
-  const cur = (dayData[dateStr]?.tasks?.[taskId]) || 'none';
-  if (cur === 'validated' || cur === 'rejected') return; // readonly
-  const next = cur === 'pending' ? 'none' : 'pending';
-  // optimistic update
-  if (!dayData[dateStr]) dayData[dateStr] = { tasks:{}, flag:'none' };
-  dayData[dateStr].tasks[taskId] = next;
+function toggleTask(taskId){
+  const dateStr=ds(curDate);
+  const data=dayData[dateStr]||{tasks:{},flag:'none'};
+  const cur=(data.tasks&&data.tasks[taskId])||'none';
+  if(cur==='validated'||cur==='rejected')return;
+  const next=cur==='pending'?'none':'pending';
+  if(!dayData[dateStr])dayData[dateStr]={tasks:{},flag:'none',comportamento:'none'};
+  dayData[dateStr].tasks=dayData[dateStr].tasks||{};
+  dayData[dateStr].tasks[taskId]=next;
   renderDay();
-  try {
-    const snap = await getDoc(docRef(dateStr));
-    const existing = snap.exists() ? snap.data() : { tasks:{}, flag:'none' };
-    existing.tasks = existing.tasks || {};
-    existing.tasks[taskId] = next;
-    await setDoc(docRef(dateStr), existing);
-    if (next === 'pending') {
-      const t = TASKS.find(x=>x.id===taskId);
-      showToast(`${t.icon} Marcado! Aguarda validação ⏳`);
-    }
-  } catch(e) { setSynced(false); }
-};
+  dayRef(dateStr).get().then(snap=>{
+    const ex=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
+    ex.tasks=ex.tasks||{};ex.tasks[taskId]=next;
+    return dayRef(dateStr).set(ex);
+  }).then(()=>{
+    if(next==='pending'){const t=TASKS.find(x=>x.id===taskId);showToast(t.icon+' Marcado! Aguarda validação ⏳');}
+  }).catch(()=>setSynced(false));
+}
 
-// ── Render ──
-function renderDay() {
-  const dateStr = ds(curDate);
-  const data = dayData[dateStr] || { tasks:{}, flag:'none' };
-  const flag = data.flag || 'none';
+function setComportamento(val){
+  // read only — pais avaliam. show message.
+  showToast('😊 Só os pais podem avaliar o comportamento!');
+}
 
-  document.getElementById('date-label').textContent =
-    `${DAYS_W[curDate.getDay()]}, ${curDate.getDate()} de ${MONTHS[curDate.getMonth()]}`;
-  document.getElementById('month-label').textContent = MONTHS[curDate.getMonth()];
+function renderDay(){
+  const dateStr=ds(curDate);
+  const data=dayData[dateStr]||{tasks:{},flag:'none',comportamento:'none'};
+  const flag=data.flag||'none';
+  const comp=data.comportamento||'none';
 
-  document.getElementById('penalty-banner').innerHTML = flag === 'lied'
-    ? `<div class="penalty-banner">🤥 Bônus perdidos hoje por mentira! Só as obrigatórias contam.</div>` : '';
+  document.getElementById('date-label').textContent=DAYS_W[curDate.getDay()]+', '+curDate.getDate()+' de '+MONTHS[curDate.getMonth()];
+  document.getElementById('month-label').textContent=MONTHS[curDate.getMonth()];
+  document.getElementById('penalty-banner').innerHTML=flag==='lied'?'<div class="penalty-banner">🤥 Bônus perdidos hoje por mentira! Só as obrigatórias contam.</div>':'';
+  const hasPending=TASKS.some(t=>(data.tasks&&data.tasks[t.id]||'none')==='pending');
+  document.getElementById('pending-notice').innerHTML=hasPending?'<div class="pending-notice">⏳ Tarefas marcadas aguardam validação dos pais!</div>':'';
 
-  const hasPending = TASKS.some(t => (data.tasks?.[t.id]||'none') === 'pending');
-  document.getElementById('pending-notice').innerHTML = hasPending
-    ? `<div class="pending-notice">⏳ Tarefas marcadas aguardam validação dos pais!</div>` : '';
+  // comportamento visual (read only para a criança)
+  const compBom=document.getElementById('comp-bom');
+  const compRuim=document.getElementById('comp-ruim');
+  const compStatus=document.getElementById('comp-status');
+  compBom.className='comp-btn'+(comp==='bom'?' sel-bom':'');
+  compRuim.className='comp-btn'+(comp==='ruim'?' sel-ruim':'');
+  if(comp==='bom'){compStatus.textContent='😊 Os pais avaliaram: bom comportamento hoje!';compStatus.className='comp-status bom';}
+  else if(comp==='ruim'){compStatus.textContent='😤 Os pais avaliaram: mal comportamento hoje';compStatus.className='comp-status ruim';}
+  else{compStatus.textContent='Aguardando avaliação dos pais';compStatus.className='comp-status';}
 
-  renderList('tasks-mand',  TASKS.filter(t=>t.mandatory),  data, flag);
-  renderList('tasks-bonus', TASKS.filter(t=>!t.mandatory), data, flag);
-  updateWallet(data, flag);
+  renderList('tasks-mand', TASKS.filter(t=>t.mandatory),data,flag);
+  renderList('tasks-bonus',TASKS.filter(t=>!t.mandatory),data,flag);
+  updateWalletDisplay(data,flag);
   loadMonthStats();
 }
 
-function renderList(cid, tasks, data, flag) {
-  const el = document.getElementById(cid);
-  el.innerHTML = '';
-  tasks.forEach(task => {
-    const lied = flag === 'lied' && !task.mandatory;
-    const status = lied ? 'lied' : (data.tasks?.[task.id] || 'none');
-    let cls = 'task-card', check = '', badge = task.mandatory ? '<span class="badge badge-obrig">obrig.</span>' : '';
-    if (status==='validated')       { cls+=' validated'; check='✓'; badge='<span class="badge badge-ok">✓ validado</span>'; }
-    else if (status==='pending')    { cls+=' pending';   check='✓'; badge='<span class="badge badge-aguard">⏳ aguardando</span>'; }
-    else if (status==='rejected'||status==='lied') { cls+=' rejected'; check='✗'; badge='<span class="badge badge-rejected">✗ não conta</span>'; }
-    const canToggle = status==='none'||status==='pending';
-    const card = document.createElement('div');
-    card.className = cls;
-    card.innerHTML = `
-      <div class="task-check">${check}</div>
-      <div class="task-icon">${task.icon}</div>
-      <div class="task-body"><div class="task-name">${task.name}</div><div class="task-desc">${task.desc}</div></div>
-      <div class="task-right"><div class="task-value">+R$${task.value.toFixed(2).replace('.',',')}</div>${badge}</div>`;
-    if (canToggle) card.addEventListener('click', ()=>toggleTask(task.id));
+function renderList(cid,tasks,data,flag){
+  const el=document.getElementById(cid);el.innerHTML='';
+  tasks.forEach(task=>{
+    const lied=flag==='lied'&&!task.mandatory;
+    const status=lied?'lied':((data.tasks&&data.tasks[task.id])||'none');
+    let cls='task-card',check='',badge=task.mandatory?'<span class="badge badge-obrig">obrig.</span>':'';
+    if(status==='validated'){cls+=' validated';check='✓';badge='<span class="badge badge-ok">✓ validado</span>';}
+    else if(status==='pending'){cls+=' pending';check='✓';badge='<span class="badge badge-aguard">⏳ aguardando</span>';}
+    else if(status==='rejected'||status==='lied'){cls+=' rejected';check='✗';badge='<span class="badge badge-rejected">✗ não conta</span>';}
+    const canToggle=status==='none'||status==='pending';
+    const card=document.createElement('div');card.className=cls;
+    card.innerHTML='<div class="task-check">'+check+'</div><div class="task-icon">'+task.icon+'</div><div class="task-body"><div class="task-name">'+task.name+'</div><div class="task-desc">'+task.desc+'</div></div><div class="task-right"><div class="task-value">+R$'+task.value.toFixed(2).replace('.',',')+'</div>'+badge+'</div>';
+    if(canToggle)card.onclick=function(){toggleTask(task.id);};
     el.appendChild(card);
   });
 }
 
-function updateWallet(data, flag) {
-  let earned=0, counted=0, validated=0;
-  TASKS.forEach(t => {
-    const lied = flag==='lied'&&!t.mandatory;
-    const s = lied ? 'lied' : (data.tasks?.[t.id]||'none');
-    if (!lied && s==='validated') { earned+=t.value; counted++; validated++; }
-    else if (!lied && s==='pending') counted++;
+function updateWalletDisplay(data,flag){
+  let earned=0,counted=0,validated=0;
+  TASKS.forEach(t=>{
+    const lied=flag==='lied'&&!t.mandatory,s=lied?'lied':((data.tasks&&data.tasks[t.id])||'none');
+    if(!lied&&s==='validated'){earned+=t.value;counted++;validated++;}
+    else if(!lied&&s==='pending')counted++;
   });
-  const pct = TASKS.length ? Math.round((counted/TASKS.length)*100) : 0;
-  document.getElementById('earned').textContent = earned.toFixed(2).replace('.',',');
-  document.getElementById('prog').style.width = pct+'%';
-  document.getElementById('prog-label').textContent = `${validated}/${TASKS.length} validadas`;
+  document.getElementById('earned').textContent=earned.toFixed(2).replace('.',',');
+  document.getElementById('prog').style.width=(TASKS.length?Math.round((counted/TASKS.length)*100):0)+'%';
+  document.getElementById('prog-label').textContent=validated+'/'+TASKS.length+' validadas';
 }
 
-async function loadMonthStats() {
-  const d = curDate;
-  const dim = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
-  let totalEarned=0, completeDays=0, liedDays=0;
-  const promises = [];
+function loadMonthStats(){
+  const d=curDate,dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  const promises=[];
   for(let day=1;day<=dim;day++){
-    const dd = new Date(d.getFullYear(),d.getMonth(),day);
-    const dateStr = ds(dd);
-    if (dayData[dateStr]) { promises.push(Promise.resolve()); continue; }
-    promises.push(getDoc(docRef(dateStr)).then(snap=>{
-      dayData[dateStr] = snap.exists() ? snap.data() : {tasks:{},flag:'none'};
-    }).catch(()=>{}));
+    const dd=new Date(d.getFullYear(),d.getMonth(),day),s=ds(dd);
+    if(dayData[s]){promises.push(Promise.resolve());continue;}
+    promises.push(dayRef(s).get().then(snap=>{dayData[s]=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};}).catch(()=>{}));
   }
-  await Promise.all(promises);
-  const prevDays = [];
-  for(let day=1;day<=dim;day++){
-    const dd = new Date(d.getFullYear(),d.getMonth(),day);
-    const data2 = dayData[ds(dd)] || {tasks:{},flag:'none'};
-    const flag2 = data2.flag||'none';
-    if(flag2==='lied') liedDays++;
-    let dayEarned=0, allDone=true;
-    TASKS.forEach(t=>{
-      const lied=flag2==='lied'&&!t.mandatory;
-      const s=lied?'lied':(data2.tasks?.[t.id]||'none');
-      if(!lied&&s==='validated') dayEarned+=t.value;
-      if(lied||s!=='validated') allDone=false;
-    });
-    totalEarned+=dayEarned;
-    if(allDone&&TASKS.length>0) completeDays++;
-  }
-  document.getElementById('m-earned').textContent = `R$ ${totalEarned.toFixed(2).replace('.',',')}`;
-  document.getElementById('m-days').textContent   = completeDays;
-  document.getElementById('m-punish').textContent = liedDays;
-  renderRewards(completeDays);
+  Promise.all(promises).then(()=>{
+    let totalEarned=0,completeDays=0,liedDays=0,bomDias=0,ruimDias=0,avaliadosDias=0;
+    for(let day=1;day<=dim;day++){
+      const dd=new Date(d.getFullYear(),d.getMonth(),day);
+      const data2=dayData[ds(dd)]||{tasks:{},flag:'none',comportamento:'none'};
+      const flag2=data2.flag||'none',comp2=data2.comportamento||'none';
+      if(flag2==='lied')liedDays++;
+      if(comp2==='bom'){bomDias++;avaliadosDias++;}
+      else if(comp2==='ruim'){ruimDias++;avaliadosDias++;}
+      let dayEarned=0,allDone=true;
+      TASKS.forEach(t=>{
+        const lied=flag2==='lied'&&!t.mandatory,s=lied?'lied':((data2.tasks&&data2.tasks[t.id])||'none');
+        if(!lied&&s==='validated')dayEarned+=t.value;
+        if(lied||s!=='validated')allDone=false;
+      });
+      totalEarned+=dayEarned;
+      if(allDone&&TASKS.length>0)completeDays++;
+    }
+    document.getElementById('m-earned').textContent='R$ '+totalEarned.toFixed(2).replace('.',',');
+    document.getElementById('m-days').textContent=completeDays;
+    document.getElementById('m-punish').textContent=liedDays;
+
+    // Comportamento
+    document.getElementById('comp-avaliados').textContent=avaliadosDias+' dias avaliados';
+    document.getElementById('comp-bom-count').textContent=bomDias+' bons';
+    document.getElementById('comp-ruim-count').textContent=ruimDias+' ruins';
+    const barPct=avaliadosDias>0?Math.round((bomDias/avaliadosDias)*100):50;
+    document.getElementById('comp-bar').style.width=barPct+'%';
+    const podeResgatar=avaliadosDias===0||(bomDias>ruimDias);
+    const statusEl=document.getElementById('comp-month-status');
+    if(avaliadosDias===0){statusEl.textContent='Sem avaliações ainda este mês';statusEl.className='pontos-status';}
+    else if(podeResgatar){statusEl.textContent='😊 Comportamento OK! Pode resgatar recompensas ✅';statusEl.className='pontos-status pode';}
+    else{statusEl.textContent='😤 Mais dias de mal comportamento — recompensas bloqueadas ❌';statusEl.className='pontos-status nao';}
+
+    renderRewards(completeDays,podeResgatar,avaliadosDias);
+  });
 }
 
-function renderRewards(days) {
-  const el = document.getElementById('rewards');
-  el.innerHTML='';
-  const prevDays = parseInt(el.dataset.prevDays||'-1');
+function renderRewards(days,podeResgatar,avaliadosDias){
+  const el=document.getElementById('rewards');el.innerHTML='';
   REWARDS.forEach(r=>{
-    const unlocked = days>=r.days;
-    const pct = Math.min(100,Math.round((days/r.days)*100));
-    const card = document.createElement('div');
-    card.className = `reward-card ${unlocked?'unlocked':''}`;
-    card.innerHTML=`
-      <div class="r-icon">${r.icon}</div>
-      <div class="r-body">
-        <div class="r-title">${r.title}</div>
-        <div class="r-sub">${r.days} dias completos</div>
-        <div class="r-progress">
-          <div class="r-prog-bg"><div class="r-prog-fill" style="width:${pct}%"></div></div>
-          <div class="r-days">${days}/${r.days}</div>
-        </div>
-      </div>
-      <div class="reward-badge ${unlocked?'done':'locked'}">${unlocked?'🏆 Ganhou!':'🔒'}</div>`;
-    if(unlocked){ card.style.cursor='pointer'; card.addEventListener('click',()=>showReward(r)); }
+    const diasOk=days>=r.days;
+    const bloqueado=diasOk&&!podeResgatar&&avaliadosDias>0;
+    const unlocked=diasOk&&podeResgatar;
+    const pct=Math.min(100,Math.round((days/r.days)*100));
+    const card=document.createElement('div');
+    card.className='reward-card'+(unlocked?' unlocked':bloqueado?' locked-behavior':'');
+    let badgeHtml='';
+    if(unlocked)badgeHtml='<div class="reward-badge done">🏆 Ganhou!</div>';
+    else if(bloqueado)badgeHtml='<div class="reward-badge blocked">😤 Bloqueado</div>';
+    else badgeHtml='<div class="reward-badge locked">🔒</div>';
+    card.innerHTML='<div class="r-icon">'+r.icon+'</div><div class="r-body"><div class="r-title">'+r.title+'</div><div class="r-sub">'+r.days+' dias completos + bom comportamento</div><div class="r-progress"><div class="r-prog-bg"><div class="r-prog-fill" style="width:'+pct+'%"></div></div><div class="r-days">'+days+'/'+r.days+'</div></div></div>'+badgeHtml;
+    if(unlocked){card.style.cursor='pointer';card.onclick=function(){showReward(r);};}
     el.appendChild(card);
-    if(unlocked && days===r.days && prevDays<r.days) setTimeout(()=>showReward(r),600);
   });
-  el.dataset.prevDays = days;
 }
 
-function showReward(r) {
-  document.getElementById('r-icon').textContent  = r.icon;
-  document.getElementById('r-title').textContent = r.title;
-  document.getElementById('r-desc').textContent  = r.desc;
+function showReward(r){
+  document.getElementById('r-icon').textContent=r.icon;
+  document.getElementById('r-title').textContent=r.title;
+  document.getElementById('r-desc').textContent=r.desc;
   document.getElementById('reward-modal').classList.add('show');
 }
 
-window.changeDate = function(delta) {
+function changeDate(delta){
   curDate.setDate(curDate.getDate()+delta);
   document.getElementById('loading').style.display='flex';
   document.getElementById('main-content').style.display='none';
   listenDay(curDate);
-};
+}
+
+// CARTEIRA
+function loadCarteira(){
+  walletRef().get().then(snap=>{
+    const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50};
+    document.getElementById('saldo-corrente').textContent=parseFloat(data.corrente||0).toFixed(2).replace('.',',');
+    document.getElementById('saldo-invest').textContent=parseFloat(data.invest||0).toFixed(2).replace('.',',');
+    const pct=data.pctCorrente!=null?data.pctCorrente:50;
+    document.getElementById('slider-corrente').value=pct;
+    document.getElementById('pct-corrente').textContent=pct+'%';
+    document.getElementById('pct-invest').textContent=(100-pct)+'%';
+  }).catch(()=>{});
+  loadHistorico();
+}
+
+function updateSlider(val){
+  const v=parseInt(val);
+  document.getElementById('pct-corrente').textContent=v+'%';
+  document.getElementById('pct-invest').textContent=(100-v)+'%';
+}
+
+function saveDivisao(){
+  const pct=parseInt(document.getElementById('slider-corrente').value);
+  walletRef().get().then(snap=>{
+    const data=snap.exists?snap.data():{corrente:0,invest:0};
+    data.pctCorrente=pct;
+    return walletRef().set(data);
+  }).then(()=>showToast('✅ Divisão salva!')).catch(()=>showToast('Erro ao salvar'));
+}
+
+function selecionarFonte(fonte){
+  fonteGasto=fonte;
+  document.getElementById('btn-corrente').className='fonte-btn'+(fonte==='corrente'?' sel-corrente':'');
+  document.getElementById('btn-invest').className='fonte-btn'+(fonte==='invest'?' sel-invest':'');
+}
+
+function registrarGasto(){
+  const desc=document.getElementById('gasto-desc').value.trim();
+  const val=parseFloat(document.getElementById('gasto-val').value);
+  if(!desc){showToast('💬 Descreve o que compraste!');return;}
+  if(!val||val<=0){showToast('💰 Coloca o valor gasto!');return;}
+  walletRef().get().then(snap=>{
+    const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50};
+    const saldo=parseFloat(data[fonteGasto]||0);
+    if(val>saldo){showToast('❌ Saldo insuficiente!');return;}
+    data[fonteGasto]=Math.round((saldo-val)*100)/100;
+    walletRef().set(data).then(()=>{
+      gastosRef().add({desc:desc,valor:val,fonte:fonteGasto,data:new Date().toISOString(),tipo:'gasto'});
+      document.getElementById('gasto-desc').value='';
+      document.getElementById('gasto-val').value='';
+      showToast('🛍️ Gasto de R$ '+val.toFixed(2).replace('.',',')+' registrado!');
+      loadCarteira();
+    });
+  }).catch(()=>showToast('Erro ao registrar'));
+}
+
+function loadHistorico(){
+  gastosRef().orderBy('data','desc').get().then(snap=>{
+    const el=document.getElementById('historico-lista');
+    if(snap.empty){el.innerHTML='<div style="color:var(--muted);font-size:.83rem;text-align:center;padding:12px;">Nenhum registro ainda</div>';return;}
+    el.innerHTML='';
+    snap.forEach(d=>{
+      const item=d.data(),isDeposito=item.tipo==='deposito';
+      const row=document.createElement('div');row.className='historico-item';
+      const dateStr=new Date(item.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+      row.innerHTML='<div class="hi-left"><span>'+(isDeposito?'💰':'🛍️')+'</span><div><div class="hi-desc">'+item.desc+'</div><div class="hi-date">'+dateStr+'</div></div><span class="hi-badge hi-'+item.fonte+'">'+(item.fonte==='corrente'?'💳':'📈')+'</span></div><div class="hi-val" style="color:'+(isDeposito?'var(--green)':'var(--red)')+';">'+(isDeposito?'+':'-')+'R$ '+parseFloat(item.valor).toFixed(2).replace('.',',')+'</div>';
+      el.appendChild(row);
+    });
+  }).catch(()=>{});
+}
 
 let tt;
-window.showToast = function(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),2400);
-};
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2600);}
 
-// INIT
 listenDay(curDate);
 </script>
+
 </body>
 </html>
