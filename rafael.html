@@ -136,6 +136,41 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .hi-badge{font-size:.62rem;font-weight:800;padding:2px 6px;border-radius:99px;}
 .hi-corrente{background:#eff6ff;color:var(–blue);}.hi-invest{background:#f5f3ff;color:var(–invest);}
 
+/* ── DISNEY ── */
+.disney-hero{background:linear-gradient(135deg,#1a237e,#283593,#1565c0);border-radius:var(–radius);padding:18px;margin-bottom:14px;box-shadow:var(–shadow);position:relative;overflow:hidden;color:white;}
+.disney-hero::before{content:‘✨’;position:absolute;top:10px;right:16px;font-size:2.4rem;opacity:.35;}
+.disney-hero::after{content:‘🏰’;position:absolute;bottom:-4px;right:44px;font-size:2.8rem;opacity:.25;}
+.disney-hero h2{font-family:‘Fredoka One’,cursive;font-size:1.3rem;margin-bottom:2px;}
+.disney-hero p{font-size:.8rem;opacity:.85;margin-bottom:12px;}
+.disney-totals{display:flex;gap:10px;}
+.disney-total-box{flex:1;background:rgba(255,255,255,.15);border-radius:12px;padding:10px;text-align:center;}
+.disney-total-box .dtv{font-family:‘Fredoka One’,cursive;font-size:1.4rem;color:white;}
+.disney-total-box .dtl{font-size:.68rem;opacity:.8;font-weight:700;text-transform:uppercase;}
+.disney-prog-wrap{margin-top:10px;}
+.disney-prog-bg{background:rgba(255,255,255,.25);border-radius:99px;height:10px;}
+.disney-prog-fill{background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;height:10px;transition:width .6s;}
+.disney-prog-label{font-size:.72rem;opacity:.85;margin-top:3px;text-align:right;font-weight:700;}
+.materia-card{background:white;border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:2px solid transparent;}
+.materia-card.pontuou{border-color:#fbbf24;background:#fffbeb;}
+.materia-card.zerou{opacity:.55;}
+.materia-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.materia-nome{font-weight:800;font-size:.9rem;}
+.materia-tipo{font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:99px;background:#e0e7ff;color:#3730a3;}
+.materia-body{display:flex;align-items:center;gap:10px;}
+.nota-input-wrap{display:flex;align-items:center;gap:6px;flex:1;}
+.nota-label{font-size:.75rem;color:var(–muted);font-weight:700;flex-shrink:0;}
+.nota-input{width:64px;border:2px solid #e5e7eb;border-radius:10px;padding:7px 8px;font-family:‘Nunito’,sans-serif;font-size:.92rem;font-weight:800;text-align:center;outline:none;}
+.nota-input:focus{border-color:#1565c0;}
+.nota-input.ok{border-color:#fbbf24;background:#fffbeb;}
+.nota-input.low{border-color:#fca5a5;background:#fff5f5;}
+.nota-equiv{font-family:‘Fredoka One’,cursive;font-size:1rem;flex-shrink:0;min-width:36px;text-align:right;}
+.nota-equiv.ok{color:#f59e0b;}
+.nota-equiv.low{color:var(–muted);}
+.nota-pts{font-size:.72rem;font-weight:800;flex-shrink:0;}
+.nota-pts.ok{color:var(–green);}
+.nota-pts.low{color:var(–muted);}
+.disney-legenda{background:white;border-radius:14px;padding:12px 14px;margin-bottom:12px;box-shadow:var(–shadow);font-size:.76rem;color:#555;line-height:1.8;}
+.disney-legenda strong{color:var(–text);}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
 .modal{background:white;border-radius:var(–radius);padding:22px 20px;max-width:320px;width:92%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:popIn .22s ease;}
@@ -161,6 +196,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 <div class="tabs">
   <button class="tab-btn active" onclick="showTab('tarefas')">📋 Tarefas</button>
   <button class="tab-btn" onclick="showTab('carteira')">💰 Carteira</button>
+  <button class="tab-btn" onclick="showTab('disney')">🏰 Disney</button>
 </div>
 
 <!-- TAREFAS -->
@@ -288,6 +324,32 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
   </div>
 </div>
 
+<!-- DISNEY -->
+
+<div class="panel" id="panel-disney">
+  <div class="disney-hero">
+    <h2>🏰 Programa Disney</h2>
+    <p>Registre suas notas e ganhe dólares para gastar na viagem!</p>
+    <div class="disney-totals">
+      <div class="disney-total-box"><div class="dtv" id="d-pontos">0</div><div class="dtl">Pontos</div></div>
+      <div class="disney-total-box"><div class="dtv" id="d-dolares">U$ 0,00</div><div class="dtl">Ganho</div></div>
+      <div class="disney-total-box"><div class="dtv" id="d-provas">0/35</div><div class="dtl">Provas</div></div>
+    </div>
+    <div class="disney-prog-wrap">
+      <div class="disney-prog-bg"><div class="disney-prog-fill" id="d-prog" style="width:0%"></div></div>
+      <div class="disney-prog-label" id="d-prog-label">U$ 0,00 de U$ 150,00</div>
+    </div>
+  </div>
+  <div class="disney-legenda">
+    <strong>Como funciona:</strong> Registre a nota de cada AT (Avaliação Trimestral).<br>
+    ✅ Nota ≥ 2,8 pontua · ❌ Abaixo de 2,8 não pontua<br>
+    <strong>Conversão:</strong> nota ÷ 4,0 × 10 = equivalente (ex: 3,5 → 8,75 pts)<br>
+    <strong>Valor:</strong> cada ponto = U$ 0,4286 · máximo U$ 150,00
+  </div>
+  <div class="section-title">📚 Avaliações Trimestrais</div>
+  <div id="disney-materias"></div>
+</div>
+
 <!-- MODAL RECOMPENSA -->
 
 <div class="modal-overlay" id="reward-modal">
@@ -347,15 +409,17 @@ function setSynced(ok){
 }
 
 function showTab(t){
-  ['tarefas','carteira'].forEach((n,i)=>{
+  ['tarefas','carteira','disney'].forEach((n,i)=>{
     document.querySelectorAll('.tab-btn')[i].classList.toggle('active',n===t);
     document.getElementById('panel-'+n).classList.toggle('active',n===t);
     document.getElementById('panel-'+n).style.display=n===t?'block':'none';
   });
   if(t==='carteira')loadCarteira();
+  if(t==='disney')loadDisney();
 }
 // fix initial display
 document.getElementById('panel-carteira').style.display='none';
+document.getElementById('panel-disney').style.display='none';
 
 function listenDay(d){
   if(unsubDay)unsubDay();
@@ -596,6 +660,174 @@ function loadHistorico(){
       el.appendChild(row);
     });
   }).catch(()=>{});
+}
+
+// ── DISNEY ──
+const DISNEY_MATERIAS = [
+  // AM - M2º TRI (7 avaliações, máx 3,0)
+  {id:'am_m2_artes',    nome:'Artes',             tipo:'AM', trimestre:'M2º TRI', maxNota:3.0},
+  {id:'am_m2_port',     nome:'Língua Portuguesa', tipo:'AM', trimestre:'M2º TRI', maxNota:3.0},
+  {id:'am_m2_geo',      nome:'Geografia',         tipo:'AM', trimestre:'M2º TRI', maxNota:3.0},
+  {id:'am_m2_hist',     nome:'História',          tipo:'AM', trimestre:'M2º TRI', maxNota:3.0},
+  {id:'am_m2_ing',      nome:'Inglês',            tipo:'AM', trimestre:'M2º TRI', maxNota:3.0},
+  {id:'am_m2_mat',      nome:'Matemática',        tipo:'AM', trimestre:'M2º TRI', maxNota:3.0},
+  {id:'am_m2_cien',     nome:'Ciências',          tipo:'AM', trimestre:'M2º TRI', maxNota:3.0},
+  // AM - M3º TRI (7 avaliações, máx 3,0)
+  {id:'am_m3_artes',    nome:'Artes',             tipo:'AM', trimestre:'M3º TRI', maxNota:3.0},
+  {id:'am_m3_port',     nome:'Língua Portuguesa', tipo:'AM', trimestre:'M3º TRI', maxNota:3.0},
+  {id:'am_m3_geo',      nome:'Geografia',         tipo:'AM', trimestre:'M3º TRI', maxNota:3.0},
+  {id:'am_m3_hist',     nome:'História',          tipo:'AM', trimestre:'M3º TRI', maxNota:3.0},
+  {id:'am_m3_ing',      nome:'Inglês',            tipo:'AM', trimestre:'M3º TRI', maxNota:3.0},
+  {id:'am_m3_mat',      nome:'Matemática',        tipo:'AM', trimestre:'M3º TRI', maxNota:3.0},
+  {id:'am_m3_cien',     nome:'Ciências',          tipo:'AM', trimestre:'M3º TRI', maxNota:3.0},
+  // AT - 1º TRIM (7 avaliações, máx 4,0)
+  {id:'at_1_artes',     nome:'Artes',             tipo:'AT', trimestre:'1º TRIM', maxNota:4.0},
+  {id:'at_1_port',      nome:'Língua Portuguesa', tipo:'AT', trimestre:'1º TRIM', maxNota:4.0},
+  {id:'at_1_geo',       nome:'Geografia',         tipo:'AT', trimestre:'1º TRIM', maxNota:4.0},
+  {id:'at_1_hist',      nome:'História',          tipo:'AT', trimestre:'1º TRIM', maxNota:4.0},
+  {id:'at_1_ing',       nome:'Inglês',            tipo:'AT', trimestre:'1º TRIM', maxNota:4.0},
+  {id:'at_1_mat',       nome:'Matemática',        tipo:'AT', trimestre:'1º TRIM', maxNota:4.0},
+  {id:'at_1_cien',      nome:'Ciências',          tipo:'AT', trimestre:'1º TRIM', maxNota:4.0},
+  // AT - 2º TRIM (7 avaliações, máx 4,0)
+  {id:'at_2_artes',     nome:'Artes',             tipo:'AT', trimestre:'2º TRIM', maxNota:4.0},
+  {id:'at_2_port',      nome:'Língua Portuguesa', tipo:'AT', trimestre:'2º TRIM', maxNota:4.0},
+  {id:'at_2_geo',       nome:'Geografia',         tipo:'AT', trimestre:'2º TRIM', maxNota:4.0},
+  {id:'at_2_hist',      nome:'História',          tipo:'AT', trimestre:'2º TRIM', maxNota:4.0},
+  {id:'at_2_ing',       nome:'Inglês',            tipo:'AT', trimestre:'2º TRIM', maxNota:4.0},
+  {id:'at_2_mat',       nome:'Matemática',        tipo:'AT', trimestre:'2º TRIM', maxNota:4.0},
+  {id:'at_2_cien',      nome:'Ciências',          tipo:'AT', trimestre:'2º TRIM', maxNota:4.0},
+  // AT - 3º TRIM (7 avaliações, máx 4,0)
+  {id:'at_3_artes',     nome:'Artes',             tipo:'AT', trimestre:'3º TRIM', maxNota:4.0},
+  {id:'at_3_port',      nome:'Língua Portuguesa', tipo:'AT', trimestre:'3º TRIM', maxNota:4.0},
+  {id:'at_3_geo',       nome:'Geografia',         tipo:'AT', trimestre:'3º TRIM', maxNota:4.0},
+  {id:'at_3_hist',      nome:'História',          tipo:'AT', trimestre:'3º TRIM', maxNota:4.0},
+  {id:'at_3_ing',       nome:'Inglês',            tipo:'AT', trimestre:'3º TRIM', maxNota:4.0},
+  {id:'at_3_mat',       nome:'Matemática',        tipo:'AT', trimestre:'3º TRIM', maxNota:4.0},
+  {id:'at_3_cien',      nome:'Ciências',          tipo:'AT', trimestre:'3º TRIM', maxNota:4.0},
+];
+
+const DISNEY_MAX_PONTOS = 350; // 35 × 10
+const DISNEY_VALOR_PONTO = 150 / DISNEY_MAX_PONTOS; // U$ 0.4286 por ponto
+const DISNEY_MIN_EQUIV = 7.0; // mínimo na escala 0-10 para pontuar
+
+function disneyRef(){return db.collection('mesada').doc(KID).collection('disney').doc('notas');}
+
+function calcEquiv(nota, maxNota){
+  if(!nota || nota <= 0) return 0;
+  return Math.round((nota / maxNota) * 10 * 100) / 100;
+}
+
+function loadDisney(){
+  disneyRef().get().then(snap=>{
+    const notas = snap.exists ? snap.data() : {};
+    renderDisney(notas);
+  }).catch(()=>renderDisney({}));
+}
+
+function renderDisney(notas){
+  const el = document.getElementById('disney-materias');
+  el.innerHTML = '';
+
+  // Group by trimestre
+  const grupos = {};
+  DISNEY_MATERIAS.forEach(m=>{
+    if(!grupos[m.trimestre]) grupos[m.trimestre]=[];
+    grupos[m.trimestre].push(m);
+  });
+
+  let totalPontos = 0, totalProvas = 0;
+
+  Object.keys(grupos).forEach(trim=>{
+    // Section header
+    const sec = document.createElement('div');
+    sec.className = 'section-title';
+    sec.style.marginTop = '18px';
+    const icoMap = {'M2º TRI':'📝','M3º TRI':'📝','1º TRIM':'📋','2º TRIM':'📋','3º TRIM':'📋'};
+    sec.innerHTML = (icoMap[trim]||'📋') + ' ' + trim;
+    el.appendChild(sec);
+
+    grupos[trim].forEach(m=>{
+      const notaVal = parseFloat(notas[m.id]) || 0;
+      const equiv = notaVal > 0 ? calcEquiv(notaVal, m.maxNota) : 0;
+      const pontua = equiv >= DISNEY_MIN_EQUIV;
+      const temNota = notaVal > 0;
+      if(temNota){ totalProvas++; if(pontua) totalPontos += equiv; }
+
+      const card = document.createElement('div');
+      card.className = 'materia-card' + (temNota && pontua ? ' pontuou' : temNota && !pontua ? ' zerou' : '');
+
+      const minNota = (DISNEY_MIN_EQUIV / 10 * m.maxNota).toFixed(1);
+      const tipoColor = m.tipo === 'AT' ? '#1565c0' : '#7c3aed';
+      const tipoBg   = m.tipo === 'AT' ? '#dbeafe' : '#ede9fe';
+
+      card.innerHTML =
+        '<div class="materia-header">' +
+          '<span class="materia-nome">' + m.nome + '</span>' +
+          '<span class="materia-tipo" style="background:'+tipoBg+';color:'+tipoColor+'">' + m.tipo + ' · máx ' + m.maxNota.toFixed(1) + '</span>' +
+        '</div>' +
+        '<div class="materia-body">' +
+          '<div class="nota-input-wrap">' +
+            '<span class="nota-label">Nota<br><span style="font-size:.65rem;color:var(--muted)">mín '+minNota+'</span></span>' +
+            '<input class="nota-input' + (temNota ? (pontua ? ' ok' : ' low') : '') + '" type="number" ' +
+              'id="nota_'+m.id+'" value="'+(notaVal>0?notaVal:'')+'" ' +
+              'min="0" max="'+m.maxNota+'" step="0.1" placeholder="0.0" ' +
+              'onchange="salvarNota(\''+m.id+'\','+m.maxNota+')" ' +
+              'oninput="previewNota(\''+m.id+'\','+m.maxNota+')">' +
+          '</div>' +
+          '<div class="nota-equiv' + (temNota ? (pontua ? ' ok' : ' low') : '') + '" id="equiv_'+m.id+'">' +
+            (temNota ? equiv.toFixed(1) : '—') +
+          '</div>' +
+          '<div class="nota-pts' + (temNota ? (pontua ? ' ok' : ' low') : '') + '" id="pts_'+m.id+'">' +
+            (temNota ? (pontua ? '+U$'+( equiv * DISNEY_VALOR_PONTO).toFixed(2) : '❌') : '') +
+          '</div>' +
+        '</div>';
+
+      el.appendChild(card);
+    });
+  });
+
+  // Update header totals
+  const dolares = totalPontos * DISNEY_VALOR_PONTO;
+  const pct = Math.round((dolares / 150) * 100);
+  document.getElementById('d-pontos').textContent = totalPontos.toFixed(1);
+  document.getElementById('d-dolares').textContent = 'U$ ' + dolares.toFixed(2);
+  document.getElementById('d-provas').textContent = totalProvas + '/35';
+  document.getElementById('d-prog').style.width = pct + '%';
+  document.getElementById('d-prog-label').textContent = 'U$ ' + dolares.toFixed(2) + ' de U$ 150,00';
+}
+
+function previewNota(id, maxNota){
+  const input = document.getElementById('nota_'+id);
+  let val = parseFloat(input.value);
+  if(isNaN(val) || val < 0){ val = 0; }
+  if(val > maxNota){ val = maxNota; input.value = maxNota; }
+  const equiv = val > 0 ? calcEquiv(val, maxNota) : 0;
+  const pontua = equiv >= DISNEY_MIN_EQUIV;
+  const temNota = val > 0;
+  input.className = 'nota-input' + (temNota ? (pontua ? ' ok' : ' low') : '');
+  const eqEl = document.getElementById('equiv_'+id);
+  const ptEl = document.getElementById('pts_'+id);
+  if(eqEl) eqEl.className = 'nota-equiv' + (temNota ? (pontua ? ' ok' : ' low') : '');
+  if(eqEl) eqEl.textContent = temNota ? equiv.toFixed(1) : '—';
+  if(ptEl) ptEl.className = 'nota-pts' + (temNota ? (pontua ? ' ok' : ' low') : '');
+  if(ptEl) ptEl.textContent = temNota ? (pontua ? '+U$'+(equiv*DISNEY_VALOR_PONTO).toFixed(2) : '❌') : '';
+}
+
+function salvarNota(id, maxNota){
+  const input = document.getElementById('nota_'+id);
+  let val = parseFloat(input.value);
+  if(isNaN(val) || val < 0) val = 0;
+  if(val > maxNota) val = maxNota;
+  disneyRef().get().then(snap=>{
+    const notas = snap.exists ? snap.data() : {};
+    if(val > 0) notas[id] = val; else delete notas[id];
+    return disneyRef().set(notas);
+  }).then(()=>{
+    loadDisney();
+    const equiv = calcEquiv(val, maxNota);
+    const pontua = equiv >= DISNEY_MIN_EQUIV;
+    if(val > 0) showToast(pontua ? '✅ Nota '+val+' → '+equiv.toFixed(1)+' pts · U$'+(equiv*DISNEY_VALOR_PONTO).toFixed(2) : '❌ Nota '+val+' → abaixo do mínimo (7,0)');
+  }).catch(()=>showToast('Erro ao salvar'));
 }
 
 let tt;
