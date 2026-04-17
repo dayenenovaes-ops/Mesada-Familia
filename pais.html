@@ -115,6 +115,19 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .modal-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
 .mbtn{padding:8px 18px;border-radius:99px;border:none;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.86rem;}
 .mbtn-cancel{background:#f3f4f6;color:#6b7280;}.mbtn-red{background:var(–red);color:white;}
+/* ── DISNEY PAIS ── */
+.disney-overview{background:linear-gradient(135deg,#1a237e,#283593,#1565c0);border-radius:var(–radius);padding:16px;margin-bottom:14px;box-shadow:var(–shadow);color:white;}
+.disney-overview h3{font-family:‘Fredoka One’,cursive;font-size:1.1rem;margin-bottom:12px;}
+.disney-kid-row{background:rgba(255,255,255,.12);border-radius:14px;padding:12px 14px;margin-bottom:10px;}
+.disney-kid-row:last-child{margin-bottom:0;}
+.disney-kid-name{font-family:‘Fredoka One’,cursive;font-size:1rem;margin-bottom:8px;}
+.disney-kid-stats{display:flex;gap:10px;margin-bottom:8px;}
+.disney-stat{flex:1;text-align:center;}
+.disney-stat .dsv{font-family:‘Fredoka One’,cursive;font-size:1.1rem;}
+.disney-stat .dsl{font-size:.65rem;opacity:.8;font-weight:700;text-transform:uppercase;}
+.disney-kid-prog-bg{background:rgba(255,255,255,.25);border-radius:99px;height:8px;}
+.disney-kid-prog-fill{background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;height:8px;transition:width .5s;}
+.disney-kid-prog-label{font-size:.7rem;opacity:.85;margin-top:3px;text-align:right;font-weight:700;}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:#1a1a2e;color:white;padding:10px 20px;border-radius:99px;font-weight:700;font-size:.85rem;z-index:300;transition:transform .3s ease;max-width:88vw;text-align:center;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 </style>
@@ -128,6 +141,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 <div class="tabs">
   <button class="tab-btn active" onclick="showTab('validar')">✅ Validar</button>
   <button class="tab-btn" onclick="showTab('depositar')">💰 Mesada</button>
+  <button class="tab-btn" onclick="showTab('disney')">🏰 Disney</button>
 </div>
 
 <!-- VALIDAR -->
@@ -267,6 +281,41 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
   </div>
 </div>
 
+<!-- DISNEY -->
+
+<div class="panel" id="panel-disney">
+  <div class="disney-overview">
+    <h3>🏰 Programa Disney — Visão Geral</h3>
+    <div class="disney-kid-row">
+      <div class="disney-kid-name">🚀 Rafael</div>
+      <div class="disney-kid-stats">
+        <div class="disney-stat"><div class="dsv" id="pd-r-pontos">0</div><div class="dsl">Pontos</div></div>
+        <div class="disney-stat"><div class="dsv" id="pd-r-dolares">U$ 0,00</div><div class="dsl">Ganho</div></div>
+        <div class="disney-stat"><div class="dsv" id="pd-r-provas">0/35</div><div class="dsl">Provas</div></div>
+      </div>
+      <div class="disney-kid-prog-bg"><div class="disney-kid-prog-fill" id="pd-r-prog" style="width:0%"></div></div>
+      <div class="disney-kid-prog-label" id="pd-r-label">U$ 0,00 de U$ 150,00</div>
+    </div>
+    <div class="disney-kid-row">
+      <div class="disney-kid-name">🦋 Rebeca</div>
+      <div class="disney-kid-stats">
+        <div class="disney-stat"><div class="dsv" id="pd-b-pontos">0</div><div class="dsl">Pontos</div></div>
+        <div class="disney-stat"><div class="dsv" id="pd-b-dolares">U$ 0,00</div><div class="dsl">Ganho</div></div>
+        <div class="disney-stat"><div class="dsv" id="pd-b-provas">0/35</div><div class="dsl">Provas</div></div>
+      </div>
+      <div class="disney-kid-prog-bg"><div class="disney-kid-prog-fill" id="pd-b-prog" style="width:0%"></div></div>
+      <div class="disney-kid-prog-label" id="pd-b-label">U$ 0,00 de U$ 150,00</div>
+    </div>
+  </div>
+
+  <!-- Notas Rafael -->
+
+  <div class="section-title" style="margin-top:4px">🚀 Notas do Rafael</div>
+  <div id="pd-notas-rafael"></div>
+  <div class="section-title">🦋 Notas da Rebeca</div>
+  <div id="pd-notas-rebeca"></div>
+</div>
+
 <!-- MODAL MENTIRA -->
 
 <div class="modal-overlay" id="lie-modal">
@@ -336,13 +385,15 @@ function gastosRef(kid){return db.collection('mesada').doc(kid).collection('gast
 function setSynced(ok){document.getElementById('sync-dot').className='sync-dot '+(ok?'ok':'err');document.getElementById('sync-label').textContent=ok?'sincronizado':'sem conexão';}
 
 function showTab(t){
-  ['validar','depositar'].forEach((n,i)=>{
+  ['validar','depositar','disney'].forEach((n,i)=>{
     document.querySelectorAll('.tab-btn')[i].classList.toggle('active',n===t);
     document.getElementById('panel-'+n).style.display=n===t?'block':'none';
   });
   if(t==='depositar')loadDepositar();
+  if(t==='disney')loadDisneyPais();
 }
 document.getElementById('panel-depositar').style.display='none';
+document.getElementById('panel-disney').style.display='none';
 
 function listenToday(){
   unsubs.forEach(u=>u());unsubs=[];
@@ -482,6 +533,110 @@ function depositar(kid){
       loadDepositar();
     });
   }).catch(()=>showToast('Erro ao depositar'));
+}
+
+// ── DISNEY PAIS ──
+const DISNEY_MATERIAS_P = [
+  {id:'am_m2_artes',nome:'Artes',            tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
+  {id:'am_m2_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
+  {id:'am_m2_geo',  nome:'Geografia',        tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
+  {id:'am_m2_hist', nome:'História',         tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
+  {id:'am_m2_ing',  nome:'Inglês',           tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
+  {id:'am_m2_mat',  nome:'Matemática',       tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
+  {id:'am_m2_cien', nome:'Ciências',         tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
+  {id:'am_m3_artes',nome:'Artes',            tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
+  {id:'am_m3_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
+  {id:'am_m3_geo',  nome:'Geografia',        tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
+  {id:'am_m3_hist', nome:'História',         tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
+  {id:'am_m3_ing',  nome:'Inglês',           tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
+  {id:'am_m3_mat',  nome:'Matemática',       tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
+  {id:'am_m3_cien', nome:'Ciências',         tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
+  {id:'at_1_artes', nome:'Artes',            tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
+  {id:'at_1_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
+  {id:'at_1_geo',   nome:'Geografia',        tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
+  {id:'at_1_hist',  nome:'História',         tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
+  {id:'at_1_ing',   nome:'Inglês',           tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
+  {id:'at_1_mat',   nome:'Matemática',       tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
+  {id:'at_1_cien',  nome:'Ciências',         tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
+  {id:'at_2_artes', nome:'Artes',            tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
+  {id:'at_2_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
+  {id:'at_2_geo',   nome:'Geografia',        tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
+  {id:'at_2_hist',  nome:'História',         tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
+  {id:'at_2_ing',   nome:'Inglês',           tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
+  {id:'at_2_mat',   nome:'Matemática',       tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
+  {id:'at_2_cien',  nome:'Ciências',         tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
+  {id:'at_3_artes', nome:'Artes',            tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
+  {id:'at_3_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
+  {id:'at_3_geo',   nome:'Geografia',        tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
+  {id:'at_3_hist',  nome:'História',         tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
+  {id:'at_3_ing',   nome:'Inglês',           tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
+  {id:'at_3_mat',   nome:'Matemática',       tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
+  {id:'at_3_cien',  nome:'Ciências',         tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
+];
+const D_VALOR_PONTO = 150/350, D_MIN_EQUIV = 7.0;
+function disneyRef(kid){return db.collection('mesada').doc(kid).collection('disney').doc('notas');}
+function calcEquivP(nota,maxNota){if(!nota||nota<=0)return 0;return Math.round((nota/maxNota)*10*100)/100;}
+
+function calcDisneyStats(notas){
+  let pts=0,provas=0;
+  DISNEY_MATERIAS_P.forEach(m=>{
+    const v=parseFloat(notas[m.id])||0;
+    if(v>0){provas++;const eq=calcEquivP(v,m.maxNota);if(eq>=D_MIN_EQUIV)pts+=eq;}
+  });
+  return {pts,provas,dolares:pts*D_VALOR_PONTO};
+}
+
+function loadDisneyPais(){
+  ['rafael','rebeca'].forEach(kid=>{
+    const p=kid==='rafael'?'r':'b';
+    disneyRef(kid).get().then(snap=>{
+      const notas=snap.exists?snap.data():{};
+      const {pts,provas,dolares}=calcDisneyStats(notas);
+      const pct=Math.round((dolares/150)*100);
+      document.getElementById('pd-'+p+'-pontos').textContent=pts.toFixed(1);
+      document.getElementById('pd-'+p+'-dolares').textContent='U$ '+dolares.toFixed(2);
+      document.getElementById('pd-'+p+'-provas').textContent=provas+'/35';
+      document.getElementById('pd-'+p+'-prog').style.width=pct+'%';
+      document.getElementById('pd-'+p+'-label').textContent='U$ '+dolares.toFixed(2)+' de U$ 150,00';
+      renderNotasPais(kid,notas);
+    }).catch(()=>{});
+  });
+}
+
+function renderNotasPais(kid,notas){
+  const el=document.getElementById('pd-notas-'+kid);
+  el.innerHTML='';
+  const grupos={};
+  DISNEY_MATERIAS_P.forEach(m=>{if(!grupos[m.trimestre])grupos[m.trimestre]=[];grupos[m.trimestre].push(m);});
+  Object.keys(grupos).forEach(trim=>{
+    const sec=document.createElement('div');
+    sec.style.cssText='font-family:"Fredoka One",cursive;font-size:.88rem;margin:10px 0 6px;color:#555;display:flex;align-items:center;gap:5px;';
+    sec.textContent=(trim.includes('M')?'📝':'📋')+' '+trim;
+    el.appendChild(sec);
+    grupos[trim].forEach(m=>{
+      const notaVal=parseFloat(notas[m.id])||0,equiv=notaVal>0?calcEquivP(notaVal,m.maxNota):0;
+      const pontua=equiv>=D_MIN_EQUIV,temNota=notaVal>0;
+      const row=document.createElement('div');
+      row.style.cssText='background:white;border-radius:12px;padding:9px 12px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 6px rgba(0,0,0,.05);border:2px solid '+(temNota&&pontua?'#fbbf24':temNota&&!pontua?'#fca5a5':'#f0f0f0')+';';
+      const tipoColor=m.tipo==='AT'?'#1565c0':'#7c3aed',tipoBg=m.tipo==='AT'?'#dbeafe':'#ede9fe';
+      row.innerHTML=
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:800;font-size:.83rem;">'+m.nome+'</div>' +
+          '<span style="font-size:.6rem;font-weight:800;padding:1px 5px;border-radius:99px;background:'+tipoBg+';color:'+tipoColor+'">'+m.tipo+'</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">' +
+          '<div style="text-align:center;">' +
+            '<div style="font-family:\'Fredoka One\',cursive;font-size:1rem;color:'+(temNota?(pontua?'#f59e0b':'#ef4444'):'#ccc')+'">'+(temNota?notaVal:'—')+'</div>' +
+            '<div style="font-size:.62rem;color:#9ca3af;font-weight:700;">nota</div>' +
+          '</div>' +
+          '<div style="text-align:center;">' +
+            '<div style="font-family:\'Fredoka One\',cursive;font-size:1rem;color:'+(temNota?(pontua?'#22c55e':'#9ca3af'):'#ccc')+'">'+(temNota?(pontua?'+U$'+(equiv*D_VALOR_PONTO).toFixed(2):'❌'):'—')+'</div>' +
+            '<div style="font-size:.62rem;color:#9ca3af;font-weight:700;">'+(temNota?equiv.toFixed(1)+' pts':'')+'</div>' +
+          '</div>' +
+        '</div>';
+      el.appendChild(row);
+    });
+  });
 }
 
 let tt;
