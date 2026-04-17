@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🦋 Rebeca - Mesada</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -18,7 +18,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;background:white;box-shadow:0 2px 12px rgba(0,0,0,.07);position:sticky;top:0;z-index:100;}
-.topbar-title{font-family:'Fredoka One',cursive;font-size:1.4rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.topbar-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.4rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .sync-dot{width:9px;height:9px;border-radius:50%;background:#d1d5db;display:inline-block;margin-right:4px;transition:background .3s;}
 .sync-dot.ok{background:var(--green);}.sync-dot.err{background:var(--red);}
 .sync-label{font-size:.72rem;font-weight:700;color:var(--muted);}
@@ -33,16 +33,16 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .wallet-card{border-radius:var(--radius);padding:18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow);position:relative;overflow:hidden;background:var(--grad);}
 .wallet-card::after{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.12);}
 .wallet-info{color:white;}
-.wallet-info h3{font-family:'Fredoka One',cursive;font-size:1.35rem;margin-bottom:1px;}
+.wallet-info h3{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.35rem;margin-bottom:1px;}
 .wallet-info .sub{font-size:.78rem;opacity:.88;margin-bottom:5px;}
-.wallet-amount{font-family:'Fredoka One',cursive;font-size:1.9rem;color:white;line-height:1;}
+.wallet-amount{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.9rem;color:white;line-height:1;}
 .wallet-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
 .wallet-emoji{font-size:2.8rem;filter:drop-shadow(2px 4px 8px rgba(0,0,0,.25));}
 .prog-bg{background:rgba(255,255,255,.3);border-radius:99px;height:8px;width:110px;}
 .prog-fill{background:white;border-radius:99px;height:8px;transition:width .5s;}
 .prog-label{color:white;font-size:.7rem;font-weight:700;opacity:.9;text-align:right;margin-top:2px;}
 .comportamento-card{background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);}
-.comp-title{font-family:'Fredoka One',cursive;font-size:.95rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.comp-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .comp-btns{display:flex;gap:8px;}
 .comp-btn{flex:1;padding:10px 8px;border-radius:12px;border:2px solid #e5e7eb;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;transition:all .15s;text-align:center;}
 .comp-btn.sel-bom{border-color:var(--green);background:#f0fdf4;color:#166534;}
@@ -58,7 +58,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .pontos-status.pode{background:#f0fdf4;color:#166534;}.pontos-status.nao{background:#fff5f5;color:#991b1b;}
 .penalty-banner{background:#fff0f0;border:2px solid #fca5a5;border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:.82rem;font-weight:700;color:var(--red);display:flex;align-items:center;gap:8px;}
 .pending-notice{background:#fefce8;border:2px solid #fde047;border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:.8rem;font-weight:700;color:#854d0e;display:flex;align-items:center;gap:6px;}
-.section-title{font-family:'Fredoka One',cursive;font-size:.98rem;margin:14px 0 7px;display:flex;align-items:center;gap:6px;}
+.section-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;margin:14px 0 7px;display:flex;align-items:center;gap:6px;}
 .task-card{background:white;border-radius:14px;padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;transition:transform .12s;border:2px solid transparent;user-select:none;-webkit-user-select:none;}
 .task-card:active{transform:scale(.97);}
 .task-card.pending{border-color:#d1d5db;background:#fafafa;}
@@ -73,7 +73,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .task-name{font-weight:800;font-size:.88rem;}
 .task-desc{font-size:.73rem;color:var(--muted);margin-top:1px;}
 .task-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;}
-.task-value{font-family:'Fredoka One',cursive;font-size:.92rem;color:var(--green);}
+.task-value{font-family:'Nunito',sans-serif;font-size:.92rem;color:var(--green);}
 .badge{font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:99px;}
 .badge-obrig{background:#fef3c7;color:#92400e;}
 .badge-aguard{background:#fef9c3;color:#78716c;}
@@ -82,18 +82,18 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .month-box{background:white;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:12px;}
 .stat-row{display:flex;justify-content:space-around;}
 .stat-box{text-align:center;}
-.stat-box .val{font-family:'Fredoka One',cursive;font-size:1.35rem;}
+.stat-box .val{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.35rem;}
 .stat-box .lbl{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
 .val.green{color:var(--green);}.val.gold{color:var(--gold);}.val.red{color:var(--red);}
 .reward-card{background:white;border-radius:14px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);}
 .reward-card.unlocked{border:2px solid var(--gold);background:linear-gradient(135deg,#fffbeb,#fef9c3);cursor:pointer;}
 .reward-card.locked-behavior{border:2px solid #fca5a5;opacity:.7;}
 .r-icon{font-size:1.9rem;flex-shrink:0;}.r-body{flex:1;}
-.r-title{font-weight:800;font-size:.88rem;}.r-sub{font-size:.73rem;color:var(--muted);margin-top:1px;}
+.r-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:.9rem;}.r-sub{font-size:.73rem;color:var(--muted);margin-top:1px;}
 .r-progress{display:flex;align-items:center;gap:8px;margin-top:5px;}
 .r-prog-bg{flex:1;background:#f3f4f6;border-radius:99px;height:6px;}
 .r-prog-fill{background:var(--gold);border-radius:99px;height:6px;transition:width .5s;}
-.r-days{font-family:'Fredoka One',cursive;font-size:.78rem;color:var(--gold);flex-shrink:0;}
+.r-days{font-family:'Nunito',sans-serif;font-size:.78rem;color:var(--gold);flex-shrink:0;}
 .reward-badge{font-size:.68rem;font-weight:800;padding:3px 9px;border-radius:99px;flex-shrink:0;}
 .reward-badge.done{background:#fef08a;color:#78350f;}.reward-badge.locked{background:#f3f4f6;color:var(--muted);}
 .reward-badge.blocked{background:#fee2e2;color:#991b1b;}
@@ -101,12 +101,12 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .carteira-card{flex:1;border-radius:16px;padding:14px 12px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
 .carteira-card.corrente{background:linear-gradient(135deg,#3b82f6,#06b6d4);}
 .carteira-card.invest{background:linear-gradient(135deg,#8b5cf6,#ec4899);}
-.carteira-card h4{font-family:'Fredoka One',cursive;font-size:.82rem;color:rgba(255,255,255,.85);margin-bottom:2px;}
-.carteira-card .c-val{font-family:'Fredoka One',cursive;font-size:1.4rem;color:white;line-height:1.1;}
+.carteira-card h4{font-family:'Nunito',sans-serif;font-size:.82rem;color:rgba(255,255,255,.85);margin-bottom:2px;}
+.carteira-card .c-val{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.4rem;color:white;line-height:1.1;}
 .carteira-card .c-sub{font-size:.68rem;color:rgba(255,255,255,.75);margin-top:2px;}
 .carteira-icon{position:absolute;bottom:-6px;right:8px;font-size:2.2rem;opacity:.25;}
 .gasto-section{background:white;border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-bottom:14px;}
-.gasto-section h4{font-family:'Fredoka One',cursive;font-size:.95rem;margin-bottom:10px;color:var(--text);}
+.gasto-section h4{font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;margin-bottom:10px;color:var(--text);}
 .gasto-input{width:100%;border:2px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;outline:none;margin-bottom:8px;}
 .gasto-input:focus{border-color:var(--main);}
 .fonte-btns{display:flex;gap:6px;margin-bottom:10px;}
@@ -117,29 +117,29 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .div-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 .div-label{font-weight:800;font-size:.83rem;width:100px;flex-shrink:0;}
 .div-slider{flex:1;accent-color:var(--main);}
-.div-pct{font-family:'Fredoka One',cursive;font-size:.95rem;width:40px;text-align:right;color:var(--main);}
+.div-pct{font-family:'Nunito',sans-serif;font-size:.95rem;width:40px;text-align:right;color:var(--main);}
 .historico-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6;}
 .historico-item:last-child{border-bottom:none;}
 .hi-left{display:flex;align-items:center;gap:8px;}
 .hi-desc{font-weight:700;font-size:.83rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .hi-date{font-size:.7rem;color:var(--muted);}
-.hi-val{font-family:'Fredoka One',cursive;font-size:.9rem;}
+.hi-val{font-family:'Nunito',sans-serif;font-size:.9rem;}
 .hi-badge{font-size:.62rem;font-weight:800;padding:2px 6px;border-radius:99px;}
 .hi-corrente{background:#eff6ff;color:var(--blue);}.hi-invest{background:#f5f3ff;color:var(--invest);}
 /* ── DISNEY ── */
 .disney-hero{background:linear-gradient(135deg,#1a237e,#283593,#1565c0);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow);position:relative;overflow:hidden;color:white;}
 .disney-hero::before{content:'✨';position:absolute;top:10px;right:16px;font-size:2.4rem;opacity:.35;}
 .disney-hero::after{content:'🏰';position:absolute;bottom:-4px;right:44px;font-size:2.8rem;opacity:.25;}
-.disney-hero h2{font-family:'Fredoka One',cursive;font-size:1.3rem;margin-bottom:2px;}
+.disney-hero h2{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.3rem;margin-bottom:2px;}
 .disney-hero p{font-size:.8rem;opacity:.85;margin-bottom:12px;}
 .disney-totals{display:flex;gap:10px;}
 .disney-total-box{flex:1;background:rgba(255,255,255,.15);border-radius:12px;padding:10px;text-align:center;}
-.disney-total-box .dtv{font-family:'Fredoka One',cursive;font-size:1.4rem;color:white;}
+.disney-total-box .dtv{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.4rem;color:white;}
 .disney-total-box .dtl{font-size:.68rem;opacity:.8;font-weight:700;text-transform:uppercase;}
 .disney-prog-wrap{margin-top:10px;}
 .disney-prog-bg{background:rgba(255,255,255,.25);border-radius:99px;height:10px;}
 .disney-prog-fill{background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;height:10px;transition:width .6s;}
-.disney-prog-label{font-size:.72rem;opacity:.85;margin-top:3px;text-align:right;font-weight:700;}
+.disney-prog-label{font-family:'Nunito',sans-serif;font-weight:800;font-size:.72rem;opacity:.85;margin-top:3px;text-align:right;font-weight:700;}
 .materia-card{background:white;border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:2px solid transparent;}
 .materia-card.pontuou{border-color:#fbbf24;background:#fffbeb;}
 .materia-card.zerou{opacity:.55;}
@@ -153,7 +153,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .nota-input:focus{border-color:#1565c0;}
 .nota-input.ok{border-color:#fbbf24;background:#fffbeb;}
 .nota-input.low{border-color:#fca5a5;background:#fff5f5;}
-.nota-equiv{font-family:'Fredoka One',cursive;font-size:1rem;flex-shrink:0;min-width:36px;text-align:right;}
+.nota-equiv{font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;flex-shrink:0;min-width:36px;text-align:right;}
 .nota-equiv.ok{color:#f59e0b;}
 .nota-equiv.low{color:var(--muted);}
 .nota-pts{font-size:.72rem;font-weight:800;flex-shrink:0;}
@@ -166,7 +166,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .modal{background:white;border-radius:var(--radius);padding:22px 20px;max-width:320px;width:92%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:popIn .22s ease;}
 @keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
 .modal .m-icon{font-size:2.6rem;margin-bottom:6px;}
-.modal h3{font-family:'Fredoka One',cursive;font-size:1.2rem;margin-bottom:5px;}
+.modal h3{font-family:'Nunito',sans-serif;font-size:1.2rem;margin-bottom:5px;}
 .modal p{font-size:.83rem;color:#555;line-height:1.5;margin-bottom:14px;}
 .mbtn{padding:9px 20px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.86rem;}
 .mbtn-main{background:var(--main);color:white;}
