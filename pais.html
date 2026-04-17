@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🔐 Pais - Mesada</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
@@ -19,7 +19,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;background:white;box-shadow:0 2px 12px rgba(0,0,0,.07);position:sticky;top:0;z-index:100;}
-.topbar-title{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--parent);}
+.topbar-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.4rem;color:var(--parent);}
 .sync-dot{width:9px;height:9px;border-radius:50%;background:#d1d5db;display:inline-block;margin-right:4px;}
 .sync-dot.ok{background:var(--green);}.sync-dot.err{background:var(--red);}
 .sync-label{font-size:.72rem;font-weight:700;color:var(--muted);}
@@ -29,17 +29,17 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .panel{display:none;padding:16px 14px 100px;}
 .panel.active{display:block;}
 .hero{background:var(--grad);border-radius:var(--radius);padding:16px 18px;color:white;margin-bottom:14px;box-shadow:var(--shadow);}
-.hero h2{font-family:'Fredoka One',cursive;font-size:1.2rem;margin-bottom:2px;}
+.hero h2{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.2rem;margin-bottom:2px;}
 .hero p{font-size:.8rem;opacity:.85;}
 .date-nav{display:flex;align-items:center;justify-content:space-between;background:white;border-radius:14px;padding:10px 14px;margin-bottom:14px;box-shadow:var(--shadow);}
 .date-nav button{border:none;background:none;font-size:1.3rem;cursor:pointer;padding:2px 10px;}
 .date-label{font-weight:800;font-size:.93rem;}
 .kid-card{background:white;border-radius:var(--radius);padding:15px;margin-bottom:14px;box-shadow:var(--shadow);}
-.kid-title{font-family:'Fredoka One',cursive;font-size:1.05rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.kid-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.05rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .kid-title.rafael{color:var(--rafael);}.kid-title.rebeca{color:var(--rebeca);}
 .stat-row{display:flex;justify-content:space-around;margin-bottom:12px;}
 .stat-box{text-align:center;}
-.stat-box .val{font-family:'Fredoka One',cursive;font-size:1.3rem;}
+.stat-box .val{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.3rem;}
 .stat-box .lbl{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
 .val.green{color:var(--green);}.val.gold{color:var(--gold);}
 .section-lbl{font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}
@@ -48,7 +48,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .vi-left{display:flex;align-items:center;gap:7px;flex:1;min-width:0;}
 .vi-icon{font-size:1.1rem;flex-shrink:0;}
 .vi-name{font-weight:700;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.vi-val{font-family:'Fredoka One',cursive;font-size:.82rem;color:var(--green);flex-shrink:0;}
+.vi-val{font-family:'Nunito',sans-serif;font-size:.82rem;color:var(--green);flex-shrink:0;}
 .vi-actions{display:flex;gap:5px;flex-shrink:0;}
 .btn-v{padding:5px 11px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.75rem;transition:all .15s;}
 .btn-ok{background:#dcfce7;color:#166634;}
@@ -57,7 +57,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .lie-all-btn{display:block;margin:10px auto 0;background:#fff0f0;color:#991b1b;border:none;border-radius:99px;padding:7px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;cursor:pointer;}
 .month-footer{background:var(--light);border-radius:12px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
 .month-footer .lbl{font-weight:800;font-size:.83rem;color:var(--parent);}
-.month-footer .val{font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--parent);}
+.month-footer .val{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.2rem;color:var(--parent);}
 .penalty-active{background:#fff0f0;border:2px solid #fca5a5;border-radius:10px;padding:8px 12px;font-size:.8rem;font-weight:700;color:var(--red);margin-bottom:8px;}
 
 /* COMPORTAMENTO pais */
@@ -72,7 +72,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 
 /* DEPÓSITO */
 .deposito-card{background:white;border-radius:var(–radius);padding:16px;margin-bottom:14px;box-shadow:var(–shadow);}
-.deposito-card h3{font-family:‘Fredoka One’,cursive;font-size:1.05rem;margin-bottom:4px;}
+.deposito-card h3{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.05rem;margin-bottom:4px;}
 .deposito-card p{font-size:.8rem;color:var(–muted);margin-bottom:14px;}
 .kid-deposito{border:2px solid #f0f0f0;border-radius:16px;padding:14px;margin-bottom:12px;}
 .kid-deposito:last-child{margin-bottom:0;}
@@ -81,7 +81,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .kd-saldos{display:flex;gap:8px;margin-bottom:10px;}
 .kd-saldo{flex:1;padding:8px 10px;border-radius:10px;text-align:center;}
 .kd-saldo.corrente{background:#eff6ff;}.kd-saldo.invest{background:#f5f3ff;}
-.kd-saldo .ks-val{font-family:‘Fredoka One’,cursive;font-size:1rem;}
+.kd-saldo .ks-val{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1rem;}
 .kd-saldo .ks-lbl{font-size:.65rem;font-weight:800;color:var(–muted);}
 .kd-saldo.corrente .ks-val{color:var(–blue);}.kd-saldo.invest .ks-val{color:var(–invest);}
 .dep-pct-info{background:#f8f9fa;border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:.78rem;font-weight:700;color:#555;}
@@ -90,7 +90,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .dep-input:focus{border-color:var(–parent);}
 .dep-btn{padding:9px 14px;border-radius:12px;border:none;background:var(–grad);color:white;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;}
 .carteira-overview{background:white;border-radius:var(–radius);padding:15px;margin-bottom:14px;box-shadow:var(–shadow);}
-.carteira-overview h3{font-family:‘Fredoka One’,cursive;font-size:1.05rem;margin-bottom:12px;}
+.carteira-overview h3{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.05rem;margin-bottom:12px;}
 .co-kid{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 .co-kid:last-child{margin-bottom:0;}
 .co-name{font-weight:800;font-size:.85rem;width:70px;flex-shrink:0;}
@@ -100,7 +100,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .co-bar-bg{flex:1;background:#f0f0f0;border-radius:99px;height:8px;}
 .co-bar-fill{border-radius:99px;height:8px;transition:width .5s;}
 .co-bar-fill.corrente{background:var(–blue);}.co-bar-fill.invest{background:var(–invest);}
-.co-bar-val{font-family:‘Fredoka One’,cursive;font-size:.75rem;width:65px;text-align:right;}
+.co-bar-val{font-family:‘Nunito’,sans-serif;font-size:.75rem;width:65px;text-align:right;}
 .co-bar-val.corrente{color:var(–blue);}.co-bar-val.invest{color:var(–invest);}
 .rules-card{background:white;border-radius:var(–radius);padding:15px;margin-top:4px;box-shadow:var(–shadow);border-left:4px solid var(–parent);}
 .rules-card h4{font-weight:800;color:var(–parent);margin-bottom:8px;font-size:.88rem;}
@@ -110,20 +110,20 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .modal{background:white;border-radius:var(–radius);padding:22px 20px;max-width:310px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:popIn .22s ease;}
 @keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
 .modal .m-icon{font-size:2.6rem;margin-bottom:6px;}
-.modal h3{font-family:‘Fredoka One’,cursive;font-size:1.2rem;margin-bottom:5px;}
+.modal h3{font-family:‘Nunito’,sans-serif;font-size:1.2rem;margin-bottom:5px;}
 .modal p{font-size:.83rem;color:#555;line-height:1.5;margin-bottom:14px;}
 .modal-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
 .mbtn{padding:8px 18px;border-radius:99px;border:none;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.86rem;}
 .mbtn-cancel{background:#f3f4f6;color:#6b7280;}.mbtn-red{background:var(–red);color:white;}
 /* ── DISNEY PAIS ── */
 .disney-overview{background:linear-gradient(135deg,#1a237e,#283593,#1565c0);border-radius:var(–radius);padding:16px;margin-bottom:14px;box-shadow:var(–shadow);color:white;}
-.disney-overview h3{font-family:‘Fredoka One’,cursive;font-size:1.1rem;margin-bottom:12px;}
+.disney-overview h3{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.1rem;margin-bottom:12px;}
 .disney-kid-row{background:rgba(255,255,255,.12);border-radius:14px;padding:12px 14px;margin-bottom:10px;}
 .disney-kid-row:last-child{margin-bottom:0;}
-.disney-kid-name{font-family:‘Fredoka One’,cursive;font-size:1rem;margin-bottom:8px;}
+.disney-kid-name{font-family:‘Nunito’,sans-serif;font-size:1rem;margin-bottom:8px;}
 .disney-kid-stats{display:flex;gap:10px;margin-bottom:8px;}
 .disney-stat{flex:1;text-align:center;}
-.disney-stat .dsv{font-family:‘Fredoka One’,cursive;font-size:1.1rem;}
+.disney-stat .dsv{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.1rem;}
 .disney-stat .dsl{font-size:.65rem;opacity:.8;font-weight:700;text-transform:uppercase;}
 .disney-kid-prog-bg{background:rgba(255,255,255,.25);border-radius:99px;height:8px;}
 .disney-kid-prog-fill{background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;height:8px;transition:width .5s;}
@@ -610,7 +610,7 @@ function renderNotasPais(kid,notas){
   DISNEY_MATERIAS_P.forEach(m=>{if(!grupos[m.trimestre])grupos[m.trimestre]=[];grupos[m.trimestre].push(m);});
   Object.keys(grupos).forEach(trim=>{
     const sec=document.createElement('div');
-    sec.style.cssText='font-family:"Fredoka One",cursive;font-size:.88rem;margin:10px 0 6px;color:#555;display:flex;align-items:center;gap:5px;';
+    sec.style.cssText='font-family:"Nunito",sans-serif;font-size:.88rem;margin:10px 0 6px;color:#555;display:flex;align-items:center;gap:5px;';
     sec.textContent=(trim.includes('M')?'📝':'📋')+' '+trim;
     el.appendChild(sec);
     grupos[trim].forEach(m=>{
@@ -626,11 +626,11 @@ function renderNotasPais(kid,notas){
         '</div>' +
         '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">' +
           '<div style="text-align:center;">' +
-            '<div style="font-family:\'Fredoka One\',cursive;font-size:1rem;color:'+(temNota?(pontua?'#f59e0b':'#ef4444'):'#ccc')+'">'+(temNota?notaVal:'—')+'</div>' +
+            '<div style="font-family:\'Nunito\',sans-serif;font-weight:800;font-size:1rem;color:'+(temNota?(pontua?'#f59e0b':'#ef4444'):'#ccc')+'">'+(temNota?notaVal:'—')+'</div>' +
             '<div style="font-size:.62rem;color:#9ca3af;font-weight:700;">nota</div>' +
           '</div>' +
           '<div style="text-align:center;">' +
-            '<div style="font-family:\'Fredoka One\',cursive;font-size:1rem;color:'+(temNota?(pontua?'#22c55e':'#9ca3af'):'#ccc')+'">'+(temNota?(pontua?'+U$'+(equiv*D_VALOR_PONTO).toFixed(2):'❌'):'—')+'</div>' +
+            '<div style="font-family:\'Nunito\',sans-serif;font-weight:800;font-size:1rem;color:'+(temNota?(pontua?'#22c55e':'#9ca3af'):'#ccc')+'">'+(temNota?(pontua?'+U$'+(equiv*D_VALOR_PONTO).toFixed(2):'❌'):'—')+'</div>' +
             '<div style="font-size:.62rem;color:#9ca3af;font-weight:700;">'+(temNota?equiv.toFixed(1)+' pts':'')+'</div>' +
           '</div>' +
         '</div>';
