@@ -6,9 +6,130 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🚀 Rafael - Mesada</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
+// Firestore REST API — no SDK, works on all browsers including Safari iOS
+const FS_BASE = 'https://firestore.googleapis.com/v1/projects/kids-allowance-8dc74/databases/(default)/documents';
+const FS_KEY  = 'AIzaSyBj4ijJQDD1kSuhCqBWund5kt8ijVKFJw8';
+
+// Convert Firestore REST value to JS
+function fsVal(v) {
+if (!v) return null;
+if (‘stringValue’  in v) return v.stringValue;
+if (‘booleanValue’ in v) return v.booleanValue;
+if (‘integerValue’ in v) return parseInt(v.integerValue);
+if (‘doubleValue’  in v) return parseFloat(v.doubleValue);
+if (‘nullValue’    in v) return null;
+if (‘mapValue’     in v) {
+const obj = {};
+const fields = v.mapValue.fields || {};
+Object.keys(fields).forEach(k => obj[k] = fsVal(fields[k]));
+return obj;
+}
+if (‘arrayValue’   in v) return (v.arrayValue.values||[]).map(fsVal);
+return null;
+}
+
+// Convert Firestore REST doc to plain object
+function fsDoc(snap) {
+if (!snap || !snap.fields) return null;
+const obj = {};
+Object.keys(snap.fields).forEach(k => obj[k] = fsVal(snap.fields[k]));
+return obj;
+}
+
+// Convert JS value to Firestore REST value
+function toFsVal(v) {
+if (v === null || v === undefined) return {nullValue: null};
+if (typeof v === ‘boolean’) return {booleanValue: v};
+if (typeof v === ‘number’) {
+if (Number.isInteger(v)) return {integerValue: String(v)};
+return {doubleValue: v};
+}
+if (typeof v === ‘string’) return {stringValue: v};
+if (Array.isArray(v)) return {arrayValue: {values: v.map(toFsVal)}};
+if (typeof v === ‘object’) {
+const fields = {};
+Object.keys(v).forEach(k => fields[k] = toFsVal(v[k]));
+return {mapValue: {fields}};
+}
+return {stringValue: String(v)};
+}
+
+// Convert plain object to Firestore fields
+function toFsFields(obj) {
+const fields = {};
+Object.keys(obj).forEach(k => fields[k] = toFsVal(obj[k]));
+return fields;
+}
+
+// GET a document
+async function fsGet(path) {
+const r = await fetch(FS_BASE + ‘/’ + path + ‘?key=’ + FS_KEY);
+if (r.status === 404) return null;
+const snap = await r.json();
+return fsDoc(snap);
+}
+
+// SET (overwrite) a document
+async function fsSet(path, data) {
+const fields = toFsFields(data);
+// Use PATCH with updateMask to overwrite
+const fieldPaths = Object.keys(fields).map(k => ‘updateMask.fieldPaths=’ + encodeURIComponent(k)).join(’&’);
+const url = FS_BASE + ‘/’ + path + ‘?key=’ + FS_KEY + ‘&’ + fieldPaths;
+const r = await fetch(url, {
+method: ‘PATCH’,
+headers: {‘Content-Type’: ‘application/json’},
+body: JSON.stringify({fields})
+});
+return r.ok;
+}
+
+// ADD to a collection (auto-ID)
+async function fsAdd(collPath, data) {
+const r = await fetch(FS_BASE + ‘/’ + collPath + ‘?key=’ + FS_KEY, {
+method: ‘POST’,
+headers: {‘Content-Type’: ‘application/json’},
+body: JSON.stringify({fields: toFsFields(data)})
+});
+return r.ok;
+}
+
+// LIST a collection ordered by field
+async function fsList(collPath, orderBy, limit) {
+let url = FS_BASE + ‘:runQuery?key=’ + FS_KEY;
+const query = {
+structuredQuery: {
+from: [{collectionId: collPath.split(’/’).pop()}],
+parent: FS_BASE + ‘/’ + collPath.split(’/’).slice(0,-1).join(’/’),
+orderBy: orderBy ? [{field:{fieldPath:orderBy},direction:‘DESCENDING’}] : undefined,
+limit: limit || 50
+}
+};
+const r = await fetch(url, {
+method: ‘POST’,
+headers: {‘Content-Type’: ‘application/json’},
+body: JSON.stringify(query)
+});
+const rows = await r.json();
+return (rows || []).filter(row => row.document).map(row => fsDoc(row.document));
+}
+
+// Poll for changes (simple interval polling since no real-time SDK)
+function fsListen(path, callback, intervalMs) {
+callback(null); // initial
+fsGet(path).then(callback);
+const id = setInterval(() => fsGet(path).then(callback), intervalMs || 3000);
+return () => clearInterval(id); // unsub
+}
+
+function setSynced(ok) {
+const dot = document.getElementById(‘sync-dot’);
+const lbl = document.getElementById(‘sync-label’);
+if(dot) dot.className = ’sync-dot ’ + (ok ? ‘ok’ : ‘err’);
+if(lbl) lbl.textContent = ok ? ‘sincronizado’ : ‘sem conexão’;
+}
+</script>
+
 <style>
 :root {
   --bg:#fff8f0; --main:#f76c2f; --grad:linear-gradient(135deg,#f76c2f,#fbbf24);
@@ -44,113 +165,113 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .prog-label{color:white;font-size:.7rem;font-weight:700;opacity:.9;text-align:right;margin-top:2px;}
 
 /* COMPORTAMENTO */
-.comportamento-card{background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:var(–shadow);}
-.comp-title{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:.95rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.comportamento-card{background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.comp-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .comp-btns{display:flex;gap:8px;}
-.comp-btn{flex:1;padding:10px 8px;border-radius:12px;border:2px solid #e5e7eb;background:white;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.85rem;transition:all .15s;text-align:center;}
-.comp-btn.sel-bom{border-color:var(–green);background:#f0fdf4;color:#166534;}
-.comp-btn.sel-ruim{border-color:var(–red);background:#fff5f5;color:#991b1b;}
-.comp-status{margin-top:8px;font-size:.78rem;font-weight:700;color:var(–muted);text-align:center;}
-.comp-status.bom{color:var(–green);}
-.comp-status.ruim{color:var(–red);}
+.comp-btn{flex:1;padding:10px 8px;border-radius:12px;border:2px solid #e5e7eb;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;transition:all .15s;text-align:center;}
+.comp-btn.sel-bom{border-color:var(--green);background:#f0fdf4;color:#166534;}
+.comp-btn.sel-ruim{border-color:var(--red);background:#fff5f5;color:#991b1b;}
+.comp-status{margin-top:8px;font-size:.78rem;font-weight:700;color:var(--muted);text-align:center;}
+.comp-status.bom{color:var(--green);}
+.comp-status.ruim{color:var(--red);}
 
 /* PONTOS NO MÊS */
-.pontos-card{background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:var(–shadow);}
+.pontos-card{background:white;border-radius:16px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);}
 .pontos-bar-wrap{display:flex;align-items:center;gap:8px;margin-top:8px;}
 .pontos-bar-bg{flex:1;background:#f0f0f0;border-radius:99px;height:12px;overflow:hidden;}
-.pontos-bar-bom{background:var(–green);height:12px;border-radius:99px;transition:width .5s;}
+.pontos-bar-bom{background:var(--green);height:12px;border-radius:99px;transition:width .5s;}
 .pontos-nums{display:flex;justify-content:space-between;margin-top:4px;font-size:.72rem;font-weight:800;}
 .pontos-status{margin-top:8px;border-radius:10px;padding:8px 12px;font-size:.8rem;font-weight:700;text-align:center;}
 .pontos-status.pode{background:#f0fdf4;color:#166534;}
 .pontos-status.nao{background:#fff5f5;color:#991b1b;}
 
-.penalty-banner{background:#fff0f0;border:2px solid #fca5a5;border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:.82rem;font-weight:700;color:var(–red);display:flex;align-items:center;gap:8px;}
+.penalty-banner{background:#fff0f0;border:2px solid #fca5a5;border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:.82rem;font-weight:700;color:var(--red);display:flex;align-items:center;gap:8px;}
 .pending-notice{background:#fefce8;border:2px solid #fde047;border-radius:12px;padding:9px 12px;margin-bottom:12px;font-size:.8rem;font-weight:700;color:#854d0e;display:flex;align-items:center;gap:6px;}
-.section-title{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1rem;margin:14px 0 7px;display:flex;align-items:center;gap:6px;}
+.section-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;margin:14px 0 7px;display:flex;align-items:center;gap:6px;}
 .task-card{background:white;border-radius:14px;padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;transition:transform .12s;border:2px solid transparent;user-select:none;-webkit-user-select:none;}
 .task-card:active{transform:scale(.97);}
 .task-card.pending{border-color:#d1d5db;background:#fafafa;}
-.task-card.validated{border-color:var(–main);background:var(–light);}
+.task-card.validated{border-color:var(--main);background:var(--light);}
 .task-card.rejected{border-color:#fca5a5;background:#fff5f5;opacity:.6;}
 .task-check{width:27px;height:27px;border-radius:50%;border:2.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;transition:all .2s;}
 .task-card.pending  .task-check{background:#e5e7eb;border-color:#e5e7eb;color:#9ca3af;}
-.task-card.validated .task-check{background:var(–main);border-color:var(–main);color:white;}
+.task-card.validated .task-check{background:var(--main);border-color:var(--main);color:white;}
 .task-card.rejected .task-check{background:#fca5a5;border-color:#fca5a5;color:white;}
 .task-icon{font-size:1.4rem;flex-shrink:0;}
 .task-body{flex:1;min-width:0;}
 .task-name{font-weight:800;font-size:.88rem;}
-.task-desc{font-size:.73rem;color:var(–muted);margin-top:1px;}
+.task-desc{font-size:.73rem;color:var(--muted);margin-top:1px;}
 .task-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;}
-.task-value{font-family:‘Nunito’,sans-serif;font-size:.92rem;color:var(–green);}
+.task-value{font-family:'Nunito',sans-serif;font-size:.92rem;color:var(--green);}
 .badge{font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:99px;}
 .badge-obrig{background:#fef3c7;color:#92400e;}
 .badge-aguard{background:#fef9c3;color:#78716c;}
 .badge-ok{background:#dcfce7;color:#166534;}
 .badge-rejected{background:#fee2e2;color:#991b1b;}
-.month-box{background:white;border-radius:var(–radius);padding:14px;box-shadow:var(–shadow);margin-bottom:12px;}
+.month-box{background:white;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:12px;}
 .stat-row{display:flex;justify-content:space-around;}
 .stat-box{text-align:center;}
-.stat-box .val{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.35rem;}
-.stat-box .lbl{font-size:.7rem;color:var(–muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
-.val.green{color:var(–green);}.val.gold{color:var(–gold);}.val.red{color:var(–red);}
-.reward-card{background:white;border-radius:14px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(–shadow);}
-.reward-card.unlocked{border:2px solid var(–gold);background:linear-gradient(135deg,#fffbeb,#fef9c3);cursor:pointer;}
+.stat-box .val{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.35rem;}
+.stat-box .lbl{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+.val.green{color:var(--green);}.val.gold{color:var(--gold);}.val.red{color:var(--red);}
+.reward-card{background:white;border-radius:14px;padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);}
+.reward-card.unlocked{border:2px solid var(--gold);background:linear-gradient(135deg,#fffbeb,#fef9c3);cursor:pointer;}
 .reward-card.locked-behavior{border:2px solid #fca5a5;opacity:.7;}
 .r-icon{font-size:1.9rem;flex-shrink:0;}.r-body{flex:1;}
-.r-title{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:.9rem;}.r-sub{font-size:.73rem;color:var(–muted);margin-top:1px;}
+.r-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:.9rem;}.r-sub{font-size:.73rem;color:var(--muted);margin-top:1px;}
 .r-progress{display:flex;align-items:center;gap:8px;margin-top:5px;}
 .r-prog-bg{flex:1;background:#f3f4f6;border-radius:99px;height:6px;}
-.r-prog-fill{background:var(–gold);border-radius:99px;height:6px;transition:width .5s;}
-.r-days{font-family:‘Nunito’,sans-serif;font-size:.78rem;color:var(–gold);flex-shrink:0;}
+.r-prog-fill{background:var(--gold);border-radius:99px;height:6px;transition:width .5s;}
+.r-days{font-family:'Nunito',sans-serif;font-size:.78rem;color:var(--gold);flex-shrink:0;}
 .reward-badge{font-size:.68rem;font-weight:800;padding:3px 9px;border-radius:99px;flex-shrink:0;}
-.reward-badge.done{background:#fef08a;color:#78350f;}.reward-badge.locked{background:#f3f4f6;color:var(–muted);}
+.reward-badge.done{background:#fef08a;color:#78350f;}.reward-badge.locked{background:#f3f4f6;color:var(--muted);}
 .reward-badge.blocked{background:#fee2e2;color:#991b1b;}
 
 /* CARTEIRA */
 .carteira-row{display:flex;gap:10px;margin-bottom:14px;}
-.carteira-card{flex:1;border-radius:16px;padding:14px 12px;box-shadow:var(–shadow);position:relative;overflow:hidden;}
+.carteira-card{flex:1;border-radius:16px;padding:14px 12px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
 .carteira-card.corrente{background:linear-gradient(135deg,#3b82f6,#06b6d4);}
 .carteira-card.invest{background:linear-gradient(135deg,#8b5cf6,#ec4899);}
-.carteira-card h4{font-family:‘Nunito’,sans-serif;font-size:.82rem;color:rgba(255,255,255,.85);margin-bottom:2px;}
-.carteira-card .c-val{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.4rem;color:white;line-height:1.1;}
+.carteira-card h4{font-family:'Nunito',sans-serif;font-size:.82rem;color:rgba(255,255,255,.85);margin-bottom:2px;}
+.carteira-card .c-val{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.4rem;color:white;line-height:1.1;}
 .carteira-card .c-sub{font-size:.68rem;color:rgba(255,255,255,.75);margin-top:2px;}
 .carteira-icon{position:absolute;bottom:-6px;right:8px;font-size:2.2rem;opacity:.25;}
-.gasto-section{background:white;border-radius:16px;padding:14px;box-shadow:var(–shadow);margin-bottom:14px;}
-.gasto-section h4{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:.95rem;margin-bottom:10px;color:var(–text);}
-.gasto-input{width:100%;border:2px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-family:‘Nunito’,sans-serif;font-size:.88rem;font-weight:700;outline:none;margin-bottom:8px;}
-.gasto-input:focus{border-color:var(–main);}
+.gasto-section{background:white;border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-bottom:14px;}
+.gasto-section h4{font-family:'Nunito',sans-serif;font-weight:900;font-size:.95rem;margin-bottom:10px;color:var(--text);}
+.gasto-input{width:100%;border:2px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;outline:none;margin-bottom:8px;}
+.gasto-input:focus{border-color:var(--main);}
 .fonte-btns{display:flex;gap:6px;margin-bottom:10px;}
-.fonte-btn{flex:1;padding:7px 6px;border-radius:10px;border:2px solid #e5e7eb;background:white;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.78rem;transition:all .15s;color:var(–muted);}
-.fonte-btn.sel-corrente{border-color:var(–blue);background:#eff6ff;color:var(–blue);}
-.fonte-btn.sel-invest{border-color:var(–invest);background:#f5f3ff;color:var(–invest);}
-.btn-registrar{width:100%;padding:10px;border-radius:12px;border:none;background:var(–main);color:white;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;}
+.fonte-btn{flex:1;padding:7px 6px;border-radius:10px;border:2px solid #e5e7eb;background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;transition:all .15s;color:var(--muted);}
+.fonte-btn.sel-corrente{border-color:var(--blue);background:#eff6ff;color:var(--blue);}
+.fonte-btn.sel-invest{border-color:var(--invest);background:#f5f3ff;color:var(--invest);}
+.btn-registrar{width:100%;padding:10px;border-radius:12px;border:none;background:var(--main);color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;}
 .div-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 .div-label{font-weight:800;font-size:.83rem;width:100px;flex-shrink:0;}
-.div-slider{flex:1;accent-color:var(–main);}
-.div-pct{font-family:‘Nunito’,sans-serif;font-size:.95rem;width:40px;text-align:right;color:var(–main);}
+.div-slider{flex:1;accent-color:var(--main);}
+.div-pct{font-family:'Nunito',sans-serif;font-size:.95rem;width:40px;text-align:right;color:var(--main);}
 .historico-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6;}
 .historico-item:last-child{border-bottom:none;}
 .hi-left{display:flex;align-items:center;gap:8px;}
 .hi-desc{font-weight:700;font-size:.83rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.hi-date{font-size:.7rem;color:var(–muted);}
-.hi-val{font-family:‘Nunito’,sans-serif;font-size:.9rem;}
+.hi-date{font-size:.7rem;color:var(--muted);}
+.hi-val{font-family:'Nunito',sans-serif;font-size:.9rem;}
 .hi-badge{font-size:.62rem;font-weight:800;padding:2px 6px;border-radius:99px;}
-.hi-corrente{background:#eff6ff;color:var(–blue);}.hi-invest{background:#f5f3ff;color:var(–invest);}
+.hi-corrente{background:#eff6ff;color:var(--blue);}.hi-invest{background:#f5f3ff;color:var(--invest);}
 
 /* ── DISNEY ── */
-.disney-hero{background:linear-gradient(135deg,#1a237e,#283593,#1565c0);border-radius:var(–radius);padding:18px;margin-bottom:14px;box-shadow:var(–shadow);position:relative;overflow:hidden;color:white;}
-.disney-hero::before{content:‘✨’;position:absolute;top:10px;right:16px;font-size:2.4rem;opacity:.35;}
-.disney-hero::after{content:‘🏰’;position:absolute;bottom:-4px;right:44px;font-size:2.8rem;opacity:.25;}
-.disney-hero h2{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.3rem;margin-bottom:2px;}
+.disney-hero{background:linear-gradient(135deg,#1a237e,#283593,#1565c0);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow);position:relative;overflow:hidden;color:white;}
+.disney-hero::before{content:'✨';position:absolute;top:10px;right:16px;font-size:2.4rem;opacity:.35;}
+.disney-hero::after{content:'🏰';position:absolute;bottom:-4px;right:44px;font-size:2.8rem;opacity:.25;}
+.disney-hero h2{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.3rem;margin-bottom:2px;}
 .disney-hero p{font-size:.8rem;opacity:.85;margin-bottom:12px;}
 .disney-totals{display:flex;gap:10px;}
 .disney-total-box{flex:1;background:rgba(255,255,255,.15);border-radius:12px;padding:10px;text-align:center;}
-.disney-total-box .dtv{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.4rem;color:white;}
+.disney-total-box .dtv{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.4rem;color:white;}
 .disney-total-box .dtl{font-size:.68rem;opacity:.8;font-weight:700;text-transform:uppercase;}
 .disney-prog-wrap{margin-top:10px;}
 .disney-prog-bg{background:rgba(255,255,255,.25);border-radius:99px;height:10px;}
 .disney-prog-fill{background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;height:10px;transition:width .6s;}
-.disney-prog-label{font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.72rem;opacity:.85;margin-top:3px;text-align:right;font-weight:700;}
+.disney-prog-label{font-family:'Nunito',sans-serif;font-weight:800;font-size:.72rem;opacity:.85;margin-top:3px;text-align:right;font-weight:700;}
 .materia-card{background:white;border-radius:14px;padding:12px 14px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,.05);border:2px solid transparent;}
 .materia-card.pontuou{border-color:#fbbf24;background:#fffbeb;}
 .materia-card.zerou{opacity:.55;}
@@ -159,32 +280,32 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 .materia-tipo{font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:99px;background:#e0e7ff;color:#3730a3;}
 .materia-body{display:flex;align-items:center;gap:10px;}
 .nota-input-wrap{display:flex;align-items:center;gap:6px;flex:1;}
-.nota-label{font-size:.75rem;color:var(–muted);font-weight:700;flex-shrink:0;}
-.nota-input{width:64px;border:2px solid #e5e7eb;border-radius:10px;padding:7px 8px;font-family:‘Nunito’,sans-serif;font-size:.92rem;font-weight:800;text-align:center;outline:none;}
+.nota-label{font-size:.75rem;color:var(--muted);font-weight:700;flex-shrink:0;}
+.nota-input{width:64px;border:2px solid #e5e7eb;border-radius:10px;padding:7px 8px;font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:800;text-align:center;outline:none;}
 .nota-input:focus{border-color:#1565c0;}
 .nota-input.ok{border-color:#fbbf24;background:#fffbeb;}
 .nota-input.low{border-color:#fca5a5;background:#fff5f5;}
-.nota-equiv{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1rem;flex-shrink:0;min-width:36px;text-align:right;}
+.nota-equiv{font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;flex-shrink:0;min-width:36px;text-align:right;}
 .nota-equiv.ok{color:#f59e0b;}
-.nota-equiv.low{color:var(–muted);}
+.nota-equiv.low{color:var(--muted);}
 .nota-pts{font-size:.72rem;font-weight:800;flex-shrink:0;}
-.nota-pts.ok{color:var(–green);}
-.nota-pts.low{color:var(–muted);}
-.disney-legenda{background:white;border-radius:14px;padding:12px 14px;margin-bottom:12px;box-shadow:var(–shadow);font-size:.76rem;color:#555;line-height:1.8;}
-.disney-legenda strong{color:var(–text);}
+.nota-pts.ok{color:var(--green);}
+.nota-pts.low{color:var(--muted);}
+.disney-legenda{background:white;border-radius:14px;padding:12px 14px;margin-bottom:12px;box-shadow:var(--shadow);font-size:.76rem;color:#555;line-height:1.8;}
+.disney-legenda strong{color:var(--text);}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
-.modal{background:white;border-radius:var(–radius);padding:22px 20px;max-width:320px;width:92%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:popIn .22s ease;}
+.modal{background:white;border-radius:var(--radius);padding:22px 20px;max-width:320px;width:92%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:popIn .22s ease;}
 @keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
 .modal .m-icon{font-size:2.6rem;margin-bottom:6px;}
-.modal h3{font-family:‘Nunito’,sans-serif;font-size:1.2rem;margin-bottom:5px;}
+.modal h3{font-family:'Nunito',sans-serif;font-size:1.2rem;margin-bottom:5px;}
 .modal p{font-size:.83rem;color:#555;line-height:1.5;margin-bottom:14px;}
-.mbtn{padding:9px 20px;border-radius:99px;border:none;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.86rem;}
-.mbtn-main{background:var(–main);color:white;}.mbtn-cancel{background:#f3f4f6;color:#6b7280;}
+.mbtn{padding:9px 20px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.86rem;}
+.mbtn-main{background:var(--main);color:white;}.mbtn-cancel{background:#f3f4f6;color:#6b7280;}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:#1a1a2e;color:white;padding:10px 20px;border-radius:99px;font-weight:700;font-size:.85rem;z-index:300;transition:transform .3s ease;max-width:88vw;text-align:center;}
 .toast.show{transform:translateX(-50%) translateY(0);}
-.loading{display:flex;align-items:center;justify-content:center;padding:40px;flex-direction:column;gap:12px;color:var(–muted);}
-.spinner{width:36px;height:36px;border:3px solid #f0f0f0;border-top-color:var(–main);border-radius:50%;animation:spin .7s linear infinite;}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;flex-direction:column;gap:12px;color:var(--muted);}
+.spinner{width:36px;height:36px;border:3px solid #f0f0f0;border-top-color:var(--main);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 
@@ -415,16 +536,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 <div class="toast" id="toast"></div>
 
 <script>
-firebase.initializeApp({
-  apiKey:"AIzaSyBj4ijJQDD1kSuhCqBWund5kt8ijVKFJw8",
-  authDomain:"kids-allowance-8dc74.firebaseapp.com",
-  projectId:"kids-allowance-8dc74",
-  storageBucket:"kids-allowance-8dc74.firebasestorage.app",
-  messagingSenderId:"640632026277",
-  appId:"1:640632026277:web:77241724e86b27b96cc94c"
-});
-const db = firebase.firestore();
-db.settings({ experimentalForceLongPolling: true, merge: true });
 const KID = 'rafael';
 
 const TASKS = [
@@ -452,9 +563,9 @@ const DAYS_W=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 let curDate=new Date(), dayData={}, unsubDay=null, fonteGasto='corrente';
 
 function ds(d){return d.toISOString().slice(0,10);}
-function dayRef(s){return db.collection('mesada').doc(KID).collection('dias').doc(s);}
-function walletRef(){return db.collection('mesada').doc(KID).collection('carteira').doc('saldo');}
-function gastosRef(){return db.collection('mesada').doc(KID).collection('gastos');}
+function dayPath(s){ return 'mesada/'+KID+'/dias/'+s; }
+function walletPath(){ return 'mesada/'+KID+'/carteira/saldo'; }
+function gastosPath(){ return 'mesada/'+KID+'/gastos'; }
 
 function setSynced(ok){
   document.getElementById('sync-dot').className='sync-dot '+(ok?'ok':'err');
@@ -476,13 +587,13 @@ document.getElementById('panel-disney').style.display='none';
 
 function listenDay(d){
   if(unsubDay)unsubDay();
-  unsubDay=dayRef(ds(d)).onSnapshot(snap=>{
-    dayData[ds(d)]=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
+  unsubDay = fsListen(dayPath(ds(d)), data => {
+    dayData[ds(d)] = data || {tasks:{},flag:'none',comportamento:'none'};
     setSynced(true);
     document.getElementById('loading').style.display='none';
     document.getElementById('main-content').style.display='block';
     renderDay();
-  },()=>setSynced(false));
+  }, 3000);
 }
 
 function toggleTask(taskId){
@@ -495,10 +606,10 @@ function toggleTask(taskId){
   dayData[dateStr].tasks=dayData[dateStr].tasks||{};
   dayData[dateStr].tasks[taskId]=next;
   renderDay();
-  dayRef(dateStr).get().then(snap=>{
-    const ex=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
-    ex.tasks=ex.tasks||{};ex.tasks[taskId]=next;
-    return dayRef(dateStr).set(ex);
+  fsGet(dayPath(dateStr)).then(ex => {
+    ex = ex || {tasks:{},flag:'none',comportamento:'none'};
+    ex.tasks = ex.tasks||{}; ex.tasks[taskId]=next;
+    return fsSet(dayPath(dateStr), ex);
   }).then(()=>{
     if(next==='pending'){const t=TASKS.find(x=>x.id===taskId);showToast(t.icon+' Marcado! Aguarda validação ⏳');}
   }).catch(()=>setSynced(false));
@@ -572,7 +683,7 @@ function loadMonthStats(){
   for(let day=1;day<=dim;day++){
     const dd=new Date(d.getFullYear(),d.getMonth(),day),s=ds(dd);
     if(dayData[s]){promises.push(Promise.resolve());continue;}
-    promises.push(dayRef(s).get().then(snap=>{dayData[s]=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};}).catch(()=>{}));
+    promises.push(fsGet(dayPath(s)).then(d=>{dayData[s]=d||{tasks:{},flag:'none',comportamento:'none'};}).catch(()=>{}));
   }
   Promise.all(promises).then(()=>{
     let totalEarned=0,completeDays=0,liedDays=0,bomDias=0,ruimDias=0,avaliadosDias=0;
@@ -649,8 +760,8 @@ function changeDate(delta){
 let fonteGasto='corrente', fonteGanho='corrente', fonteAdj='corrente', tipoAdj='add';
 
 function loadCarteira(){
-  walletRef().get().then(snap=>{
-    const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50,mesadaPendente:0,mesadaTransferida:false};
+  fsGet(walletPath()).then(snap=>{
+    const data=snap||{corrente:0,invest:0,pctCorrente:50,mesadaPendente:0,mesadaTransferida:false};
     document.getElementById('saldo-corrente').textContent=parseFloat(data.corrente||0).toFixed(2).replace('.',',');
     document.getElementById('saldo-invest').textContent=parseFloat(data.invest||0).toFixed(2).replace('.',',');
     const pct=data.pctCorrente!=null?data.pctCorrente:50;
@@ -676,8 +787,8 @@ function updateSlider(val){
   const v=parseInt(val);
   document.getElementById('pct-corrente').textContent=v+'%';
   document.getElementById('pct-invest').textContent=(100-v)+'%';
-  walletRef().get().then(snap=>{
-    const data=snap.exists?snap.data():{};
+  fsGet(walletPath()).then(snap=>{
+    const data=snap||{};
     updatePreviewTransferencia(v, parseFloat(data.mesadaPendente||0));
   }).catch(()=>{});
 }
@@ -700,8 +811,8 @@ function updatePreviewTransferencia(pct, total){
 
 function transferirMesada(){
   const pct=parseInt(document.getElementById('slider-corrente').value);
-  walletRef().get().then(snap=>{
-    const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50,mesadaPendente:0};
+  fsGet(walletPath()).then(snap=>{
+    const data=snap||{corrente:0,invest:0,pctCorrente:50,mesadaPendente:0};
     const pendente=parseFloat(data.mesadaPendente||0);
     if(pendente<=0){showToast('Nenhuma mesada pendente');return;}
     const vc=Math.round(pendente*(pct/100)*100)/100;
@@ -710,10 +821,10 @@ function transferirMesada(){
     data.invest  =Math.round(((parseFloat(data.invest)||0)+vi)*100)/100;
     data.pctCorrente=pct;
     data.mesadaTransferida=true;
-    return walletRef().set(data).then(()=>{
+    return fsSet(walletPath(),data).then(()=>{
       const mes=new Date().toLocaleDateString('pt-BR',{month:'long'});
-      gastosRef().add({desc:'Mesada de '+mes+' transferida',valor:vc,fonte:'corrente',data:new Date().toISOString(),tipo:'deposito'});
-      if(vi>0) gastosRef().add({desc:'Mesada de '+mes+' transferida',valor:vi,fonte:'invest',data:new Date().toISOString(),tipo:'deposito'});
+      fsAdd(gastosPath(),{desc:'Mesada de '+mes+' transferida',valor:vc,fonte:'corrente',data:new Date().toISOString(),tipo:'deposito'});
+      if(vi>0) fsAdd(gastosPath(),{desc:'Mesada de '+mes+' transferida',valor:vi,fonte:'invest',data:new Date().toISOString(),tipo:'deposito'});
     });
   }).then(()=>{
     showToast('✅ Mesada transferida para sua carteira!');
@@ -739,17 +850,17 @@ function ajustarSaldo(){
   const val=parseFloat(document.getElementById('adj-val').value);
   const desc=document.getElementById('adj-desc').value.trim()||'Ajuste de saldo';
   if(!val||val<=0){showToast('💰 Coloca o valor do ajuste!');return;}
-  walletRef().get().then(snap=>{
-    const data=snap.exists?snap.data():{corrente:0,invest:0};
+  fsGet(walletPath()).then(snap=>{
+    const data=snap||{corrente:0,invest:0};
     const saldoAtual=parseFloat(data[fonteAdj]||0);
     let novoSaldo;
     if(tipoAdj==='add') novoSaldo=Math.round((saldoAtual+val)*100)/100;
     else if(tipoAdj==='sub') novoSaldo=Math.max(0,Math.round((saldoAtual-val)*100)/100);
     else novoSaldo=Math.round(val*100)/100;
     data[fonteAdj]=novoSaldo;
-    return walletRef().set(data).then(()=>{
+    return fsSet(walletPath(),data).then(()=>{
       const tipoLabel=tipoAdj==='add'?'deposito':tipoAdj==='sub'?'gasto':'ajuste';
-      gastosRef().add({desc:'[Ajuste] '+desc,valor:val,fonte:fonteAdj,data:new Date().toISOString(),tipo:tipoLabel});
+      fsAdd(gastosPath(),{desc:'[Ajuste] '+desc,valor:val,fonte:fonteAdj,data:new Date().toISOString(),tipo:tipoLabel});
     });
   }).then(()=>{
     showToast('✅ Saldo ajustado!');
@@ -775,13 +886,13 @@ function registrarGasto(){
   const val=parseFloat(document.getElementById('gasto-val').value);
   if(!desc){showToast('💬 Descreve o que compraste!');return;}
   if(!val||val<=0){showToast('💰 Coloca o valor gasto!');return;}
-  walletRef().get().then(snap=>{
-    const data=snap.exists?snap.data():{corrente:0,invest:0};
+  fsGet(walletPath()).then(snap=>{
+    const data=snap||{corrente:0,invest:0};
     const saldo=parseFloat(data[fonteGasto]||0);
     if(val>saldo){showToast('❌ Saldo insuficiente!');return;}
     data[fonteGasto]=Math.round((saldo-val)*100)/100;
-    walletRef().set(data).then(()=>{
-      gastosRef().add({desc,valor:val,fonte:fonteGasto,data:new Date().toISOString(),tipo:'gasto'});
+    fsSet(walletPath(),data).then(()=>{
+      fsAdd(gastosPath(),{desc,valor:val,fonte:fonteGasto,data:new Date().toISOString(),tipo:'gasto'});
       document.getElementById('gasto-desc').value='';
       document.getElementById('gasto-val').value='';
       showToast('🛍️ Gasto de R$ '+val.toFixed(2).replace('.',',')+' registrado!');
@@ -795,11 +906,11 @@ function registrarGanho(){
   const val=parseFloat(document.getElementById('ganho-val').value);
   if(!desc){showToast('💬 Descreve de onde veio!');return;}
   if(!val||val<=0){showToast('💰 Coloca o valor!');return;}
-  walletRef().get().then(snap=>{
-    const data=snap.exists?snap.data():{corrente:0,invest:0};
+  fsGet(walletPath()).then(snap=>{
+    const data=snap||{corrente:0,invest:0};
     data[fonteGanho]=Math.round(((parseFloat(data[fonteGanho])||0)+val)*100)/100;
-    return walletRef().set(data).then(()=>{
-      gastosRef().add({desc:'🎁 '+desc,valor:val,fonte:fonteGanho,data:new Date().toISOString(),tipo:'ganho'});
+    return fsSet(walletPath(),data).then(()=>{
+      fsAdd(gastosPath(),{desc:'🎁 '+desc,valor:val,fonte:fonteGanho,data:new Date().toISOString(),tipo:'ganho'});
     });
   }).then(()=>{
     document.getElementById('ganho-desc').value='';
@@ -810,7 +921,7 @@ function registrarGanho(){
 }
 
 function loadHistorico(){
-  gastosRef().orderBy('data','desc').get().then(snap=>{
+  fsList(gastosPath(),'data',100).then(snap=>{
     const el=document.getElementById('historico-lista');
     if(snap.empty){el.innerHTML='<div style="color:var(--muted);font-size:.83rem;text-align:center;padding:12px;">Nenhum registro ainda</div>';return;}
     el.innerHTML='';
@@ -884,7 +995,7 @@ const DISNEY_MAX_PONTOS = 350;
 const DISNEY_VALOR_PONTO = 150 / DISNEY_MAX_PONTOS;
 const DISNEY_MIN_EQUIV = 7.0;
 
-function disneyRef(){return db.collection('mesada').doc(KID).collection('disney').doc('notas');}
+function disneyPath(){ return 'mesada/'+KID+'/disney/notas'; }
 
 function calcEquiv(nota, maxNota){
   if(!nota || nota <= 0) return 0;
@@ -892,8 +1003,8 @@ function calcEquiv(nota, maxNota){
 }
 
 function loadDisney(){
-  disneyRef().get().then(snap=>{
-    const notas = snap.exists ? snap.data() : {};
+  fsGet(disneyPath()).then(snap=>{
+    const notas = snap || {};
     renderDisney(notas);
   }).catch(()=>renderDisney({}));
 }
@@ -981,10 +1092,10 @@ function salvarNota(id, maxNota){
   let val = parseFloat(input.value);
   if(isNaN(val) || val < 0) val = 0;
   if(val > maxNota) val = maxNota;
-  disneyRef().get().then(snap=>{
-    const notas = snap.exists ? snap.data() : {};
+  fsGet(disneyPath()).then(snap=>{
+    const notas = snap || {};
     if(val > 0) notas[id] = val; else delete notas[id];
-    return disneyRef().set(notas);
+    return fsSet(disneyPath(),notas);
   }).then(()=>{
     loadDisney();
     const equiv = calcEquiv(val, maxNota);
@@ -996,7 +1107,7 @@ function salvarNota(id, maxNota){
 let tt;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2600);}
 
-firebase.auth().signInAnonymously().then(()=>{ listenDay(curDate); }).catch(e=>{ setSynced(false); });
+setSynced(true); listenDay(curDate);
 </script>
 
 </body>
