@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <style>
 :root{
   --bg:#fdf4ff;--main:#8b5cf6;--grad:linear-gradient(135deg,#8b5cf6,#ec4899);
@@ -723,7 +724,7 @@ function salvarNota(id,maxNota){
 
 let tt;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2600);}
-listenDay(curDate);
+firebase.auth().signInAnonymously().then(()=>{ listenDay(curDate); }).catch(e=>{ setSynced(false); });
 </script>
 
 </body>
