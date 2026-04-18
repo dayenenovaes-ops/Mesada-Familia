@@ -267,9 +267,17 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
       <div class="carteira-icon">🏦</div>
     </div>
   </div>
-  <div class="gasto-section">
-    <h4>⚖️ Minha divisão da mesada</h4>
-    <div style="font-size:.78rem;color:var(--muted);margin-bottom:10px;">Quanto da sua mesada vai para cada lugar?</div>
+  <div class="gasto-section" id="mesada-pendente-box" style="display:none;">
+    <h4>🎉 Mesada do mês disponível!</h4>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:10px;">Seus pais depositaram sua mesada. Transfira para sua carteira:</div>
+    <div style="background:#f0fdf4;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:.75rem;font-weight:800;color:var(--muted);">MESADA PENDENTE</div>
+        <div style="font-size:1.4rem;font-weight:900;color:var(--green);">R$ <span id="mesada-pendente-val">0,00</span></div>
+      </div>
+      <div style="font-size:2rem;">💰</div>
+    </div>
+    <div style="font-size:.75rem;font-weight:800;color:var(--muted);margin-bottom:6px;">DIVISÃO:</div>
     <div class="div-row">
       <div class="div-label" style="color:var(--blue)">💳 Corrente</div>
       <input type="range" class="div-slider" id="slider-corrente" min="0" max="100" value="50" oninput="updateSlider(this.value)">
@@ -280,17 +288,45 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
       <input type="range" style="flex:1;accent-color:var(--invest)" id="slider-invest" min="0" max="100" value="50" disabled>
       <div class="div-pct" id="pct-invest" style="color:var(--invest)">50%</div>
     </div>
-    <button class="btn-registrar" onclick="saveDivisao()" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">Salvar minha divisão</button>
+    <div id="preview-transferencia" style="display:flex;gap:8px;margin-bottom:10px;"></div>
+    <button class="btn-registrar" onclick="transferirMesada()" style="background:linear-gradient(135deg,#22c55e,#16a34a)">💸 Transferir para minha carteira</button>
+  </div>
+  <div class="gasto-section">
+    <h4>✏️ Ajustar saldo</h4>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:10px;">Corrija saldos se necessário (aprovado pelos pais)</div>
+    <div class="fonte-btns" style="margin-bottom:8px;">
+      <button class="fonte-btn" id="adj-btn-corrente" onclick="selecionarFonteAdj('corrente')">💳 Corrente</button>
+      <button class="fonte-btn" id="adj-btn-invest"   onclick="selecionarFonteAdj('invest')">📈 Investimento</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button class="fonte-btn" id="adj-btn-add" onclick="selecionarTipoAdj('add')" style="flex:1">➕ Adicionar</button>
+      <button class="fonte-btn" id="adj-btn-sub" onclick="selecionarTipoAdj('sub')" style="flex:1">➖ Remover</button>
+      <button class="fonte-btn" id="adj-btn-set" onclick="selecionarTipoAdj('set')" style="flex:1">🔄 Definir</button>
+    </div>
+    <input class="gasto-input" type="number" id="adj-val"  placeholder="R$ valor" step="0.01" min="0">
+    <input class="gasto-input" type="text"   id="adj-desc" placeholder="Motivo (ex: correção de saldo)">
+    <button class="btn-registrar" onclick="ajustarSaldo()" style="background:#6b7280">Aplicar ajuste</button>
   </div>
   <div class="gasto-section">
     <h4>🛍️ Registrar gasto</h4>
-    <input class="gasto-input" type="text" id="gasto-desc" placeholder="No que gastou? (ex: brinquedo)">
-    <input class="gasto-input" type="number" id="gasto-val" placeholder="R$ 0,00" step="0.01" min="0">
+    <input class="gasto-input" type="text"   id="gasto-desc" placeholder="No que gastou? (ex: brinquedo)">
+    <input class="gasto-input" type="number" id="gasto-val"  placeholder="R$ 0,00" step="0.01" min="0">
     <div class="fonte-btns">
       <button class="fonte-btn" id="btn-corrente" onclick="selecionarFonte('corrente')">💳 Conta Corrente</button>
-      <button class="fonte-btn" id="btn-invest" onclick="selecionarFonte('invest')">📈 Investimento</button>
+      <button class="fonte-btn" id="btn-invest"   onclick="selecionarFonte('invest')">📈 Investimento</button>
     </div>
     <button class="btn-registrar" onclick="registrarGasto()">Registrar gasto</button>
+  </div>
+  <div class="gasto-section">
+    <h4>🎁 Outros ganhos</h4>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:10px;">Presente da vó, aniversário, Páscoa, etc.</div>
+    <input class="gasto-input" type="text"   id="ganho-desc" placeholder="De onde veio? (ex: presente da vó)">
+    <input class="gasto-input" type="number" id="ganho-val"  placeholder="R$ 0,00" step="0.01" min="0">
+    <div class="fonte-btns">
+      <button class="fonte-btn" id="ganho-btn-corrente" onclick="selecionarFonteGanho('corrente')">💳 Conta Corrente</button>
+      <button class="fonte-btn" id="ganho-btn-invest"   onclick="selecionarFonteGanho('invest')">📈 Investimento</button>
+    </div>
+    <button class="btn-registrar" onclick="registrarGanho()" style="background:linear-gradient(135deg,#f59e0b,#d97706)">💛 Registrar ganho</button>
   </div>
   <div class="section-title">🧾 Histórico</div>
   <div style="background:white;border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);">
@@ -316,8 +352,9 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
   </div>
   <div class="disney-legenda">
     <strong>Como funciona:</strong> Registre a nota de cada prova.<br>
-    ✅ Nota ≥ 7 (equivalente) pontua · ❌ Abaixo não pontua<br>
-    <strong>AM</strong> (máx 3,0): nota ÷ 3,0 × 10 · mínimo 2,1 · <strong>AT</strong> (máx 4,0): nota ÷ 4,0 × 10 · mínimo 2,8<br>
+    ✅ Equivalente ≥ 7,0 pontua · ❌ Abaixo de 7,0 não pontua<br>
+    <strong>AM</strong> (máx 4,0): nota ÷ 4,0 × 10 · mínimo 2,8 para pontuar<br>
+    <strong>AT</strong> (máx 5,0): nota ÷ 5,0 × 10 · mínimo 3,5 para pontuar<br>
     <strong>Valor:</strong> cada ponto = U$ 0,43 · máximo U$ 150,00
   </div>
   <div class="section-title">📚 Avaliações</div>
@@ -506,86 +543,148 @@ function changeDate(delta){curDate.setDate(curDate.getDate()+delta);document.get
 
 function loadCarteira(){
   walletRef().get().then(snap=>{
-    const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50};
+    const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50,mesadaPendente:0,mesadaTransferida:false};
     document.getElementById('saldo-corrente').textContent=parseFloat(data.corrente||0).toFixed(2).replace('.',',');
     document.getElementById('saldo-invest').textContent=parseFloat(data.invest||0).toFixed(2).replace('.',',');
     const pct=data.pctCorrente!=null?data.pctCorrente:50;
-    document.getElementById('slider-corrente').value=pct;
-    document.getElementById('pct-corrente').textContent=pct+'%';
-    document.getElementById('pct-invest').textContent=(100-pct)+'%';
+    if(document.getElementById('slider-corrente'))document.getElementById('slider-corrente').value=pct;
+    if(document.getElementById('pct-corrente'))document.getElementById('pct-corrente').textContent=pct+'%';
+    if(document.getElementById('pct-invest'))document.getElementById('pct-invest').textContent=(100-pct)+'%';
+    const pendente=parseFloat(data.mesadaPendente||0),transferida=data.mesadaTransferida||false;
+    const box=document.getElementById('mesada-pendente-box');
+    if(pendente>0&&!transferida){box.style.display='block';document.getElementById('mesada-pendente-val').textContent=pendente.toFixed(2).replace('.',',');updatePreviewTransferencia(pct,pendente);}
+    else{box.style.display='none';}
   }).catch(()=>{});
   loadHistorico();
 }
-function updateSlider(val){const v=parseInt(val);document.getElementById('pct-corrente').textContent=v+'%';document.getElementById('pct-invest').textContent=(100-v)+'%';}
-function saveDivisao(){const pct=parseInt(document.getElementById('slider-corrente').value);walletRef().get().then(snap=>{const data=snap.exists?snap.data():{corrente:0,invest:0};data.pctCorrente=pct;return walletRef().set(data);}).then(()=>showToast('✅ Divisão salva!')).catch(()=>showToast('Erro ao salvar'));}
+function updateSlider(val){
+  const v=parseInt(val);
+  document.getElementById('pct-corrente').textContent=v+'%';
+  document.getElementById('pct-invest').textContent=(100-v)+'%';
+  walletRef().get().then(snap=>{const data=snap.exists?snap.data():{};updatePreviewTransferencia(v,parseFloat(data.mesadaPendente||0));}).catch(()=>{});
+}
+function updatePreviewTransferencia(pct,total){
+  const el=document.getElementById('preview-transferencia');if(!el||total<=0)return;
+  const vc=Math.round(total*(pct/100)*100)/100,vi=Math.round((total-vc)*100)/100;
+  el.innerHTML='<div style="flex:1;background:#eff6ff;border-radius:10px;padding:8px;text-align:center;"><div style="font-size:.68rem;font-weight:800;color:var(--blue);">\u{1F4B3} CORRENTE</div><div style="font-size:1rem;font-weight:900;color:var(--blue);">R$ '+vc.toFixed(2).replace('.',',')+'</div></div><div style="flex:1;background:#f5f3ff;border-radius:10px;padding:8px;text-align:center;"><div style="font-size:.68rem;font-weight:800;color:var(--invest);">\u{1F4C8} INVEST.</div><div style="font-size:1rem;font-weight:900;color:var(--invest);">R$ '+vi.toFixed(2).replace('.',',')+'</div></div>';
+}
+function transferirMesada(){
+  const pct=parseInt(document.getElementById('slider-corrente').value);
+  walletRef().get().then(snap=>{
+    const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50,mesadaPendente:0};
+    const pendente=parseFloat(data.mesadaPendente||0);if(pendente<=0){showToast('Nenhuma mesada pendente');return;}
+    const vc=Math.round(pendente*(pct/100)*100)/100,vi=Math.round((pendente-vc)*100)/100;
+    data.corrente=Math.round(((parseFloat(data.corrente)||0)+vc)*100)/100;
+    data.invest=Math.round(((parseFloat(data.invest)||0)+vi)*100)/100;
+    data.pctCorrente=pct;data.mesadaTransferida=true;
+    return walletRef().set(data).then(()=>{
+      const mes=new Date().toLocaleDateString('pt-BR',{month:'long'});
+      gastosRef().add({desc:'Mesada de '+mes+' transferida',valor:vc,fonte:'corrente',data:new Date().toISOString(),tipo:'deposito'});
+      if(vi>0)gastosRef().add({desc:'Mesada de '+mes+' transferida',valor:vi,fonte:'invest',data:new Date().toISOString(),tipo:'deposito'});
+    });
+  }).then(()=>{showToast('✅ Mesada transferida!');loadCarteira();}).catch(()=>showToast('Erro'));
+}
+let fonteGasto='corrente',fonteGanho='corrente',fonteAdj='corrente',tipoAdj='add';
+function selecionarFonteAdj(f){fonteAdj=f;document.getElementById('adj-btn-corrente').className='fonte-btn'+(f==='corrente'?' sel-corrente':'');document.getElementById('adj-btn-invest').className='fonte-btn'+(f==='invest'?' sel-invest':'');}
+function selecionarTipoAdj(t){tipoAdj=t;['add','sub','set'].forEach(x=>{const b=document.getElementById('adj-btn-'+x);if(b){b.style.background=x===t?'#374151':'';b.style.color=x===t?'white':'';}}); }
+function ajustarSaldo(){
+  const val=parseFloat(document.getElementById('adj-val').value),desc=document.getElementById('adj-desc').value.trim()||'Ajuste de saldo';
+  if(!val||val<=0){showToast('💰 Coloca o valor do ajuste!');return;}
+  walletRef().get().then(snap=>{
+    const data=snap.exists?snap.data():{corrente:0,invest:0};const saldoAtual=parseFloat(data[fonteAdj]||0);
+    let novoSaldo=tipoAdj==='add'?Math.round((saldoAtual+val)*100)/100:tipoAdj==='sub'?Math.max(0,Math.round((saldoAtual-val)*100)/100):Math.round(val*100)/100;
+    data[fonteAdj]=novoSaldo;
+    return walletRef().set(data).then(()=>gastosRef().add({desc:'[Ajuste] '+desc,valor:val,fonte:fonteAdj,data:new Date().toISOString(),tipo:'ajuste'}));
+  }).then(()=>{showToast('✅ Saldo ajustado!');document.getElementById('adj-val').value='';document.getElementById('adj-desc').value='';loadCarteira();}).catch(()=>showToast('Erro'));
+}
 function selecionarFonte(fonte){fonteGasto=fonte;document.getElementById('btn-corrente').className='fonte-btn'+(fonte==='corrente'?' sel-corrente':'');document.getElementById('btn-invest').className='fonte-btn'+(fonte==='invest'?' sel-invest':'');}
+function selecionarFonteGanho(fonte){fonteGanho=fonte;document.getElementById('ganho-btn-corrente').className='fonte-btn'+(fonte==='corrente'?' sel-corrente':'');document.getElementById('ganho-btn-invest').className='fonte-btn'+(fonte==='invest'?' sel-invest':'');}
 function registrarGasto(){
   const desc=document.getElementById('gasto-desc').value.trim(),val=parseFloat(document.getElementById('gasto-val').value);
   if(!desc){showToast('💬 Descreve o que compraste!');return;}if(!val||val<=0){showToast('💰 Coloca o valor!');return;}
   walletRef().get().then(snap=>{
-    const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50};
-    const saldo=parseFloat(data[fonteGasto]||0);if(val>saldo){showToast('❌ Saldo insuficiente!');return;}
+    const data=snap.exists?snap.data():{corrente:0,invest:0};const saldo=parseFloat(data[fonteGasto]||0);
+    if(val>saldo){showToast('❌ Saldo insuficiente!');return;}
     data[fonteGasto]=Math.round((saldo-val)*100)/100;
-    walletRef().set(data).then(()=>{gastosRef().add({desc:desc,valor:val,fonte:fonteGasto,data:new Date().toISOString(),tipo:'gasto'});document.getElementById('gasto-desc').value='';document.getElementById('gasto-val').value='';showToast('🛍️ Gasto registrado!');loadCarteira();});
+    walletRef().set(data).then(()=>{gastosRef().add({desc,valor:val,fonte:fonteGasto,data:new Date().toISOString(),tipo:'gasto'});document.getElementById('gasto-desc').value='';document.getElementById('gasto-val').value='';showToast('🛍️ Gasto registrado!');loadCarteira();});
   }).catch(()=>showToast('Erro'));
+}
+function registrarGanho(){
+  const desc=document.getElementById('ganho-desc').value.trim(),val=parseFloat(document.getElementById('ganho-val').value);
+  if(!desc){showToast('💬 Descreve de onde veio!');return;}if(!val||val<=0){showToast('💰 Coloca o valor!');return;}
+  walletRef().get().then(snap=>{
+    const data=snap.exists?snap.data():{corrente:0,invest:0};
+    data[fonteGanho]=Math.round(((parseFloat(data[fonteGanho])||0)+val)*100)/100;
+    return walletRef().set(data).then(()=>gastosRef().add({desc:'🎁 '+desc,valor:val,fonte:fonteGanho,data:new Date().toISOString(),tipo:'ganho'}));
+  }).then(()=>{document.getElementById('ganho-desc').value='';document.getElementById('ganho-val').value='';showToast('🎁 R$ '+val.toFixed(2).replace('.',',')+' adicionado! Que sorte 😄');loadCarteira();}).catch(()=>showToast('Erro'));
 }
 function loadHistorico(){
   gastosRef().orderBy('data','desc').get().then(snap=>{
     const el=document.getElementById('historico-lista');
     if(snap.empty){el.innerHTML='<div style="color:var(--muted);font-size:.83rem;text-align:center;padding:12px;">Nenhum registro ainda</div>';return;}
     el.innerHTML='';
-    snap.forEach(d=>{const item=d.data(),isDeposito=item.tipo==='deposito';const row=document.createElement('div');row.className='historico-item';const dateStr=new Date(item.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});row.innerHTML='<div class="hi-left"><span>'+(isDeposito?'💰':'🛍️')+'</span><div><div class="hi-desc">'+item.desc+'</div><div class="hi-date">'+dateStr+'</div></div><span class="hi-badge hi-'+item.fonte+'">'+(item.fonte==='corrente'?'💳':'📈')+'</span></div><div class="hi-val" style="color:'+(isDeposito?'var(--green)':'var(--red)')+';">'+(isDeposito?'+':'-')+'R$ '+parseFloat(item.valor).toFixed(2).replace('.',',')+'</div>';el.appendChild(row);});
+    snap.forEach(d=>{
+      const item=d.data(),isDeposito=item.tipo==='deposito',isGanho=item.tipo==='ganho',isAjuste=item.tipo==='ajuste';
+      const cor=(isDeposito||isGanho)?'var(--green)':isAjuste?'var(--blue)':'var(--red)';
+      const sinal=(isDeposito||isGanho)?'+':isAjuste?'±':'-';
+      const icone=isDeposito?'💰':isGanho?'🎁':isAjuste?'✏️':'🛍️';
+      const row=document.createElement('div');row.className='historico-item';
+      const dateStr=new Date(item.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+      row.innerHTML='<div class="hi-left"><span>'+icone+'</span><div><div class="hi-desc">'+item.desc+'</div><div class="hi-date">'+dateStr+'</div></div><span class="hi-badge hi-'+item.fonte+'">'+( item.fonte==='corrente'?'💳':'📈')+'</span></div><div class="hi-val" style="color:'+cor+';">'+sinal+'R$ '+parseFloat(item.valor).toFixed(2).replace('.',',')+'</div>';
+      el.appendChild(row);
+    });
   }).catch(()=>{});
 }
 
-// ── DISNEY ──
-const DISNEY_MATERIAS = [
-  {id:'am_m2_artes',nome:'Artes',            tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_geo',  nome:'Geografia',        tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_hist', nome:'História',         tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_ing',  nome:'Inglês',           tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_mat',  nome:'Matemática',       tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_cien', nome:'Ciências',         tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m3_artes',nome:'Artes',            tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_geo',  nome:'Geografia',        tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_hist', nome:'História',         tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_ing',  nome:'Inglês',           tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_mat',  nome:'Matemática',       tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_cien', nome:'Ciências',         tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'at_1_artes', nome:'Artes',            tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_geo',   nome:'Geografia',        tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_hist',  nome:'História',         tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_ing',   nome:'Inglês',           tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_mat',   nome:'Matemática',       tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_cien',  nome:'Ciências',         tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_2_artes', nome:'Artes',            tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_geo',   nome:'Geografia',        tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_hist',  nome:'História',         tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_ing',   nome:'Inglês',           tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_mat',   nome:'Matemática',       tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_cien',  nome:'Ciências',         tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_3_artes', nome:'Artes',            tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_geo',   nome:'Geografia',        tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_hist',  nome:'História',         tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_ing',   nome:'Inglês',           tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_mat',   nome:'Matemática',       tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_cien',  nome:'Ciências',         tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
+// DISNEY
+const DISNEY_MATERIAS=[
+  {id:'at_1_artes',nome:'Artes',            tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_port', nome:'Língua Portuguesa',tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_geo',  nome:'Geografia',        tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_hist', nome:'História',         tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_ing',  nome:'Inglês',           tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_mat',  nome:'Matemática',       tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_cien', nome:'Ciências',         tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'am_m2_artes',nome:'Artes',           tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_geo',  nome:'Geografia',       tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_hist', nome:'História',        tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_ing',  nome:'Inglês',          tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_mat',  nome:'Matemática',      tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_cien', nome:'Ciências',        tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'at_2_artes',nome:'Artes',            tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_port', nome:'Língua Portuguesa',tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_geo',  nome:'Geografia',        tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_hist', nome:'História',         tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_ing',  nome:'Inglês',           tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_mat',  nome:'Matemática',       tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_cien', nome:'Ciências',         tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'am_m3_artes',nome:'Artes',           tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_geo',  nome:'Geografia',       tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_hist', nome:'História',        tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_ing',  nome:'Inglês',          tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_mat',  nome:'Matemática',      tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_cien', nome:'Ciências',        tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'at_3_artes',nome:'Artes',            tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_port', nome:'Língua Portuguesa',tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_geo',  nome:'Geografia',        tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_hist', nome:'História',         tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_ing',  nome:'Inglês',           tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_mat',  nome:'Matemática',       tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_cien', nome:'Ciências',         tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
 ];
+const DISNEY_TRIM_ORDER=['1º TRIM','M2º TRI','2º TRIM','M3º TRI','3º TRIM'];
 const DISNEY_MAX_PONTOS=350,DISNEY_VALOR_PONTO=150/350,DISNEY_MIN_EQUIV=7.0;
 function disneyRef(){return db.collection('mesada').doc(KID).collection('disney').doc('notas');}
 function calcEquiv(nota,maxNota){if(!nota||nota<=0)return 0;return Math.round((nota/maxNota)*10*100)/100;}
 function loadDisney(){disneyRef().get().then(snap=>{renderDisney(snap.exists?snap.data():{});}).catch(()=>renderDisney({}));}
 function renderDisney(notas){
   const el=document.getElementById('disney-materias');el.innerHTML='';
-  const grupos={};
-  DISNEY_MATERIAS.forEach(m=>{if(!grupos[m.trimestre])grupos[m.trimestre]=[];grupos[m.trimestre].push(m);});
+  const grupos={};DISNEY_MATERIAS.forEach(m=>{if(!grupos[m.trimestre])grupos[m.trimestre]=[];grupos[m.trimestre].push(m);});
   let totalPontos=0,totalProvas=0;
-  Object.keys(grupos).forEach(trim=>{
+  DISNEY_TRIM_ORDER.forEach(trim=>{
+    if(!grupos[trim])return;
     const sec=document.createElement('div');sec.className='section-title';sec.style.marginTop='18px';
     sec.innerHTML=(trim.includes('M')?'📝':'📋')+' '+trim;el.appendChild(sec);
     grupos[trim].forEach(m=>{
@@ -593,9 +692,8 @@ function renderDisney(notas){
       const pontua=equiv>=DISNEY_MIN_EQUIV,temNota=notaVal>0;
       if(temNota){totalProvas++;if(pontua)totalPontos+=equiv;}
       const card=document.createElement('div');card.className='materia-card'+(temNota&&pontua?' pontuou':temNota&&!pontua?' zerou':'');
-      const minNota=(DISNEY_MIN_EQUIV/10*m.maxNota).toFixed(1);
-      const tipoColor=m.tipo==='AT'?'#1565c0':'#7c3aed',tipoBg=m.tipo==='AT'?'#dbeafe':'#ede9fe';
-      card.innerHTML='<div class="materia-header"><span class="materia-nome">'+m.nome+'</span><span class="materia-tipo" style="background:'+tipoBg+';color:'+tipoColor+'">'+m.tipo+' · máx '+m.maxNota.toFixed(1)+'</span></div><div class="materia-body"><div class="nota-input-wrap"><span class="nota-label">Nota<br><span style="font-size:.65rem;color:var(--muted)">mín '+minNota+'</span></span><input class="nota-input'+(temNota?(pontua?' ok':' low'):'')+'" type="number" id="nota_'+m.id+'" value="'+(notaVal>0?notaVal:'')+'" min="0" max="'+m.maxNota+'" step="0.1" placeholder="0.0" onchange="salvarNota(\''+m.id+'\','+m.maxNota+')" oninput="previewNota(\''+m.id+'\','+m.maxNota+')"></div><div class="nota-equiv'+(temNota?(pontua?' ok':' low'):'')+'" id="equiv_'+m.id+'">'+(temNota?equiv.toFixed(1):'—')+'</div><div class="nota-pts'+(temNota?(pontua?' ok':' low'):'')+'" id="pts_'+m.id+'">'+(temNota?(pontua?'+U$'+(equiv*DISNEY_VALOR_PONTO).toFixed(2):'❌'):'')+'</div></div>';
+      const minNota=(DISNEY_MIN_EQUIV/10*m.maxNota).toFixed(1),tipoColor=m.tipo==='AT'?'#1565c0':'#7c3aed',tipoBg=m.tipo==='AT'?'#dbeafe':'#ede9fe';
+      card.innerHTML='<div class="materia-header"><span class="materia-nome">'+m.nome+'</span><span class="materia-tipo" style="background:'+tipoBg+';color:'+tipoColor+'">'+m.tipo+' · máx '+m.maxNota.toFixed(1)+'</span></div><div class="materia-body"><div class="nota-input-wrap"><span class="nota-label">Nota<br><span style="font-size:.65rem;color:var(--muted)">mín '+minNota+'</span></span><input class="nota-input'+(temNota?(pontua?' ok':' low'):'')+'" type="number" id="nota_'+m.id+'" value="'+(notaVal>0?notaVal:'')+'" min="0" max="'+m.maxNota+'" step="0.1" placeholder="0.0" onchange="salvarNota(\'"+m.id+"\'"','+m.maxNota+')" oninput="previewNota(\'"'+m.id+'"\'"','+m.maxNota+')"></div><div class="nota-equiv'+(temNota?(pontua?' ok':' low'):'')+'" id="equiv_'+m.id+'">' +(temNota?equiv.toFixed(1):'—')+'</div><div class="nota-pts'+(temNota?(pontua?' ok':' low'):'')+'" id="pts_'+m.id+'">'+( temNota?(pontua?'+U$'+(equiv*DISNEY_VALOR_PONTO).toFixed(2):'❌'):'')+'</div></div>';
       el.appendChild(card);
     });
   });
