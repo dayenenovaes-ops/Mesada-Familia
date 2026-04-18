@@ -528,6 +528,10 @@ function depositar(kid){
       gastosRef(kid).add({desc:'Mesada de '+mes,valor:valorCorrente,fonte:'corrente',data:new Date().toISOString(),tipo:'deposito'});
       if(valorInvest>0)gastosRef(kid).add({desc:'Mesada de '+mes,valor:valorInvest,fonte:'invest',data:new Date().toISOString(),tipo:'deposito'});
       document.getElementById('dep-val-'+kid).value='';
+      // Set pending flag for kid's transfer
+      data.mesadaPendente=(data.mesadaPendente||0)+val;
+      data.mesadaTransferida=false;
+      walletRef(kid).set(data);
       const nome=kid==='rafael'?'Rafael':'Rebeca';
       showToast('✅ '+nome+' recebeu R$ '+val.toFixed(2).replace('.',',')+'! 💳R$'+valorCorrente.toFixed(2).replace('.',',')+'·📈R$'+valorInvest.toFixed(2).replace('.',','));
       loadDepositar();
@@ -537,42 +541,43 @@ function depositar(kid){
 
 // ── DISNEY PAIS ──
 const DISNEY_MATERIAS_P = [
-  {id:'am_m2_artes',nome:'Artes',            tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_geo',  nome:'Geografia',        tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_hist', nome:'História',         tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_ing',  nome:'Inglês',           tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_mat',  nome:'Matemática',       tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m2_cien', nome:'Ciências',         tipo:'AM',trimestre:'M2º TRI',maxNota:3.0},
-  {id:'am_m3_artes',nome:'Artes',            tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_geo',  nome:'Geografia',        tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_hist', nome:'História',         tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_ing',  nome:'Inglês',           tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_mat',  nome:'Matemática',       tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'am_m3_cien', nome:'Ciências',         tipo:'AM',trimestre:'M3º TRI',maxNota:3.0},
-  {id:'at_1_artes', nome:'Artes',            tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_geo',   nome:'Geografia',        tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_hist',  nome:'História',         tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_ing',   nome:'Inglês',           tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_mat',   nome:'Matemática',       tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_1_cien',  nome:'Ciências',         tipo:'AT',trimestre:'1º TRIM',maxNota:4.0},
-  {id:'at_2_artes', nome:'Artes',            tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_geo',   nome:'Geografia',        tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_hist',  nome:'História',         tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_ing',   nome:'Inglês',           tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_mat',   nome:'Matemática',       tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_2_cien',  nome:'Ciências',         tipo:'AT',trimestre:'2º TRIM',maxNota:4.0},
-  {id:'at_3_artes', nome:'Artes',            tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_geo',   nome:'Geografia',        tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_hist',  nome:'História',         tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_ing',   nome:'Inglês',           tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_mat',   nome:'Matemática',       tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
-  {id:'at_3_cien',  nome:'Ciências',         tipo:'AT',trimestre:'3º TRIM',maxNota:4.0},
+  {id:'at_1_artes', nome:'Artes',            tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_geo',   nome:'Geografia',        tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_hist',  nome:'História',         tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_ing',   nome:'Inglês',           tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_mat',   nome:'Matemática',       tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'at_1_cien',  nome:'Ciências',         tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
+  {id:'am_m2_artes',nome:'Artes',            tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_geo',  nome:'Geografia',        tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_hist', nome:'História',         tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_ing',  nome:'Inglês',           tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_mat',  nome:'Matemática',       tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'am_m2_cien', nome:'Ciências',         tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
+  {id:'at_2_artes', nome:'Artes',            tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_geo',   nome:'Geografia',        tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_hist',  nome:'História',         tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_ing',   nome:'Inglês',           tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_mat',   nome:'Matemática',       tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'at_2_cien',  nome:'Ciências',         tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
+  {id:'am_m3_artes',nome:'Artes',            tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_geo',  nome:'Geografia',        tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_hist', nome:'História',         tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_ing',  nome:'Inglês',           tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_mat',  nome:'Matemática',       tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'am_m3_cien', nome:'Ciências',         tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
+  {id:'at_3_artes', nome:'Artes',            tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_geo',   nome:'Geografia',        tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_hist',  nome:'História',         tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_ing',   nome:'Inglês',           tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_mat',   nome:'Matemática',       tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
+  {id:'at_3_cien',  nome:'Ciências',         tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
 ];
+const DISNEY_TRIM_ORDER_P=['1º TRIM','M2º TRI','2º TRIM','M3º TRI','3º TRIM'];
 const D_VALOR_PONTO = 150/350, D_MIN_EQUIV = 7.0;
 function disneyRef(kid){return db.collection('mesada').doc(kid).collection('disney').doc('notas');}
 function calcEquivP(nota,maxNota){if(!nota||nota<=0)return 0;return Math.round((nota/maxNota)*10*100)/100;}
@@ -608,7 +613,8 @@ function renderNotasPais(kid,notas){
   el.innerHTML='';
   const grupos={};
   DISNEY_MATERIAS_P.forEach(m=>{if(!grupos[m.trimestre])grupos[m.trimestre]=[];grupos[m.trimestre].push(m);});
-  Object.keys(grupos).forEach(trim=>{
+  DISNEY_TRIM_ORDER_P.forEach(trim=>{
+    if(!grupos[trim])return;
     const sec=document.createElement('div');
     sec.style.cssText='font-family:"Nunito",sans-serif;font-size:.88rem;margin:10px 0 6px;color:#555;display:flex;align-items:center;gap:5px;';
     sec.textContent=(trim.includes('M')?'📝':'📋')+' '+trim;
