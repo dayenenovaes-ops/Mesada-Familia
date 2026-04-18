@@ -6,9 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🦋 Rebeca - Mesada</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
 :root{
   --bg:#fdf4ff;--main:#8b5cf6;--grad:linear-gradient(135deg,#8b5cf6,#ec4899);
@@ -381,6 +381,7 @@ firebase.initializeApp({
   appId:"1:640632026277:web:77241724e86b27b96cc94c"
 });
 const db=firebase.firestore();
+db.settings({ experimentalForceLongPolling: true, merge: true });
 const KID='rebeca';
 
 const TASKS=[
