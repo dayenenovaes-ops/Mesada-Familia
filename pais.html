@@ -1,281 +1,295 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>🔐 Pais - Mesada</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🔐 Pais</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:#f0fdf4;min-height:100vh;color:#1a1a2e}
 :root{
-  --bg:#f0f4ff;--parent:#1e3a5f;--grad:linear-gradient(135deg,#1e3a5f,#2d6a9f);
-  --light:#eef4fb;--rafael:#f76c2f;--rebeca:#8b5cf6;
-  --gold:#f59e0b;--green:#22c55e;--red:#ef4444;
-  --blue:#3b82f6;--invest:#8b5cf6;--text:#1a1a2e;--muted:#9ca3af;
-  --shadow:0 4px 20px rgba(0,0,0,0.09);--radius:20px;
+  --main:#16a34a;--grad:linear-gradient(135deg,#16a34a,#15803d);--light:#f0fdf4;
+  --rafael:#f76c2f;--rebeca:#9333ea;
+  --green:#22c55e;--red:#ef4444;--gold:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;
+  --muted:#9ca3af;--sh:0 4px 20px rgba(0,0,0,.09);--r:18px
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;background:white;box-shadow:0 2px 12px rgba(0,0,0,.07);position:sticky;top:0;z-index:100;}
-.topbar-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.4rem;color:var(--parent);}
-.sync-dot{width:9px;height:9px;border-radius:50%;background:#d1d5db;display:inline-block;margin-right:4px;}
-.sync-dot.ok{background:var(--green);}.sync-dot.err{background:var(--red);}
-.sync-label{font-size:.72rem;font-weight:700;color:var(--muted);}
-.tabs{display:flex;background:white;border-bottom:3px solid #f0f0f0;position:sticky;top:58px;z-index:99;}
-.tab-btn{flex:1;padding:11px 4px 9px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;background:transparent;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-3px;transition:all .2s;}
-.tab-btn.active{color:var(--parent);border-color:var(--parent);background:var(--light);}
-.panel{display:none;padding:16px 14px 100px;}
-.panel.active{display:block;}
-.hero{background:var(--grad);border-radius:var(--radius);padding:16px 18px;color:white;margin-bottom:14px;box-shadow:var(--shadow);}
-.hero h2{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.2rem;margin-bottom:2px;}
-.hero p{font-size:.8rem;opacity:.85;}
-.date-nav{display:flex;align-items:center;justify-content:space-between;background:white;border-radius:14px;padding:10px 14px;margin-bottom:14px;box-shadow:var(--shadow);}
-.date-nav button{border:none;background:none;font-size:1.3rem;cursor:pointer;padding:2px 10px;}
-.date-label{font-weight:800;font-size:.93rem;}
-.kid-card{background:white;border-radius:var(--radius);padding:15px;margin-bottom:14px;box-shadow:var(--shadow);}
-.kid-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.05rem;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.kid-title.rafael{color:var(--rafael);}.kid-title.rebeca{color:var(--rebeca);}
-.stat-row{display:flex;justify-content:space-around;margin-bottom:12px;}
-.stat-box{text-align:center;}
-.stat-box .val{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.3rem;}
-.stat-box .lbl{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
-.val.green{color:var(--green);}.val.gold{color:var(--gold);}
-.section-lbl{font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}
-.validate-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f3f4f6;gap:6px;}
-.validate-item:last-child{border-bottom:none;}
-.vi-left{display:flex;align-items:center;gap:7px;flex:1;min-width:0;}
-.vi-icon{font-size:1.1rem;flex-shrink:0;}
-.vi-name{font-weight:700;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.vi-val{font-family:'Nunito',sans-serif;font-size:.82rem;color:var(--green);flex-shrink:0;}
-.vi-actions{display:flex;gap:5px;flex-shrink:0;}
-.btn-v{padding:5px 11px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.75rem;transition:all .15s;}
-.btn-ok{background:#dcfce7;color:#166634;}
-.btn-lie{background:#fee2e2;color:#991b1b;}
-.btn-done{background:var(--green);color:white;border:none;padding:5px 11px;border-radius:99px;font-weight:800;font-size:.75rem;}
-.lie-all-btn{display:block;margin:10px auto 0;background:#fff0f0;color:#991b1b;border:none;border-radius:99px;padding:7px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;cursor:pointer;}
-.month-footer{background:var(--light);border-radius:12px;padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
-.month-footer .lbl{font-weight:800;font-size:.83rem;color:var(--parent);}
-.month-footer .val{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.2rem;color:var(--parent);}
-.penalty-active{background:#fff0f0;border:2px solid #fca5a5;border-radius:10px;padding:8px 12px;font-size:.8rem;font-weight:700;color:var(--red);margin-bottom:8px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.07);position:sticky;top:0;z-index:99}
+.topbar-title{font-size:1.35rem;font-weight:900;color:var(--main)}
+.sync{font-size:.72rem;font-weight:800;color:var(--muted);display:flex;align-items:center;gap:5px}
+.dot{width:9px;height:9px;border-radius:50%;background:#d1d5db;transition:.3s}
+.dot.ok{background:var(--green)}.dot.err{background:var(--red)}
+.tabs{display:flex;background:#fff;border-bottom:3px solid #f0f0f0;position:sticky;top:58px;z-index:98}
+.tab{flex:1;padding:11px 4px 9px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.8rem;background:transparent;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-3px;transition:.2s}
+.tab.on{color:var(--main);border-color:var(--main);background:var(--light)}
+.panel{display:none;padding:14px 14px 100px}.panel.on{display:block}
 
-/* COMPORTAMENTO pais */
-.comp-section{border-top:1px solid #f3f4f6;margin-top:10px;padding-top:10px;}
-.comp-section-title{font-size:.78rem;font-weight:800;color:var(–muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
-.comp-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.comp-nome{font-weight:800;font-size:.85rem;}
-.comp-buttons{display:flex;gap:5px;}
-.comp-bnt{padding:5px 11px;border-radius:99px;border:2px solid #e5e7eb;background:white;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.75rem;transition:all .15s;}
-.comp-bnt.sel-bom{background:#f0fdf4;border-color:var(–green);color:#166534;}
-.comp-bnt.sel-ruim{background:#fff5f5;border-color:var(–red);color:#991b1b;}
+/* DATE NAV */
+.date-nav{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:14px;padding:10px 14px;margin-bottom:12px;box-shadow:var(--sh)}
+.date-nav button{border:none;background:none;font-size:1.3rem;cursor:pointer;padding:2px 10px}
+.date-lbl{font-weight:900;font-size:.93rem}
 
-/* DEPÓSITO */
-.deposito-card{background:white;border-radius:var(–radius);padding:16px;margin-bottom:14px;box-shadow:var(–shadow);}
-.deposito-card h3{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.05rem;margin-bottom:4px;}
-.deposito-card p{font-size:.8rem;color:var(–muted);margin-bottom:14px;}
-.kid-deposito{border:2px solid #f0f0f0;border-radius:16px;padding:14px;margin-bottom:12px;}
-.kid-deposito:last-child{margin-bottom:0;}
-.kd-name{font-weight:800;font-size:.92rem;margin-bottom:8px;}
-.kd-name.rafael{color:var(–rafael);}.kd-name.rebeca{color:var(–rebeca);}
-.kd-saldos{display:flex;gap:8px;margin-bottom:10px;}
-.kd-saldo{flex:1;padding:8px 10px;border-radius:10px;text-align:center;}
-.kd-saldo.corrente{background:#eff6ff;}.kd-saldo.invest{background:#f5f3ff;}
-.kd-saldo .ks-val{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1rem;}
-.kd-saldo .ks-lbl{font-size:.65rem;font-weight:800;color:var(–muted);}
-.kd-saldo.corrente .ks-val{color:var(–blue);}.kd-saldo.invest .ks-val{color:var(–invest);}
-.dep-pct-info{background:#f8f9fa;border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:.78rem;font-weight:700;color:#555;}
-.dep-form{display:flex;gap:8px;}
-.dep-input{flex:1;border:2px solid #e5e7eb;border-radius:12px;padding:9px 12px;font-family:‘Nunito’,sans-serif;font-size:.9rem;font-weight:700;outline:none;}
-.dep-input:focus{border-color:var(–parent);}
-.dep-btn{padding:9px 14px;border-radius:12px;border:none;background:var(–grad);color:white;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;}
-.carteira-overview{background:white;border-radius:var(–radius);padding:15px;margin-bottom:14px;box-shadow:var(–shadow);}
-.carteira-overview h3{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.05rem;margin-bottom:12px;}
-.co-kid{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.co-kid:last-child{margin-bottom:0;}
-.co-name{font-weight:800;font-size:.85rem;width:70px;flex-shrink:0;}
-.co-name.rafael{color:var(–rafael);}.co-name.rebeca{color:var(–rebeca);}
-.co-bars{flex:1;}
-.co-bar-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
-.co-bar-bg{flex:1;background:#f0f0f0;border-radius:99px;height:8px;}
-.co-bar-fill{border-radius:99px;height:8px;transition:width .5s;}
-.co-bar-fill.corrente{background:var(–blue);}.co-bar-fill.invest{background:var(–invest);}
-.co-bar-val{font-family:‘Nunito’,sans-serif;font-size:.75rem;width:65px;text-align:right;}
-.co-bar-val.corrente{color:var(–blue);}.co-bar-val.invest{color:var(–invest);}
-.rules-card{background:white;border-radius:var(–radius);padding:15px;margin-top:4px;box-shadow:var(–shadow);border-left:4px solid var(–parent);}
-.rules-card h4{font-weight:800;color:var(–parent);margin-bottom:8px;font-size:.88rem;}
-.rules-card li{font-size:.8rem;color:#555;padding:3px 0;line-height:1.5;list-style:none;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;}
-.modal-overlay.show{display:flex;}
-.modal{background:white;border-radius:var(–radius);padding:22px 20px;max-width:310px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:popIn .22s ease;}
-@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
-.modal .m-icon{font-size:2.6rem;margin-bottom:6px;}
-.modal h3{font-family:‘Nunito’,sans-serif;font-size:1.2rem;margin-bottom:5px;}
-.modal p{font-size:.83rem;color:#555;line-height:1.5;margin-bottom:14px;}
-.modal-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-.mbtn{padding:8px 18px;border-radius:99px;border:none;cursor:pointer;font-family:‘Nunito’,sans-serif;font-weight:800;font-size:.86rem;}
-.mbtn-cancel{background:#f3f4f6;color:#6b7280;}.mbtn-red{background:var(–red);color:white;}
-/* ── DISNEY PAIS ── */
-.disney-overview{background:linear-gradient(135deg,#1a237e,#283593,#1565c0);border-radius:var(–radius);padding:16px;margin-bottom:14px;box-shadow:var(–shadow);color:white;}
-.disney-overview h3{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.1rem;margin-bottom:12px;}
-.disney-kid-row{background:rgba(255,255,255,.12);border-radius:14px;padding:12px 14px;margin-bottom:10px;}
-.disney-kid-row:last-child{margin-bottom:0;}
-.disney-kid-name{font-family:‘Nunito’,sans-serif;font-size:1rem;margin-bottom:8px;}
-.disney-kid-stats{display:flex;gap:10px;margin-bottom:8px;}
-.disney-stat{flex:1;text-align:center;}
-.disney-stat .dsv{font-family:‘Nunito’,sans-serif;font-weight:900;font-size:1.1rem;}
-.disney-stat .dsl{font-size:.65rem;opacity:.8;font-weight:700;text-transform:uppercase;}
-.disney-kid-prog-bg{background:rgba(255,255,255,.25);border-radius:99px;height:8px;}
-.disney-kid-prog-fill{background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;height:8px;transition:width .5s;}
-.disney-kid-prog-label{font-size:.7rem;opacity:.85;margin-top:3px;text-align:right;font-weight:700;}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:#1a1a2e;color:white;padding:10px 20px;border-radius:99px;font-weight:700;font-size:.85rem;z-index:300;transition:transform .3s ease;max-width:88vw;text-align:center;}
-.toast.show{transform:translateX(-50%) translateY(0);}
+/* KID CARDS */
+.kid-section{background:#fff;border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:var(--sh)}
+.kid-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.kid-name{font-size:1.05rem;font-weight:900}
+.kid-name.rafael{color:var(--rafael)}.kid-name.rebeca{color:var(--rebeca)}
+.kid-earned{font-size:1.1rem;font-weight:900;color:var(--green)}
+.kid-pbar-bg{background:#f0f0f0;border-radius:99px;height:8px;margin-bottom:10px}
+.kid-pbar{border-radius:99px;height:8px;transition:width .5s}
+.kid-pbar.rafael{background:linear-gradient(90deg,#f76c2f,#fbbf24)}
+.kid-pbar.rebeca{background:linear-gradient(90deg,#9333ea,#ec4899)}
+.kid-pbar-lbl{font-size:.72rem;font-weight:800;color:var(--muted);margin-bottom:8px;text-align:right;margin-top:-8px}
+
+/* TASK ROWS */
+.task-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f3f4f6}
+.task-row:last-child{border-bottom:none}
+.task-ico{font-size:1.2rem;flex-shrink:0}
+.task-name{flex:1;font-weight:800;font-size:.83rem}
+.task-status{font-size:.75rem;font-weight:800}
+.ts-none{color:var(--muted)}.ts-pend{color:var(--gold)}.ts-ok{color:var(--green)}.ts-no{color:var(--red)}
+.val-btns{display:flex;gap:5px;flex-shrink:0}
+.vbtn{padding:4px 10px;border-radius:8px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.72rem}
+.vbtn.ok{background:#dcfce7;color:#166534}.vbtn.no{background:#fee2e2;color:#991b1b}
+.vbtn:disabled{opacity:.3;cursor:default}
+
+/* COMP */
+.comp-section{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:12px;box-shadow:var(--sh)}
+.comp-section h4{font-weight:900;font-size:.9rem;margin-bottom:10px}
+.comp-pair{display:flex;gap:8px}
+.comp-btn{flex:1;padding:9px 6px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;transition:.15s}
+.comp-btn.bom{border-color:var(--green);background:#f0fdf4;color:#166534}
+.comp-btn.ruim{border-color:var(--red);background:#fff5f5;color:#991b1b}
+.comp-lbl{margin-top:8px;font-size:.78rem;font-weight:800;color:var(--muted);text-align:center}
+.comp-lbl.bom{color:var(--green)}.comp-lbl.ruim{color:var(--red)}
+
+/* LIE BUTTON */
+.lie-btn{width:100%;margin-top:8px;padding:8px;border-radius:12px;border:2px solid #fca5a5;background:#fff5f5;color:#991b1b;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem}
+
+/* SEC */
+.sec{font-weight:900;font-size:.98rem;margin:14px 0 8px;display:flex;align-items:center;gap:6px}
+
+/* MESADA */
+.box{background:#fff;border-radius:14px;padding:14px;box-shadow:var(--sh);margin-bottom:12px}
+.box h4{font-weight:900;font-size:.92rem;margin-bottom:8px}
+.box p{font-size:.78rem;color:var(--muted);margin-bottom:10px}
+
+/* WALLET OVERVIEW */
+.wo-kid{margin-bottom:12px}
+.wo-name{font-weight:900;font-size:.88rem;margin-bottom:6px}
+.wo-name.rafael{color:var(--rafael)}.wo-name.rebeca{color:var(--rebeca)}
+.wo-bars{display:flex;flex-direction:column;gap:4px}
+.wo-bar-row{display:flex;align-items:center;gap:8px}
+.wo-bar-bg{flex:1;background:#f0f0f0;border-radius:99px;height:10px}
+.wo-bar-fill{border-radius:99px;height:10px;transition:width .5s;max-width:100%}
+.wo-bar-fill.cc{background:linear-gradient(90deg,#3b82f6,#06b6d4)}
+.wo-bar-fill.inv{background:linear-gradient(90deg,#8b5cf6,#ec4899)}
+.wo-bar-val{font-size:.78rem;font-weight:900;width:80px;text-align:right}
+.wo-bar-val.cc{color:var(--blue)}.wo-bar-val.inv{color:var(--purple)}
+
+/* DEP */
+.dep-kid{background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:10px}
+.dep-name{font-weight:900;font-size:.88rem;margin-bottom:8px}
+.dep-name.rafael{color:var(--rafael)}.dep-name.rebeca{color:var(--rebeca)}
+.dep-saldos{display:flex;gap:8px;margin-bottom:8px}
+.dep-s{flex:1;border-radius:10px;padding:8px;text-align:center}
+.dep-s.cc{background:#eff6ff}.dep-s.inv{background:#f5f3ff}
+.dep-sv{font-size:1rem;font-weight:900}.dep-sv.cc{color:var(--blue)}.dep-sv.inv{color:var(--purple)}
+.dep-sl{font-size:.68rem;font-weight:800}.dep-sl.cc{color:var(--blue)}.dep-sl.inv{color:var(--purple)}
+.dep-pct{font-size:.75rem;font-weight:800;color:var(--muted);margin-bottom:6px}
+.dep-form{display:flex;gap:8px}
+.dep-inp{flex:1;border:2px solid #e5e7eb;border-radius:10px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;outline:none}
+.dep-inp:focus{border-color:var(--main)}
+.dep-btn{padding:8px 14px;border-radius:10px;border:none;background:var(--grad);color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer}
+
+/* DISNEY OVERVIEW */
+.dis-kid{background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:var(--sh)}
+.dis-kid-name{font-weight:900;font-size:.88rem;margin-bottom:8px}
+.dis-kid-name.rafael{color:var(--rafael)}.dis-kid-name.rebeca{color:var(--rebeca)}
+.dis-stats{display:flex;gap:10px;margin-bottom:8px}
+.dis-stat{flex:1;text-align:center}
+.dis-sv{font-size:1.1rem;font-weight:900}
+.dis-sl{font-size:.65rem;font-weight:800;text-transform:uppercase;color:var(--muted)}
+.dis-pbar-bg{background:#f0f0f0;border-radius:99px;height:8px}
+.dis-pbar{background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;height:8px;transition:width .5s}
+.dis-pbar-lbl{font-size:.7rem;font-weight:800;text-align:right;margin-top:3px;color:var(--muted)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:var(--r);padding:22px 20px;max-width:320px;width:92%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:pop .22s ease}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal .mico{font-size:2.4rem;margin-bottom:6px}.modal h3{font-weight:900;font-size:1.1rem;margin-bottom:5px}
+.modal p{font-size:.83rem;color:#555;line-height:1.5;margin-bottom:14px}
+.modal-btns{display:flex;gap:8px;justify-content:center}
+.mbtn{padding:9px 20px;border-radius:99px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem}
+.mbtn-cancel{background:#f3f4f6;color:#6b7280}.mbtn-red{background:var(--red);color:#fff}
+
+/* LOADING */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:12px;color:var(--muted)}
+.spin{width:36px;height:36px;border:3px solid #f0f0f0;border-top-color:var(--main);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:#1a1a2e;color:#fff;padding:10px 20px;border-radius:99px;font-weight:800;font-size:.85rem;z-index:300;transition:transform .3s;max-width:88vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* RULES */
+.rules{background:#fff;border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:12px}
+.rules h4{font-weight:900;font-size:.92rem;margin-bottom:8px;color:var(--main)}
+.rules ul{padding-left:18px;font-size:.82rem;line-height:2;color:#444}
 </style>
-
 </head>
 <body>
+
 <div class="topbar">
   <span class="topbar-title">🔐 Pais</span>
-  <span><span class="sync-dot" id="sync-dot"></span><span class="sync-label" id="sync-label">conectando...</span></span>
+  <div class="sync"><div class="dot" id="dot"></div><span id="sync-lbl">conectando...</span></div>
 </div>
+
 <div class="tabs">
-  <button class="tab-btn active" onclick="showTab('validar')">✅ Validar</button>
-  <button class="tab-btn" onclick="showTab('depositar')">💰 Mesada</button>
-  <button class="tab-btn" onclick="showTab('disney')">🏰 Disney</button>
+  <button class="tab on" onclick="goTab('validar',this)">✅ Validar</button>
+  <button class="tab" onclick="goTab('mesada',this)">💰 Mesada</button>
+  <button class="tab" onclick="goTab('disney',this)">🏰 Disney</button>
 </div>
 
 <!-- VALIDAR -->
-
-<div class="panel active" id="panel-validar">
-  <div class="hero">
-    <h2>Painel dos Pais</h2>
-    <p>Valide tarefas, avalie comportamento e acompanhe em tempo real ⚡</p>
-  </div>
+<div class="panel on" id="panel-validar">
   <div class="date-nav">
-    <button onclick="changeDate(-1)">‹</button>
-    <span class="date-label" id="date-label"></span>
-    <button onclick="changeDate(1)">›</button>
+    <button onclick="navDate(-1)">‹</button>
+    <span class="date-lbl" id="date-lbl"></span>
+    <button onclick="navDate(1)">›</button>
   </div>
 
-  <!-- Rafael -->
+  <div class="loading" id="loading"><div class="spin"></div><span>Carregando...</span></div>
+  <div id="val-content" style="display:none">
 
-  <div class="kid-card">
-    <div class="kid-title rafael">🚀 Rafael (9 anos)</div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="val green" id="r-today">R$ 0</div><div class="lbl">Hoje</div></div>
-      <div class="stat-box"><div class="val gold" id="r-month">R$ 0</div><div class="lbl">Mês</div></div>
-      <div class="stat-box"><div class="val" id="r-done">0/0</div><div class="lbl">Tarefas</div></div>
-    </div>
-    <div id="r-penalty"></div>
-    <div class="section-lbl">Aguardando validação</div>
-    <div id="validate-rafael"></div>
-    <!-- Comportamento -->
-    <div class="comp-section">
-      <div class="comp-section-title">😊 Comportamento de hoje</div>
-      <div class="comp-row">
-        <span class="comp-nome rafael" style="color:var(--rafael)">Rafael</span>
-        <div class="comp-buttons">
-          <button class="comp-bnt" id="r-comp-bom"  onclick="avaliarComportamento('rafael','bom')">😊 Bom</button>
-          <button class="comp-bnt" id="r-comp-ruim" onclick="avaliarComportamento('rafael','ruim')">😤 Ruim</button>
-          <button class="comp-bnt" id="r-comp-none" onclick="avaliarComportamento('rafael','none')" style="font-size:.7rem;">↩ Limpar</button>
-        </div>
+    <!-- RAFAEL -->
+    <div class="sec"><span style="color:var(--rafael)">🚀 Rafael</span></div>
+    <div class="kid-section">
+      <div class="kid-header">
+        <span class="kid-name rafael">🚀 Rafael</span>
+        <span class="kid-earned" id="r-earned">R$ 0,00</span>
       </div>
-    </div>
-    <div class="month-footer"><span class="lbl">💰 Total do mês</span><span class="val" id="r-total">R$ 0,00</span></div>
-  </div>
-
-  <!-- Rebeca -->
-
-  <div class="kid-card">
-    <div class="kid-title rebeca">🦋 Rebeca (6 anos)</div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="val green" id="b-today">R$ 0</div><div class="lbl">Hoje</div></div>
-      <div class="stat-box"><div class="val gold" id="b-month">R$ 0</div><div class="lbl">Mês</div></div>
-      <div class="stat-box"><div class="val" id="b-done">0/0</div><div class="lbl">Tarefas</div></div>
-    </div>
-    <div id="b-penalty"></div>
-    <div class="section-lbl">Aguardando validação</div>
-    <div id="validate-rebeca"></div>
-    <!-- Comportamento -->
-    <div class="comp-section">
-      <div class="comp-section-title">😊 Comportamento de hoje</div>
-      <div class="comp-row">
-        <span class="comp-nome" style="color:var(--rebeca)">Rebeca</span>
-        <div class="comp-buttons">
-          <button class="comp-bnt" id="b-comp-bom"  onclick="avaliarComportamento('rebeca','bom')">😊 Bom</button>
-          <button class="comp-bnt" id="b-comp-ruim" onclick="avaliarComportamento('rebeca','ruim')">😤 Ruim</button>
-          <button class="comp-bnt" id="b-comp-none" onclick="avaliarComportamento('rebeca','none')" style="font-size:.7rem;">↩ Limpar</button>
-        </div>
+      <div class="kid-pbar-bg"><div class="kid-pbar rafael" id="r-pbar" style="width:0%"></div></div>
+      <div class="kid-pbar-lbl" id="r-pbar-lbl">0/0</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px;padding:8px 12px;background:#fff8f0;border-radius:10px;font-size:.82rem;font-weight:800">
+        <span style="color:#9ca3af">📅 Total do mês</span>
+        <span style="color:#22c55e" id="r-mes-total">R$ 0,00</span>
       </div>
+      <div id="r-tasks"></div>
     </div>
-    <div class="month-footer"><span class="lbl">💰 Total do mês</span><span class="val" id="b-total">R$ 0,00</span></div>
-  </div>
+    <div class="comp-section">
+      <h4>😊 Comportamento do Rafael</h4>
+      <div class="comp-pair">
+        <button class="comp-btn" id="r-bom"  onclick="setComp('rafael','bom')">😊 Bom comportamento</button>
+        <button class="comp-btn" id="r-ruim" onclick="setComp('rafael','ruim')">😤 Mal comportamento</button>
+      </div>
+      <div class="comp-lbl" id="r-comp-lbl">Aguardando avaliação</div>
+      <button class="lie-btn" onclick="confirmLie('rafael')">🤥 Rafael mentiu — remover bônus do dia</button>
+    </div>
 
-  <div class="rules-card">
-    <h4>📋 Regras</h4>
-    <ul>
-      <li>✅ Tarefas só contam após <strong>sua validação</strong></li>
-      <li>🤥 <strong>Mentira</strong> = perde todos os bônus do dia</li>
-      <li>😊 <strong>Mais dias bons que ruins</strong> = pode resgatar recompensas</li>
-      <li>😤 <strong>Mais dias ruins que bons</strong> = recompensas bloqueadas</li>
-      <li>🏆 20 dias → filme · 25 → jantar · 30 → surpresa</li>
-      <li>💰 Meta: <strong>R$ 150,00/mês</strong> por criança</li>
-    </ul>
+    <!-- REBECA -->
+    <div class="sec"><span style="color:var(--rebeca)">🦋 Rebeca</span></div>
+    <div class="kid-section">
+      <div class="kid-header">
+        <span class="kid-name rebeca">🦋 Rebeca</span>
+        <span class="kid-earned" id="b-earned">R$ 0,00</span>
+      </div>
+      <div class="kid-pbar-bg"><div class="kid-pbar rebeca" id="b-pbar" style="width:0%"></div></div>
+      <div class="kid-pbar-lbl" id="b-pbar-lbl">0/0</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px;padding:8px 12px;background:#fdf4ff;border-radius:10px;font-size:.82rem;font-weight:800">
+        <span style="color:#9ca3af">📅 Total do mês</span>
+        <span style="color:#22c55e" id="b-mes-total">R$ 0,00</span>
+      </div>
+      <div id="b-tasks"></div>
+    </div>
+    <div class="comp-section">
+      <h4>😊 Comportamento da Rebeca</h4>
+      <div class="comp-pair">
+        <button class="comp-btn" id="b-bom"  onclick="setComp('rebeca','bom')">😊 Bom comportamento</button>
+        <button class="comp-btn" id="b-ruim" onclick="setComp('rebeca','ruim')">😤 Mal comportamento</button>
+      </div>
+      <div class="comp-lbl" id="b-comp-lbl">Aguardando avaliação</div>
+      <button class="lie-btn" onclick="confirmLie('rebeca')">🤥 Rebeca mentiu — remover bônus do dia</button>
+    </div>
+
+    <div class="rules">
+      <h4>📋 Regras do sistema</h4>
+      <ul>
+        <li>✅ Tarefas só contam após sua <strong>validação</strong></li>
+        <li>🤥 <strong>Mentira</strong> = perde todos os bônus do dia</li>
+        <li>😊 <strong>Mais dias bons que ruins</strong> = pode resgatar recompensas</li>
+        <li>🏆 20 dias → filme · 25 → jantar · 30 → surpresa</li>
+        <li>💰 Meta: <strong>R$ 150,00/mês</strong> por criança</li>
+      </ul>
+    </div>
   </div>
 </div>
 
 <!-- MESADA -->
-
-<div class="panel" id="panel-depositar">
-  <div class="carteira-overview">
-    <h3>👛 Carteiras agora</h3>
-    <div class="co-kid">
-      <div class="co-name rafael">🚀 Rafael</div>
-      <div class="co-bars">
-        <div class="co-bar-row"><div class="co-bar-bg"><div class="co-bar-fill corrente" id="bar-r-corrente" style="width:0%"></div></div><div class="co-bar-val corrente" id="val-r-corrente">R$ 0,00</div></div>
-        <div class="co-bar-row"><div class="co-bar-bg"><div class="co-bar-fill invest" id="bar-r-invest" style="width:0%"></div></div><div class="co-bar-val invest" id="val-r-invest">R$ 0,00</div></div>
+<div class="panel" id="panel-mesada">
+  <div class="box">
+    <h4>👛 Carteiras agora</h4>
+    <div class="wo-kid">
+      <div class="wo-name rafael">🚀 Rafael</div>
+      <div class="wo-bars">
+        <div class="wo-bar-row">
+          <div class="wo-bar-bg"><div class="wo-bar-fill cc" id="bar-r-cc" style="width:0%"></div></div>
+          <div class="wo-bar-val cc" id="val-r-cc">R$ 0,00</div>
+        </div>
+        <div class="wo-bar-row">
+          <div class="wo-bar-bg"><div class="wo-bar-fill inv" id="bar-r-inv" style="width:0%"></div></div>
+          <div class="wo-bar-val inv" id="val-r-inv">R$ 0,00</div>
+        </div>
       </div>
     </div>
-    <div class="co-kid">
-      <div class="co-name rebeca">🦋 Rebeca</div>
-      <div class="co-bars">
-        <div class="co-bar-row"><div class="co-bar-bg"><div class="co-bar-fill corrente" id="bar-b-corrente" style="width:0%"></div></div><div class="co-bar-val corrente" id="val-b-corrente">R$ 0,00</div></div>
-        <div class="co-bar-row"><div class="co-bar-bg"><div class="co-bar-fill invest" id="bar-b-invest" style="width:0%"></div></div><div class="co-bar-val invest" id="val-b-invest">R$ 0,00</div></div>
+    <div class="wo-kid">
+      <div class="wo-name rebeca">🦋 Rebeca</div>
+      <div class="wo-bars">
+        <div class="wo-bar-row">
+          <div class="wo-bar-bg"><div class="wo-bar-fill cc" id="bar-b-cc" style="width:0%"></div></div>
+          <div class="wo-bar-val cc" id="val-b-cc">R$ 0,00</div>
+        </div>
+        <div class="wo-bar-row">
+          <div class="wo-bar-bg"><div class="wo-bar-fill inv" id="bar-b-inv" style="width:0%"></div></div>
+          <div class="wo-bar-val inv" id="val-b-inv">R$ 0,00</div>
+        </div>
       </div>
     </div>
-    <div style="display:flex;gap:16px;margin-top:10px;font-size:.72rem;font-weight:700;">
+    <div style="display:flex;gap:16px;margin-top:8px;font-size:.72rem;font-weight:800">
       <span style="color:var(--blue)">💳 Conta Corrente</span>
-      <span style="color:var(--invest)">📈 Investimento</span>
+      <span style="color:var(--purple)">📈 Investimento</span>
     </div>
   </div>
 
-  <div class="deposito-card">
-    <h3>💸 Depositar mesada</h3>
-    <p>Dividido automaticamente conforme a escolha de cada filho.</p>
-    <!-- Rafael -->
-    <div class="kid-deposito">
-      <div class="kd-name rafael">🚀 Rafael</div>
-      <div class="kd-saldos">
-        <div class="kd-saldo corrente"><div class="ks-val" id="dep-r-corrente">R$ 0,00</div><div class="ks-lbl">💳 Corrente</div></div>
-        <div class="kd-saldo invest"><div class="ks-val" id="dep-r-invest">R$ 0,00</div><div class="ks-lbl">📈 Invest.</div></div>
+  <div class="box">
+    <h4>💸 Depositar mesada</h4>
+    <p>O valor fica pendente até a criança escolher a divisão e transferir.</p>
+    <div class="dep-kid">
+      <div class="dep-name rafael">🚀 Rafael</div>
+      <div class="dep-saldos">
+        <div class="dep-s cc"><div class="dep-sv cc" id="dr-cc">R$ 0,00</div><div class="dep-sl cc">💳 Corrente</div></div>
+        <div class="dep-s inv"><div class="dep-sv inv" id="dr-inv">R$ 0,00</div><div class="dep-sl inv">📈 Invest.</div></div>
       </div>
-      <div class="dep-pct-info" id="pct-info-rafael">⚖️ Divisão: <span id="pct-r-corrente">50</span>% corrente · <span id="pct-r-invest">50</span>% investimento</div>
+      <div class="dep-pct" id="dr-pct">⚖️ Divisão: 50% corrente · 50% invest.</div>
       <div class="dep-form">
-        <input class="dep-input" type="number" id="dep-val-rafael" placeholder="R$ valor" step="0.01" min="0">
+        <input class="dep-inp" type="number" id="dep-r" placeholder="R$ valor" step="0.01" min="0">
         <button class="dep-btn" onclick="depositar('rafael')">Depositar</button>
       </div>
     </div>
-    <!-- Rebeca -->
-    <div class="kid-deposito">
-      <div class="kd-name rebeca">🦋 Rebeca</div>
-      <div class="kd-saldos">
-        <div class="kd-saldo corrente"><div class="ks-val" id="dep-b-corrente">R$ 0,00</div><div class="ks-lbl">💳 Corrente</div></div>
-        <div class="kd-saldo invest"><div class="ks-val" id="dep-b-invest">R$ 0,00</div><div class="ks-lbl">📈 Invest.</div></div>
+    <div class="dep-kid">
+      <div class="dep-name rebeca">🦋 Rebeca</div>
+      <div class="dep-saldos">
+        <div class="dep-s cc"><div class="dep-sv cc" id="db-cc">R$ 0,00</div><div class="dep-sl cc">💳 Corrente</div></div>
+        <div class="dep-s inv"><div class="dep-sv inv" id="db-inv">R$ 0,00</div><div class="dep-sl inv">📈 Invest.</div></div>
       </div>
-      <div class="dep-pct-info" id="pct-info-rebeca">⚖️ Divisão: <span id="pct-b-corrente">50</span>% corrente · <span id="pct-b-invest">50</span>% investimento</div>
+      <div class="dep-pct" id="db-pct">⚖️ Divisão: 50% corrente · 50% invest.</div>
       <div class="dep-form">
-        <input class="dep-input" type="number" id="dep-val-rebeca" placeholder="R$ valor" step="0.01" min="0">
+        <input class="dep-inp" type="number" id="dep-b" placeholder="R$ valor" step="0.01" min="0">
         <button class="dep-btn" onclick="depositar('rebeca')">Depositar</button>
       </div>
     </div>
@@ -283,56 +297,34 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color
 </div>
 
 <!-- DISNEY -->
-
 <div class="panel" id="panel-disney">
-  <div class="disney-overview">
-    <h3>🏰 Programa Disney — Visão Geral</h3>
-    <div class="disney-kid-row">
-      <div class="disney-kid-name">🚀 Rafael</div>
-      <div class="disney-kid-stats">
-        <div class="disney-stat"><div class="dsv" id="pd-r-pontos">0</div><div class="dsl">Pontos</div></div>
-        <div class="disney-stat"><div class="dsv" id="pd-r-dolares">U$ 0,00</div><div class="dsl">Ganho</div></div>
-        <div class="disney-stat"><div class="dsv" id="pd-r-provas">0/35</div><div class="dsl">Provas</div></div>
-      </div>
-      <div class="disney-kid-prog-bg"><div class="disney-kid-prog-fill" id="pd-r-prog" style="width:0%"></div></div>
-      <div class="disney-kid-prog-label" id="pd-r-label">U$ 0,00 de U$ 150,00</div>
-    </div>
-    <div class="disney-kid-row">
-      <div class="disney-kid-name">🦋 Rebeca</div>
-      <div class="disney-kid-stats">
-        <div class="disney-stat"><div class="dsv" id="pd-b-pontos">0</div><div class="dsl">Pontos</div></div>
-        <div class="disney-stat"><div class="dsv" id="pd-b-dolares">U$ 0,00</div><div class="dsl">Ganho</div></div>
-        <div class="disney-stat"><div class="dsv" id="pd-b-provas">0/35</div><div class="dsl">Provas</div></div>
-      </div>
-      <div class="disney-kid-prog-bg"><div class="disney-kid-prog-fill" id="pd-b-prog" style="width:0%"></div></div>
-      <div class="disney-kid-prog-label" id="pd-b-label">U$ 0,00 de U$ 150,00</div>
+  <div style="background:linear-gradient(135deg,#1a237e,#1565c0);border-radius:var(--r);padding:18px;margin-bottom:14px;color:#fff;box-shadow:var(--sh)">
+    <div style="font-size:1.25rem;font-weight:900;margin-bottom:4px">🏰 Programa Disney</div>
+    <div style="font-size:.8rem;opacity:.85;margin-bottom:12px">Acompanhe o progresso de cada filho</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div id="dpais-rafael"></div>
+      <div id="dpais-rebeca"></div>
     </div>
   </div>
-
-  <!-- Notas Rafael -->
-
-  <div class="section-title" style="margin-top:4px">🚀 Notas do Rafael</div>
-  <div id="pd-notas-rafael"></div>
-  <div class="section-title">🦋 Notas da Rebeca</div>
-  <div id="pd-notas-rebeca"></div>
 </div>
 
 <!-- MODAL MENTIRA -->
-
 <div class="modal-overlay" id="lie-modal">
   <div class="modal">
-    <div class="m-icon">🤥</div>
-    <h3>Mentira detectada!</h3>
-    <p><strong id="lie-name"></strong> vai perder todos os bônus de hoje.</p>
+    <div class="mico">🤥</div>
+    <h3 id="lie-title">Confirmar punição</h3>
+    <p id="lie-desc">Isso vai remover todos os bônus de tarefas extras de hoje. Esta ação não pode ser desfeita.</p>
     <div class="modal-btns">
-      <button class="mbtn mbtn-cancel" onclick="closeLieModal()">Cancelar</button>
-      <button class="mbtn mbtn-red" onclick="confirmLie()">Aplicar punição</button>
+      <button class="mbtn mbtn-cancel" onclick="document.getElementById('lie-modal').classList.remove('show')">Cancelar</button>
+      <button class="mbtn mbtn-red" id="lie-confirm" onclick="applyLie()">Confirmar</button>
     </div>
   </div>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
+// ── INIT ──
 firebase.initializeApp({
   apiKey:"AIzaSyBj4ijJQDD1kSuhCqBWund5kt8ijVKFJw8",
   authDomain:"kids-allowance-8dc74.firebaseapp.com",
@@ -341,317 +333,318 @@ firebase.initializeApp({
   messagingSenderId:"640632026277",
   appId:"1:640632026277:web:77241724e86b27b96cc94c"
 });
-const db=firebase.firestore();
-db.settings({ experimentalForceLongPolling: true, merge: true });
+const db = firebase.firestore();
 
-const TASKS={
+
+// ── TASKS ──
+const TASKS = {
   rafael:[
-    {id:'r1',name:'Lição de casa',           icon:'📚',value:0.80,mandatory:true},
-    {id:'r2',name:'Tomar banho',             icon:'🚿',value:0.50,mandatory:true},
-    {id:'r3',name:'Escovar os dentes',       icon:'🦷',value:0.40,mandatory:true},
-    {id:'r4',name:'Arrumar o material',      icon:'🎒',value:0.50,mandatory:true},
-    {id:'r5',name:'Acordar na hora',         icon:'⏰',value:0.40,mandatory:true},
-    {id:'r6',name:'Arrumar a cama',          icon:'🛏️',value:0.30,mandatory:true},
-    {id:'r7',name:'Comer as refeições',      icon:'🍽️',value:0.40,mandatory:true},
-    {id:'r8',name:'Ajudar na arrumação',     icon:'🧹',value:0.40,mandatory:false},
-    {id:'r9',name:'Ler por 20 minutos',      icon:'📖',value:0.30,mandatory:false},
-    {id:'r10',name:'Praticar esporte',       icon:'⚽',value:0.30,mandatory:false},
-    {id:'r11',name:'Ajudar a Rebeca',        icon:'🤝',value:0.30,mandatory:false},
-    {id:'r12',name:'Telas só após tarefas',  icon:'📵',value:0.40,mandatory:false},
+    {id:'r1', name:'Lição de casa',            icon:'📚', val:0.80, req:true},
+    {id:'r2', name:'Tomar banho',              icon:'🚿', val:0.50, req:true},
+    {id:'r3', name:'Escovar os dentes',        icon:'🦷', val:0.40, req:true},
+    {id:'r4', name:'Arrumar o material',       icon:'🎒', val:0.50, req:true},
+    {id:'r5', name:'Acordar na hora',          icon:'⏰', val:0.40, req:true},
+    {id:'r6', name:'Arrumar a cama',           icon:'🛏️', val:0.30, req:true},
+    {id:'r7', name:'Comer as refeições',       icon:'🍽️', val:0.40, req:true},
+    {id:'r8', name:'Ajudar na arrumação',      icon:'🧹', val:0.40, req:false},
+    {id:'r9', name:'Ler por 20 minutos',       icon:'📖', val:0.30, req:false},
+    {id:'r10',name:'Praticar esporte',         icon:'⚽', val:0.30, req:false},
+    {id:'r11',name:'Ajudar a Rebeca',          icon:'🤝', val:0.30, req:false},
+    {id:'r12',name:'Telas só após as tarefas', icon:'📵', val:0.40, req:false},
   ],
   rebeca:[
-    {id:'b1',name:'Lição de casa',            icon:'📚',value:0.80,mandatory:true},
-    {id:'b2',name:'Tomar banho',              icon:'🚿',value:0.50,mandatory:true},
-    {id:'b3',name:'Escovar os dentes',        icon:'🦷',value:0.40,mandatory:true},
-    {id:'b4',name:'Arrumar o material',       icon:'🎒',value:0.50,mandatory:true},
-    {id:'b5',name:'Acordar na hora',          icon:'⏰',value:0.30,mandatory:true},
-    {id:'b6',name:'Arrumar a cama',           icon:'🛏️',value:0.30,mandatory:true},
-    {id:'b7',name:'Comer as refeições',       icon:'🍽️',value:0.50,mandatory:true},
-    {id:'b8',name:'Guardar os brinquedos',    icon:'🧸',value:0.40,mandatory:false},
-    {id:'b9',name:'Ajudar a pôr a mesa',      icon:'🥄',value:0.30,mandatory:false},
-    {id:'b10',name:'Desenhar ou colorir',     icon:'🎨',value:0.30,mandatory:false},
-    {id:'b11',name:'Brincar sem brigar',      icon:'😊',value:0.30,mandatory:false},
-    {id:'b12',name:'Escolher e vestir roupa', icon:'👗',value:0.40,mandatory:false},
+    {id:'b1', name:'Lição de casa',            icon:'📚', val:0.80, req:true},
+    {id:'b2', name:'Tomar banho',              icon:'🚿', val:0.50, req:true},
+    {id:'b3', name:'Escovar os dentes',        icon:'🦷', val:0.40, req:true},
+    {id:'b4', name:'Arrumar o material',       icon:'🎒', val:0.50, req:true},
+    {id:'b5', name:'Acordar na hora',          icon:'⏰', val:0.30, req:true},
+    {id:'b6', name:'Arrumar a cama',           icon:'🛏️', val:0.30, req:true},
+    {id:'b7', name:'Comer as refeições',       icon:'🍽️', val:0.50, req:true},
+    {id:'b8', name:'Guardar os brinquedos',    icon:'🧸', val:0.40, req:false},
+    {id:'b9', name:'Ajudar a pôr a mesa',      icon:'🥄', val:0.30, req:false},
+    {id:'b10',name:'Desenhar ou colorir',      icon:'🎨', val:0.30, req:false},
+    {id:'b11',name:'Brincar sem brigar',       icon:'😊', val:0.30, req:false},
+    {id:'b12',name:'Escolher e vestir roupa',  icon:'👗', val:0.40, req:false},
   ]
 };
+
+const DISNEY = [
+  {id:'at1_art',nome:'Artes',            tipo:'AT',trim:'1º TRIM',max:5.0},
+  {id:'at1_por',nome:'Língua Portuguesa',tipo:'AT',trim:'1º TRIM',max:5.0},
+  {id:'at1_geo',nome:'Geografia',        tipo:'AT',trim:'1º TRIM',max:5.0},
+  {id:'at1_his',nome:'História',         tipo:'AT',trim:'1º TRIM',max:5.0},
+  {id:'at1_ing',nome:'Inglês',           tipo:'AT',trim:'1º TRIM',max:5.0},
+  {id:'at1_mat',nome:'Matemática',       tipo:'AT',trim:'1º TRIM',max:5.0},
+  {id:'at1_cie',nome:'Ciências',         tipo:'AT',trim:'1º TRIM',max:5.0},
+  {id:'am2_art',nome:'Artes',            tipo:'AM',trim:'M2º TRI',max:4.0},
+  {id:'am2_por',nome:'Língua Portuguesa',tipo:'AM',trim:'M2º TRI',max:4.0},
+  {id:'am2_geo',nome:'Geografia',        tipo:'AM',trim:'M2º TRI',max:4.0},
+  {id:'am2_his',nome:'História',         tipo:'AM',trim:'M2º TRI',max:4.0},
+  {id:'am2_ing',nome:'Inglês',           tipo:'AM',trim:'M2º TRI',max:4.0},
+  {id:'am2_mat',nome:'Matemática',       tipo:'AM',trim:'M2º TRI',max:4.0},
+  {id:'am2_cie',nome:'Ciências',         tipo:'AM',trim:'M2º TRI',max:4.0},
+  {id:'at2_art',nome:'Artes',            tipo:'AT',trim:'2º TRIM',max:5.0},
+  {id:'at2_por',nome:'Língua Portuguesa',tipo:'AT',trim:'2º TRIM',max:5.0},
+  {id:'at2_geo',nome:'Geografia',        tipo:'AT',trim:'2º TRIM',max:5.0},
+  {id:'at2_his',nome:'História',         tipo:'AT',trim:'2º TRIM',max:5.0},
+  {id:'at2_ing',nome:'Inglês',           tipo:'AT',trim:'2º TRIM',max:5.0},
+  {id:'at2_mat',nome:'Matemática',       tipo:'AT',trim:'2º TRIM',max:5.0},
+  {id:'at2_cie',nome:'Ciências',         tipo:'AT',trim:'2º TRIM',max:5.0},
+  {id:'am3_art',nome:'Artes',            tipo:'AM',trim:'M3º TRI',max:4.0},
+  {id:'am3_por',nome:'Língua Portuguesa',tipo:'AM',trim:'M3º TRI',max:4.0},
+  {id:'am3_geo',nome:'Geografia',        tipo:'AM',trim:'M3º TRI',max:4.0},
+  {id:'am3_his',nome:'História',         tipo:'AM',trim:'M3º TRI',max:4.0},
+  {id:'am3_ing',nome:'Inglês',           tipo:'AM',trim:'M3º TRI',max:4.0},
+  {id:'am3_mat',nome:'Matemática',       tipo:'AM',trim:'M3º TRI',max:4.0},
+  {id:'am3_cie',nome:'Ciências',         tipo:'AM',trim:'M3º TRI',max:4.0},
+  {id:'at3_art',nome:'Artes',            tipo:'AT',trim:'3º TRIM',max:5.0},
+  {id:'at3_por',nome:'Língua Portuguesa',tipo:'AT',trim:'3º TRIM',max:5.0},
+  {id:'at3_geo',nome:'Geografia',        tipo:'AT',trim:'3º TRIM',max:5.0},
+  {id:'at3_his',nome:'História',         tipo:'AT',trim:'3º TRIM',max:5.0},
+  {id:'at3_ing',nome:'Inglês',           tipo:'AT',trim:'3º TRIM',max:5.0},
+  {id:'at3_mat',nome:'Matemática',       tipo:'AT',trim:'3º TRIM',max:5.0},
+  {id:'at3_cie',nome:'Ciências',         tipo:'AT',trim:'3º TRIM',max:5.0},
+];
+const D_PTS=150/350, D_MIN=7.0;
+
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const DAYS_W=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const DAYS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
-let curDate=new Date(),dayCache={rafael:{},rebeca:{}},unsubs=[],pendingLie=null;
+// ── STATE ──
+let curDate = new Date();
+let cache = {rafael:{}, rebeca:{}};
+let unsubs = [];
+let pendingLie = null;
 
-function ds(d){return d.toISOString().slice(0,10);}
-function dayRef(kid,s){return db.collection('mesada').doc(kid).collection('dias').doc(s);}
-function walletRef(kid){return db.collection('mesada').doc(kid).collection('carteira').doc('saldo');}
-function gastosRef(kid){return db.collection('mesada').doc(kid).collection('gastos');}
+// ── REFS ──
+const dayRef = (kid,s) => db.collection('mesada').doc(kid).collection('dias').doc(s);
+const walRef = kid => db.collection('mesada').doc(kid).collection('carteira').doc('saldo');
+const gasRef = kid => db.collection('mesada').doc(kid).collection('gastos');
+const disRef = kid => db.collection('mesada').doc(kid).collection('disney').doc('notas');
+const ds = d => d.toISOString().slice(0,10);
 
-function setSynced(ok){document.getElementById('sync-dot').className='sync-dot '+(ok?'ok':'err');document.getElementById('sync-label').textContent=ok?'sincronizado':'sem conexão';}
-
-function showTab(t){
-  ['validar','depositar','disney'].forEach((n,i)=>{
-    document.querySelectorAll('.tab-btn')[i].classList.toggle('active',n===t);
-    document.getElementById('panel-'+n).style.display=n===t?'block':'none';
-  });
-  if(t==='depositar')loadDepositar();
-  if(t==='disney')loadDisneyPais();
+// ── SYNC ──
+function synced(ok){
+  document.getElementById('dot').className='dot '+(ok?'ok':'err');
+  document.getElementById('sync-lbl').textContent=ok?'sincronizado':'sem conexão';
 }
-document.getElementById('panel-depositar').style.display='none';
-document.getElementById('panel-disney').style.display='none';
+
+// ── TABS ──
+function goTab(name,btn){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('panel-'+name).classList.add('on');
+  if(name==='mesada') loadMesada();
+  if(name==='disney') loadDisneyPais();
+}
+
+// ── DATE ──
+function navDate(d){
+  curDate.setDate(curDate.getDate()+d);
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('val-content').style.display='none';
+  listenToday();
+}
+
+// ── LISTEN ──
+
+function loadMonthTotal(kid){
+  const p=kid==='rafael'?'r':'b';
+  const d=curDate;
+  const dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  const ps=[];
+  for(let i=1;i<=dim;i++){
+    const dd=new Date(d.getFullYear(),d.getMonth(),i), k=ds(dd);
+    if(cache[kid][k]){ps.push(Promise.resolve());continue;}
+    ps.push(dayRef(kid,k).get().then(s=>{
+      cache[kid][k]=s.exists?s.data():{tasks:{},flag:'none',comp:'none'};
+    }).catch(()=>{}));
+  }
+  Promise.all(ps).then(()=>{
+    let total=0;
+    for(let i=1;i<=dim;i++){
+      const dd=new Date(d.getFullYear(),d.getMonth(),i);
+      const day=cache[kid][ds(dd)]||{tasks:{},flag:'none',comp:'none'};
+      const flag=day.flag||'none';
+      TASKS[kid].forEach(t=>{
+        const lied=flag==='lied'&&!t.req;
+        const st=lied?'lied':((day.tasks&&day.tasks[t.id])||'none');
+        if(!lied&&st==='validated') total+=t.val;
+      });
+    }
+    const el=document.getElementById(p+'-mes-total');
+    if(el) el.textContent='R$ '+total.toFixed(2).replace('.',',');
+  });
+}
 
 function listenToday(){
-  unsubs.forEach(u=>u());unsubs=[];
-  document.getElementById('date-label').textContent=DAYS_W[curDate.getDay()]+', '+curDate.getDate()+' de '+MONTHS[curDate.getMonth()];
+  unsubs.forEach(u=>u()); unsubs=[];
+  const key=ds(curDate);
+  document.getElementById('date-lbl').textContent=DAYS[curDate.getDay()]+', '+curDate.getDate()+' de '+MONTHS[curDate.getMonth()];
   ['rafael','rebeca'].forEach(kid=>{
-    const u=dayRef(kid,ds(curDate)).onSnapshot(snap=>{
-      dayCache[kid][ds(curDate)]=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
-      setSynced(true);renderKid(kid);loadMonthTotal(kid);
-    },()=>setSynced(false));
+    const u=dayRef(kid,key).onSnapshot(snap=>{
+      cache[kid][key]=snap.exists?snap.data():{tasks:{},flag:'none',comp:'none'};
+      synced(true);
+      document.getElementById('loading').style.display='none';
+      document.getElementById('val-content').style.display='block';
+      renderKid(kid);
+      loadMonthTotal(kid);
+    },()=>synced(false));
     unsubs.push(u);
   });
 }
 
+// ── RENDER KID ──
 function renderKid(kid){
   const p=kid==='rafael'?'r':'b';
-  const tasks=TASKS[kid],dateStr=ds(curDate);
-  const data=dayCache[kid][dateStr]||{tasks:{},flag:'none',comportamento:'none'};
-  const flag=data.flag||'none',comp=data.comportamento||'none';
-  document.getElementById(p+'-penalty').innerHTML=flag==='lied'?'<div class="penalty-active">🤥 Punição ativa hoje</div>':'';
-  let todayEarned=0,todayDone=0;
-  tasks.forEach(t=>{const lied=flag==='lied'&&!t.mandatory,s=lied?'lied':((data.tasks&&data.tasks[t.id])||'none');if(!lied&&s==='validated'){todayEarned+=t.value;todayDone++;}});
-  document.getElementById(p+'-today').textContent='R$ '+todayEarned.toFixed(2).replace('.',',');
-  document.getElementById(p+'-done').textContent=todayDone+'/'+tasks.length;
-
-  // comportamento buttons
-  const prefix=kid==='rafael'?'r':'b';
-  document.getElementById(prefix+'-comp-bom').className='comp-bnt'+(comp==='bom'?' sel-bom':'');
-  document.getElementById(prefix+'-comp-ruim').className='comp-bnt'+(comp==='ruim'?' sel-ruim':'');
-
-  const container=document.getElementById('validate-'+kid);
-  const pending=tasks.filter(t=>(data.tasks&&data.tasks[t.id]||'none')==='pending');
-  const validated=tasks.filter(t=>(data.tasks&&data.tasks[t.id]||'none')==='validated');
-  if(!pending.length&&!validated.length){container.innerHTML='<div style="color:var(--muted);font-size:.82rem;padding:8px 0;text-align:center;">Nenhuma tarefa marcada hoje</div>';return;}
-  container.innerHTML='';
-  [...pending,...validated].forEach(task=>{
-    const s=(data.tasks&&data.tasks[task.id])||'none';
-    const row=document.createElement('div');row.className='validate-item';
-    let acts='';
-    if(s==='pending')acts='<div class="vi-actions"><button class="btn-v btn-ok" onclick="valTask(\''+kid+'\',\''+task.id+'\',true)">✓ OK</button><button class="btn-v btn-lie" onclick="openLieModal(\''+kid+'\',\''+task.id+'\')">🤥</button></div>';
-    else if(s==='validated')acts='<button class="btn-done">✓ OK</button>';
-    row.innerHTML='<div class="vi-left"><span class="vi-icon">'+task.icon+'</span><span class="vi-name">'+task.name+'</span><span class="vi-val">R$'+task.value.toFixed(2).replace('.',',')+'</span></div>'+acts;
-    container.appendChild(row);
+  const key=ds(curDate);
+  const data=cache[kid][key]||{tasks:{},flag:'none',comp:'none'};
+  const flag=data.flag||'none', comp=data.comp||'none';
+  const tasks=TASKS[kid];
+  let earned=0,count=0,val=0;
+  tasks.forEach(t=>{
+    const lied=flag==='lied'&&!t.req, st=lied?'lied':((data.tasks&&data.tasks[t.id])||'none');
+    if(!lied&&st==='validated'){earned+=t.val;count++;val++;}
+    else if(!lied&&st==='pending')count++;
   });
-  if(flag!=='lied'&&(pending.length||validated.length)){
-    const btn=document.createElement('button');btn.className='lie-all-btn';btn.textContent='🤥 Punir dia inteiro por mentira';btn.onclick=function(){openLieModal(kid,null);};container.appendChild(btn);
-  }
-}
-
-function avaliarComportamento(kid,val){
-  const dateStr=ds(curDate);
-  dayRef(kid,dateStr).get().then(snap=>{
-    const data=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
-    data.comportamento=val;
-    return dayRef(kid,dateStr).set(data);
-  }).then(()=>{
-    const nome=kid==='rafael'?'Rafael':'Rebeca';
-    if(val==='bom')showToast('😊 '+nome+': bom comportamento registrado!');
-    else if(val==='ruim')showToast('😤 '+nome+': mal comportamento registrado');
-    else showToast('↩ Avaliação de '+nome+' removida');
-  }).catch(()=>showToast('Erro ao salvar'));
-}
-
-function loadMonthTotal(kid){
-  const p=kid==='rafael'?'r':'b',tasks=TASKS[kid],d=curDate;
-  const dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),promises=[];
-  for(let day=1;day<=dim;day++){const dd=new Date(d.getFullYear(),d.getMonth(),day),s=ds(dd);if(dayCache[kid][s]){promises.push(Promise.resolve());continue;}promises.push(dayRef(kid,s).get().then(snap=>{dayCache[kid][s]=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};}).catch(()=>{}));}
-  Promise.all(promises).then(()=>{
-    let total=0;
-    for(let day=1;day<=dim;day++){const dd=new Date(d.getFullYear(),d.getMonth(),day),data2=dayCache[kid][ds(dd)]||{tasks:{},flag:'none'},f2=data2.flag||'none';tasks.forEach(t=>{const lied=f2==='lied'&&!t.mandatory,s=lied?'lied':((data2.tasks&&data2.tasks[t.id])||'none');if(!lied&&s==='validated')total+=t.value;});}
-    document.getElementById(p+'-month').textContent='R$ '+total.toFixed(2).replace('.',',');
-    document.getElementById(p+'-total').textContent='R$ '+total.toFixed(2).replace('.',',');
+  document.getElementById(p+'-earned').textContent='R$ '+earned.toFixed(2).replace('.',',');
+  const pct=tasks.length?Math.round(count/tasks.length*100):0;
+  document.getElementById(p+'-pbar').style.width=pct+'%';
+  document.getElementById(p+'-pbar-lbl').textContent=val+'/'+tasks.length+' validadas';
+  // comp btns
+  document.getElementById(p+'-bom').className='comp-btn'+(comp==='bom'?' bom':'');
+  document.getElementById(p+'-ruim').className='comp-btn'+(comp==='ruim'?' ruim':'');
+  const cl=document.getElementById(p+'-comp-lbl');
+  if(comp==='bom'){cl.textContent='😊 Bom comportamento hoje';cl.className='comp-lbl bom';}
+  else if(comp==='ruim'){cl.textContent='😤 Mal comportamento hoje';cl.className='comp-lbl ruim';}
+  else{cl.textContent='Aguardando avaliação';cl.className='comp-lbl';}
+  // tasks
+  const el=document.getElementById(p+'-tasks'); el.innerHTML='';
+  tasks.forEach(t=>{
+    const lied=flag==='lied'&&!t.req, st=lied?'lied':((data.tasks&&data.tasks[t.id])||'none');
+    let stCls='ts-none', stTxt='Não feita';
+    if(st==='pending'){stCls='ts-pend';stTxt='⏳ Aguardando';}
+    else if(st==='validated'){stCls='ts-ok';stTxt='✓ Validado';}
+    else if(st==='rejected'||st==='lied'){stCls='ts-no';stTxt='✗ Não conta';}
+    const canVal=st==='pending';
+    const row=document.createElement('div');row.className='task-row';
+    row.innerHTML='<span class="task-ico">'+t.icon+'</span><span class="task-name">'+t.name+'</span><span class="task-status '+stCls+'">'+stTxt+'</span><div class="val-btns"><button class="vbtn ok" '+(canVal?'':'disabled')+' onclick="valTask(\''+kid+'\',\''+t.id+'\',true)">✓ Ok</button><button class="vbtn no" '+(canVal?'':'disabled')+' onclick="valTask(\''+kid+'\',\''+t.id+'\',false)">✗ Não</button></div>';
+    el.appendChild(row);
   });
 }
 
+// ── VALIDATE TASK ──
 function valTask(kid,taskId,approve){
-  const dateStr=ds(curDate);
-  dayRef(kid,dateStr).get().then(snap=>{
-    const data=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
-    data.tasks=data.tasks||{};data.tasks[taskId]=approve?'validated':'rejected';
-    return dayRef(kid,dateStr).set(data);
+  const key=ds(curDate);
+  dayRef(kid,key).get().then(snap=>{
+    const d=snap.exists?snap.data():{tasks:{},flag:'none',comp:'none'};
+    d.tasks=d.tasks||{};
+    d.tasks[taskId]=approve?'validated':'rejected';
+    return dayRef(kid,key).set(d);
   }).then(()=>showToast(approve?'✅ Tarefa validada!':'❌ Tarefa rejeitada')).catch(()=>showToast('Erro'));
 }
 
-function openLieModal(kid,taskId){pendingLie={kid,taskId};document.getElementById('lie-name').textContent=kid==='rafael'?'Rafael':'Rebeca';document.getElementById('lie-modal').classList.add('show');}
-function closeLieModal(){document.getElementById('lie-modal').classList.remove('show');pendingLie=null;}
-function confirmLie(){
-  if(!pendingLie)return;const{kid}=pendingLie,dateStr=ds(curDate);
-  dayRef(kid,dateStr).get().then(snap=>{
-    const data=snap.exists?snap.data():{tasks:{},flag:'none',comportamento:'none'};
-    data.flag='lied';data.tasks=data.tasks||{};
-    TASKS[kid].filter(t=>!t.mandatory).forEach(t=>{data.tasks[t.id]='rejected';});
-    return dayRef(kid,dateStr).set(data);
-  }).then(()=>showToast('🤥 '+(pendingLie.kid==='rafael'?'Rafael':'Rebeca')+' perdeu os bônus de hoje')).catch(()=>showToast('Erro'));
-  closeLieModal();
+// ── COMP ──
+function setComp(kid,val){
+  const key=ds(curDate);
+  dayRef(kid,key).get().then(snap=>{
+    const d=snap.exists?snap.data():{tasks:{},flag:'none',comp:'none'};
+    d.comp=d.comp===val?'none':val;
+    return dayRef(kid,key).set(d);
+  }).then(()=>showToast(val==='bom'?'😊 Bom comportamento registrado!':'😤 Mal comportamento registrado')).catch(()=>showToast('Erro'));
 }
 
-function changeDate(delta){curDate.setDate(curDate.getDate()+delta);dayCache={rafael:{},rebeca:{}};listenToday();}
+// ── LIE ──
+function confirmLie(kid){
+  pendingLie=kid;
+  const nome=kid==='rafael'?'Rafael':'Rebeca';
+  document.getElementById('lie-title').textContent='🤥 '+nome+' mentiu?';
+  document.getElementById('lie-desc').textContent='Isso vai remover todos os bônus de tarefas extras de '+nome+' de hoje.';
+  document.getElementById('lie-modal').classList.add('show');
+}
+function applyLie(){
+  const kid=pendingLie; if(!kid) return;
+  const key=ds(curDate);
+  document.getElementById('lie-modal').classList.remove('show');
+  dayRef(kid,key).get().then(snap=>{
+    const d=snap.exists?snap.data():{tasks:{},flag:'none',comp:'none'};
+    d.flag='lied'; d.tasks=d.tasks||{};
+    TASKS[kid].filter(t=>!t.req).forEach(t=>{ d.tasks[t.id]='rejected'; });
+    return dayRef(kid,key).set(d);
+  }).then(()=>showToast('🤥 Bônus removidos!')).catch(()=>showToast('Erro'));
+  pendingLie=null;
+}
 
-function loadDepositar(){
+// ── MESADA ──
+function loadMesada(){
   ['rafael','rebeca'].forEach(kid=>{
     const p=kid==='rafael'?'r':'b';
-    walletRef(kid).get().then(snap=>{
-      const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50};
-      const corrente=parseFloat(data.corrente||0),invest=parseFloat(data.invest||0),total=corrente+invest;
-      document.getElementById('dep-'+p+'-corrente').textContent='R$ '+corrente.toFixed(2).replace('.',',');
-      document.getElementById('dep-'+p+'-invest').textContent='R$ '+invest.toFixed(2).replace('.',',');
-      document.getElementById('val-'+p+'-corrente').textContent='R$ '+corrente.toFixed(2).replace('.',',');
-      document.getElementById('val-'+p+'-invest').textContent='R$ '+invest.toFixed(2).replace('.',',');
-      const maxBar=Math.max(total,10);
-      document.getElementById('bar-'+p+'-corrente').style.width=Math.round((corrente/maxBar)*100)+'%';
-      document.getElementById('bar-'+p+'-invest').style.width=Math.round((invest/maxBar)*100)+'%';
-      const pct=data.pctCorrente!=null?data.pctCorrente:50;
-      document.getElementById('pct-'+p+'-corrente').textContent=pct;
-      document.getElementById('pct-'+p+'-invest').textContent=100-pct;
+    walRef(kid).get().then(snap=>{
+      const d=snap.exists?snap.data():{cc:0,inv:0,pct:50};
+      const cc=parseFloat(d.cc||0), inv=parseFloat(d.inv||0), total=cc+inv||1;
+      document.getElementById('val-'+p+'-cc').textContent='R$ '+cc.toFixed(2).replace('.',',');
+      document.getElementById('val-'+p+'-inv').textContent='R$ '+inv.toFixed(2).replace('.',',');
+      document.getElementById('bar-'+p+'-cc').style.width=Math.round(cc/total*100)+'%';
+      document.getElementById('bar-'+p+'-inv').style.width=Math.round(inv/total*100)+'%';
+      document.getElementById('d'+p+'-cc').textContent='R$ '+cc.toFixed(2).replace('.',',');
+      document.getElementById('d'+p+'-inv').textContent='R$ '+inv.toFixed(2).replace('.',',');
+      const pct=d.pct!=null?d.pct:50;
+      document.getElementById('d'+p+'-pct').textContent='⚖️ Divisão: '+pct+'% corrente · '+(100-pct)+'% invest.';
     }).catch(()=>{});
   });
 }
 
 function depositar(kid){
   const p=kid==='rafael'?'r':'b';
-  const val=parseFloat(document.getElementById('dep-val-'+kid).value);
-  if(!val||val<=0){showToast('💰 Coloca o valor a depositar!');return;}
-  walletRef(kid).get().then(snap=>{
-    const data=snap.exists?snap.data():{corrente:0,invest:0,pctCorrente:50};
-    const pct=data.pctCorrente!=null?data.pctCorrente:50;
-    const valorCorrente=Math.round((val*(pct/100))*100)/100;
-    const valorInvest=Math.round((val-valorCorrente)*100)/100;
-    data.corrente=Math.round(((parseFloat(data.corrente)||0)+valorCorrente)*100)/100;
-    data.invest=Math.round(((parseFloat(data.invest)||0)+valorInvest)*100)/100;
-    walletRef(kid).set(data).then(()=>{
-      const mes=new Date().toLocaleDateString('pt-BR',{month:'long'});
-      gastosRef(kid).add({desc:'Mesada de '+mes,valor:valorCorrente,fonte:'corrente',data:new Date().toISOString(),tipo:'deposito'});
-      if(valorInvest>0)gastosRef(kid).add({desc:'Mesada de '+mes,valor:valorInvest,fonte:'invest',data:new Date().toISOString(),tipo:'deposito'});
-      document.getElementById('dep-val-'+kid).value='';
-      // Set pending flag for kid's transfer
-      data.mesadaPendente=(data.mesadaPendente||0)+val;
-      data.mesadaTransferida=false;
-      walletRef(kid).set(data);
-      const nome=kid==='rafael'?'Rafael':'Rebeca';
-      showToast('✅ '+nome+' recebeu R$ '+val.toFixed(2).replace('.',',')+'! 💳R$'+valorCorrente.toFixed(2).replace('.',',')+'·📈R$'+valorInvest.toFixed(2).replace('.',','));
-      loadDepositar();
-    });
-  }).catch(()=>showToast('Erro ao depositar'));
+  const val=parseFloat(document.getElementById('dep-'+p).value);
+  if(!val||val<=0){showToast('💰 Coloca o valor');return;}
+  walRef(kid).get().then(snap=>{
+    const d=snap.exists?snap.data():{cc:0,inv:0,pct:50,mesada:0,mesadaOk:false};
+    d.mesada=(parseFloat(d.mesada||0)+val);
+    d.mesadaOk=false;
+    return walRef(kid).set(d);
+  }).then(()=>{
+    const nome=kid==='rafael'?'Rafael':'Rebeca';
+    document.getElementById('dep-'+(kid==='rafael'?'r':'b')).value='';
+    showToast('✅ '+nome+' recebeu R$ '+val.toFixed(2).replace('.',',')+' de mesada!');
+    loadMesada();
+  }).catch(()=>showToast('Erro'));
 }
 
 // ── DISNEY PAIS ──
-const DISNEY_MATERIAS_P = [
-  {id:'at_1_artes', nome:'Artes',            tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
-  {id:'at_1_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
-  {id:'at_1_geo',   nome:'Geografia',        tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
-  {id:'at_1_hist',  nome:'História',         tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
-  {id:'at_1_ing',   nome:'Inglês',           tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
-  {id:'at_1_mat',   nome:'Matemática',       tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
-  {id:'at_1_cien',  nome:'Ciências',         tipo:'AT',trimestre:'1º TRIM',maxNota:5.0},
-  {id:'am_m2_artes',nome:'Artes',            tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
-  {id:'am_m2_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
-  {id:'am_m2_geo',  nome:'Geografia',        tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
-  {id:'am_m2_hist', nome:'História',         tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
-  {id:'am_m2_ing',  nome:'Inglês',           tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
-  {id:'am_m2_mat',  nome:'Matemática',       tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
-  {id:'am_m2_cien', nome:'Ciências',         tipo:'AM',trimestre:'M2º TRI',maxNota:4.0},
-  {id:'at_2_artes', nome:'Artes',            tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
-  {id:'at_2_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
-  {id:'at_2_geo',   nome:'Geografia',        tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
-  {id:'at_2_hist',  nome:'História',         tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
-  {id:'at_2_ing',   nome:'Inglês',           tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
-  {id:'at_2_mat',   nome:'Matemática',       tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
-  {id:'at_2_cien',  nome:'Ciências',         tipo:'AT',trimestre:'2º TRIM',maxNota:5.0},
-  {id:'am_m3_artes',nome:'Artes',            tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
-  {id:'am_m3_port', nome:'Língua Portuguesa',tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
-  {id:'am_m3_geo',  nome:'Geografia',        tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
-  {id:'am_m3_hist', nome:'História',         tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
-  {id:'am_m3_ing',  nome:'Inglês',           tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
-  {id:'am_m3_mat',  nome:'Matemática',       tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
-  {id:'am_m3_cien', nome:'Ciências',         tipo:'AM',trimestre:'M3º TRI',maxNota:4.0},
-  {id:'at_3_artes', nome:'Artes',            tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
-  {id:'at_3_port',  nome:'Língua Portuguesa',tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
-  {id:'at_3_geo',   nome:'Geografia',        tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
-  {id:'at_3_hist',  nome:'História',         tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
-  {id:'at_3_ing',   nome:'Inglês',           tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
-  {id:'at_3_mat',   nome:'Matemática',       tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
-  {id:'at_3_cien',  nome:'Ciências',         tipo:'AT',trimestre:'3º TRIM',maxNota:5.0},
-];
-const DISNEY_TRIM_ORDER_P=['1º TRIM','M2º TRI','2º TRIM','M3º TRI','3º TRIM'];
-const D_VALOR_PONTO = 150/350, D_MIN_EQUIV = 7.0;
-function disneyRef(kid){return db.collection('mesada').doc(kid).collection('disney').doc('notas');}
-function calcEquivP(nota,maxNota){if(!nota||nota<=0)return 0;return Math.round((nota/maxNota)*10*100)/100;}
-
-function calcDisneyStats(notas){
-  let pts=0,provas=0;
-  DISNEY_MATERIAS_P.forEach(m=>{
-    const v=parseFloat(notas[m.id])||0;
-    if(v>0){provas++;const eq=calcEquivP(v,m.maxNota);if(eq>=D_MIN_EQUIV)pts+=eq;}
-  });
-  return {pts,provas,dolares:pts*D_VALOR_PONTO};
-}
-
 function loadDisneyPais(){
   ['rafael','rebeca'].forEach(kid=>{
-    const p=kid==='rafael'?'r':'b';
-    disneyRef(kid).get().then(snap=>{
+    const p=kid==='rafael'?'rafael':'rebeca';
+    const nome=kid==='rafael'?'🚀 Rafael':'🦋 Rebeca';
+    const cls=kid;
+    disRef(kid).get().then(snap=>{
       const notas=snap.exists?snap.data():{};
-      const {pts,provas,dolares}=calcDisneyStats(notas);
-      const pct=Math.round((dolares/150)*100);
-      document.getElementById('pd-'+p+'-pontos').textContent=pts.toFixed(1);
-      document.getElementById('pd-'+p+'-dolares').textContent='U$ '+dolares.toFixed(2);
-      document.getElementById('pd-'+p+'-provas').textContent=provas+'/35';
-      document.getElementById('pd-'+p+'-prog').style.width=pct+'%';
-      document.getElementById('pd-'+p+'-label').textContent='U$ '+dolares.toFixed(2)+' de U$ 150,00';
-      renderNotasPais(kid,notas);
+      let pts=0,prv=0;
+      DISNEY.forEach(m=>{
+        const v=parseFloat(notas[m.id])||0;
+        if(v>0){prv++;const eq=Math.round((v/m.max)*10*100)/100;if(eq>=D_MIN)pts+=eq;}
+      });
+      const usd=pts*D_PTS, pct=Math.round(usd/150*100);
+      const el=document.getElementById('dpais-'+kid);
+      el.innerHTML='<div style="background:rgba(255,255,255,.15);border-radius:12px;padding:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-weight:900;font-size:.9rem">'+nome+'</span><span style="font-size:.82rem;font-weight:800;opacity:.9">'+prv+'/35 provas · U$ '+usd.toFixed(2)+'</span></div><div style="background:rgba(255,255,255,.25);border-radius:99px;height:10px"><div style="background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:99px;height:10px;width:'+pct+'%;transition:width .5s"></div></div><div style="font-size:.7rem;opacity:.85;font-weight:800;text-align:right;margin-top:3px">U$ '+usd.toFixed(2)+' de U$ 150,00</div></div>';
     }).catch(()=>{});
   });
 }
 
-function renderNotasPais(kid,notas){
-  const el=document.getElementById('pd-notas-'+kid);
-  el.innerHTML='';
-  const grupos={};
-  DISNEY_MATERIAS_P.forEach(m=>{if(!grupos[m.trimestre])grupos[m.trimestre]=[];grupos[m.trimestre].push(m);});
-  DISNEY_TRIM_ORDER_P.forEach(trim=>{
-    if(!grupos[trim])return;
-    const sec=document.createElement('div');
-    sec.style.cssText='font-family:"Nunito",sans-serif;font-size:.88rem;margin:10px 0 6px;color:#555;display:flex;align-items:center;gap:5px;';
-    sec.textContent=(trim.includes('M')?'📝':'📋')+' '+trim;
-    el.appendChild(sec);
-    grupos[trim].forEach(m=>{
-      const notaVal=parseFloat(notas[m.id])||0,equiv=notaVal>0?calcEquivP(notaVal,m.maxNota):0;
-      const pontua=equiv>=D_MIN_EQUIV,temNota=notaVal>0;
-      const row=document.createElement('div');
-      row.style.cssText='background:white;border-radius:12px;padding:9px 12px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 6px rgba(0,0,0,.05);border:2px solid '+(temNota&&pontua?'#fbbf24':temNota&&!pontua?'#fca5a5':'#f0f0f0')+';';
-      const tipoColor=m.tipo==='AT'?'#1565c0':'#7c3aed',tipoBg=m.tipo==='AT'?'#dbeafe':'#ede9fe';
-      row.innerHTML=
-        '<div style="flex:1;min-width:0;">' +
-          '<div style="font-weight:800;font-size:.83rem;">'+m.nome+'</div>' +
-          '<span style="font-size:.6rem;font-weight:800;padding:1px 5px;border-radius:99px;background:'+tipoBg+';color:'+tipoColor+'">'+m.tipo+'</span>' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">' +
-          '<div style="text-align:center;">' +
-            '<div style="font-family:\'Nunito\',sans-serif;font-weight:800;font-size:1rem;color:'+(temNota?(pontua?'#f59e0b':'#ef4444'):'#ccc')+'">'+(temNota?notaVal:'—')+'</div>' +
-            '<div style="font-size:.62rem;color:#9ca3af;font-weight:700;">nota</div>' +
-          '</div>' +
-          '<div style="text-align:center;">' +
-            '<div style="font-family:\'Nunito\',sans-serif;font-weight:800;font-size:1rem;color:'+(temNota?(pontua?'#22c55e':'#9ca3af'):'#ccc')+'">'+(temNota?(pontua?'+U$'+(equiv*D_VALOR_PONTO).toFixed(2):'❌'):'—')+'</div>' +
-            '<div style="font-size:.62rem;color:#9ca3af;font-weight:700;">'+(temNota?equiv.toFixed(1)+' pts':'')+'</div>' +
-          '</div>' +
-        '</div>';
-      el.appendChild(row);
-    });
-  });
+// ── TOAST ──
+let toastTimer;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
 }
 
-let tt;
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3200);}
-
-firebase.auth().signInAnonymously().then(()=>{ listenToday(); }).catch(e=>{ setSynced(false); });
+// ── START ──
+firebase.auth().signInAnonymously()
+  .then(()=>{ synced(true); listenToday(); })
+  .catch(()=>{ synced(false); listenToday(); });
 </script>
-
 </body>
 </html>
