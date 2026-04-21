@@ -706,7 +706,7 @@ function calcMesadaMes(kid, callback){
         if(!lied&&st==='validated') total+=t.val;
       });
     }
-    const nomeMes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][mes];
+    const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; const nomeMes=MESES[mes];
     callback(Math.round(total*100)/100, nomeMes);
   });
 }
@@ -724,8 +724,8 @@ function depositar(kid){
     const [ano,mes]=mesAno.split('-').map(Number);
     const proximoMes=new Date(ano,mes,1); // 1st of next month
     if(hoje<proximoMes){
-      const nomeMes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][mes];
-      showToast('⏳ Depósito disponível a partir de 1º de '+nomeMes);
+      const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; const nomeMes=MESES[mes];
+      showToast(`⏳ Depósito disponível a partir de 1º de ${nomeMes}`);
       return;
     }
   }
@@ -734,14 +734,14 @@ function depositar(kid){
   if(btn&&btn.disabled){showToast('✅ Mesada já depositada!');return;}
   const nome=kid==='rafael'?'Rafael':'Rebeca';
   // Confirmation
-  if(!confirm('Depositar R$ '+val.toFixed(2).replace('.',',')+' para '+nome+'?
+  if(!confirm(`Depositar para ${nome}?\nO valor será enviado para a carteira.`)){return;}
 
 Este valor será enviado para a carteira e não poderá ser desfeito facilmente.')){return;}
   // Prevent double click
   if(btn){btn.disabled=true;btn.style.opacity='.5';}
   walRef(kid).get().then(snap=>{
     const d=snap.exists?snap.data():{cc:0,inv:0,pct:50,mesada:0,mesadaOk:false};
-    if(d.mesadaOk){showToast('✅ Mesada já depositada!');if(btn){btn.disabled=true;}return Promise.reject('already');}
+    if(d.mesadaOk){showToast('✅ Mesada já depositada!');if(btn){btn.disabled=true;}return Promise.reject(99);}
     d.mesada=(parseFloat(d.mesada||0)+val);
     d.mesadaOk=false;
     d.mesadaDepositadaEm=new Date().toISOString();
@@ -749,9 +749,9 @@ Este valor será enviado para a carteira e não poderá ser desfeito facilmente.
   }).then(()=>{
     const st=document.getElementById('dep-status-'+p);
     if(st){st.textContent='✅ Depositado!';st.style.color='var(--green)';}
-    showToast('✅ '+nome+' recebeu R$ '+val.toFixed(2).replace('.',',')+' de mesada!');
+    showToast(`✅ ${nome} recebeu R$ ${val.toFixed(2).replace('.',',')} de mesada!`);
     loadMesada();
-  }).catch(e=>{if(e!=='already')showToast('Erro ao depositar');});
+  }).catch(e=>{if(e!==99)showToast('Erro ao depositar');});
 }
 
 // ── DISNEY PAIS ──
