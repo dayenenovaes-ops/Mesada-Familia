@@ -747,9 +747,9 @@ function renderDisPais(kid, notas){
         '<div style="display:flex;align-items:center;gap:10px">'+
           '<span style="font-size:.75rem;color:var(--muted);font-weight:800;flex-shrink:0">Nota<br><span style="font-size:.62rem">mín '+min+'</span></span>'+
           '<input type="number" id="pn_'+kid+'_'+m.id+'" value="'+(tem?nota:'')+'" min="0" max="'+m.max+'" step="0.1" placeholder="0.0" '+
+            'data-kid="'+kid+'" data-id="'+m.id+'" data-max="'+m.max+'" '+
             'style="width:64px;border:2px solid '+(tem?(ok?'#fbbf24':'#fca5a5'):'#e5e7eb')+';border-radius:10px;padding:7px 8px;font-family:Nunito,sans-serif;font-size:.92rem;font-weight:900;text-align:center;outline:none;background:'+(tem?(ok?'#fffbeb':'#fff5f5'):'#fff')+'" '+
-            'oninput="prevDisNota(''+kid+'',''+m.id+'','+m.max+')" '+
-            'onchange="saveDisNota(''+kid+'',''+m.id+'','+m.max+')">'+
+            'oninput="handleDisInput(this)" onchange="handleDisChange(this)">'+
           '<span style="font-size:1rem;font-weight:900;min-width:40px;'+(tem?(ok?'color:#f59e0b':'color:var(--muted)'):'color:#ccc')+'" id="peq_'+kid+'_'+m.id+'">'+(tem?eq.toFixed(1)+'pts':'—')+'</span>'+
           '<span style="font-size:.72rem;font-weight:800;'+(tem&&ok?'color:var(--green)':'color:var(--muted)')+'" id="ppt_'+kid+'_'+m.id+'">'+(tem?(ok?'+U$'+(eq*D_PTS_P).toFixed(2):'❌'):'')+'</span>'+
         '</div>';
@@ -758,6 +758,14 @@ function renderDisPais(kid, notas){
   });
 }
 
+function handleDisInput(el){
+  const kid=el.dataset.kid, id=el.dataset.id, max=parseFloat(el.dataset.max);
+  prevDisNota(kid,id,max);
+}
+function handleDisChange(el){
+  const kid=el.dataset.kid, id=el.dataset.id, max=parseFloat(el.dataset.max);
+  saveDisNota(kid,id,max);
+}
 function prevDisNota(kid,id,max){
   const inp=document.getElementById('pn_'+kid+'_'+id);
   let v=parseFloat(inp.value); if(isNaN(v)||v<0)v=0; if(v>max){v=max;inp.value=max;}
