@@ -175,16 +175,30 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf4;min-height:100vh;color:#
 <div class="sec"><span style="color:var(--rafael)">🚀 Rafael</span></div>
 <div class="kid-section">
   <div class="kid-header">
-    <span class="kid-name rafael">🚀 Rafael</span>
-    <span class="kid-earned" id="r-earned">R$ 0,00</span>
+    <span class="kid-name rafael">🚀 Rafael (9 anos)</span>
   </div>
-  <div class="kid-pbar-bg"><div class="kid-pbar rafael" id="r-pbar" style="width:0%"></div></div>
-  <div class="kid-pbar-lbl" id="r-pbar-lbl">0/0</div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px;padding:8px 12px;background:#fff8f0;border-radius:10px;font-size:.82rem;font-weight:800">
-    <span style="color:#9ca3af">📅 Total do mês</span>
-    <span style="color:#22c55e" id="r-mes-total">R$ 0,00</span>
+  <!-- Stats row -->
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <div style="flex:1;text-align:center;background:#f0fdf4;border-radius:12px;padding:10px 6px">
+      <div style="font-size:1.3rem;font-weight:900;color:var(--green)" id="r-earned">R$ 0,00</div>
+      <div style="font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;margin-top:2px">Hoje</div>
+    </div>
+    <div style="flex:1;text-align:center;background:#fff8f0;border-radius:12px;padding:10px 6px">
+      <div style="font-size:1.3rem;font-weight:900;color:var(--rafael)" id="r-mes-total">R$ 0,00</div>
+      <div style="font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;margin-top:2px">Mês</div>
+    </div>
+    <div style="flex:1;text-align:center;background:#f8fafc;border-radius:12px;padding:10px 6px">
+      <div style="font-size:1.3rem;font-weight:900;color:#1a1a2e" id="r-pbar-lbl">0/0</div>
+      <div style="font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;margin-top:2px">Tarefas</div>
+    </div>
   </div>
+  <div class="kid-pbar-bg" style="margin-bottom:10px"><div class="kid-pbar rafael" id="r-pbar" style="width:0%"></div></div>
   <div id="r-tasks"></div>
+  <!-- Total after tasks -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:10px 12px;background:#f0fdf4;border-radius:12px;border:2px solid #86efac">
+    <span style="font-weight:900;font-size:.88rem;color:#166534">💰 Total validado hoje</span>
+    <span style="font-weight:900;font-size:1rem;color:var(--green)" id="r-total-validado">R$ 0,00</span>
+  </div>
 </div>
 <div class="comp-section">
   <h4>😊 Comportamento do Rafael</h4>
@@ -200,16 +214,30 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf4;min-height:100vh;color:#
 <div class="sec"><span style="color:var(--rebeca)">🦋 Rebeca</span></div>
 <div class="kid-section">
   <div class="kid-header">
-    <span class="kid-name rebeca">🦋 Rebeca</span>
-    <span class="kid-earned" id="b-earned">R$ 0,00</span>
+    <span class="kid-name rebeca">🦋 Rebeca (6 anos)</span>
   </div>
-  <div class="kid-pbar-bg"><div class="kid-pbar rebeca" id="b-pbar" style="width:0%"></div></div>
-  <div class="kid-pbar-lbl" id="b-pbar-lbl">0/0</div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px;padding:8px 12px;background:#fdf4ff;border-radius:10px;font-size:.82rem;font-weight:800">
-    <span style="color:#9ca3af">📅 Total do mês</span>
-    <span style="color:#22c55e" id="b-mes-total">R$ 0,00</span>
+  <!-- Stats row -->
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <div style="flex:1;text-align:center;background:#f0fdf4;border-radius:12px;padding:10px 6px">
+      <div style="font-size:1.3rem;font-weight:900;color:var(--green)" id="b-earned">R$ 0,00</div>
+      <div style="font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;margin-top:2px">Hoje</div>
+    </div>
+    <div style="flex:1;text-align:center;background:#fdf4ff;border-radius:12px;padding:10px 6px">
+      <div style="font-size:1.3rem;font-weight:900;color:var(--rebeca)" id="b-mes-total">R$ 0,00</div>
+      <div style="font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;margin-top:2px">Mês</div>
+    </div>
+    <div style="flex:1;text-align:center;background:#f8fafc;border-radius:12px;padding:10px 6px">
+      <div style="font-size:1.3rem;font-weight:900;color:#1a1a2e" id="b-pbar-lbl">0/0</div>
+      <div style="font-size:.65rem;font-weight:800;color:var(--muted);text-transform:uppercase;margin-top:2px">Tarefas</div>
+    </div>
   </div>
+  <div class="kid-pbar-bg" style="margin-bottom:10px"><div class="kid-pbar rebeca" id="b-pbar" style="width:0%"></div></div>
   <div id="b-tasks"></div>
+  <!-- Total after tasks -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:10px 12px;background:#fdf4ff;border-radius:12px;border:2px solid #d8b4fe">
+    <span style="font-weight:900;font-size:.88rem;color:#6b21a8">💰 Total validado hoje</span>
+    <span style="font-weight:900;font-size:1rem;color:var(--rebeca)" id="b-total-validado">R$ 0,00</span>
+  </div>
 </div>
 <div class="comp-section">
   <h4>😊 Comportamento da Rebeca</h4>
@@ -275,7 +303,8 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf4;min-height:100vh;color:#
 
   <div class="box">
     <h4>💸 Depositar mesada</h4>
-    <p>O valor fica pendente até a criança escolher a divisão e transferir.</p>
+    <p>Valor calculado automaticamente com base nas tarefas validadas do mês.</p>
+    <!-- Rafael -->
     <div class="dep-kid">
       <div class="dep-name rafael">🚀 Rafael</div>
       <div class="dep-saldos">
@@ -283,22 +312,31 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf4;min-height:100vh;color:#
         <div class="dep-s inv"><div class="dep-sv inv" id="dr-inv">R$ 0,00</div><div class="dep-sl inv">📈 Invest.</div></div>
       </div>
       <div class="dep-pct" id="dr-pct">⚖️ Divisão: 50% corrente · 50% invest.</div>
-      <div class="dep-form">
-        <input class="dep-inp" type="number" id="dep-r" placeholder="R$ valor" step="0.01" min="0">
-        <button class="dep-btn" onclick="depositar('rafael')">Depositar</button>
+      <div style="background:#f0fdf4;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:.72rem;font-weight:800;color:var(--muted)">💰 MESADA DO MÊS</div>
+          <div style="font-size:1.3rem;font-weight:900;color:var(--green)" id="mes-total-r">R$ 0,00</div>
+        </div>
+        <div id="dep-status-r" style="font-size:.75rem;font-weight:800;color:var(--muted)">calculando...</div>
       </div>
+      <button class="dep-btn" style="width:100%" id="dep-btn-r" onclick="depositar('rafael')">💸 Depositar R$ <span id="dep-val-r">0,00</span> para Rafael</button>
     </div>
-    <div class="dep-kid">
+    <!-- Rebeca -->
+    <div class="dep-kid" style="margin-top:12px">
       <div class="dep-name rebeca">🦋 Rebeca</div>
       <div class="dep-saldos">
         <div class="dep-s cc"><div class="dep-sv cc" id="db-cc">R$ 0,00</div><div class="dep-sl cc">💳 Corrente</div></div>
         <div class="dep-s inv"><div class="dep-sv inv" id="db-inv">R$ 0,00</div><div class="dep-sl inv">📈 Invest.</div></div>
       </div>
       <div class="dep-pct" id="db-pct">⚖️ Divisão: 50% corrente · 50% invest.</div>
-      <div class="dep-form">
-        <input class="dep-inp" type="number" id="dep-b" placeholder="R$ valor" step="0.01" min="0">
-        <button class="dep-btn" onclick="depositar('rebeca')">Depositar</button>
+      <div style="background:#fdf4ff;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:.72rem;font-weight:800;color:var(--muted)">💰 MESADA DO MÊS</div>
+          <div style="font-size:1.3rem;font-weight:900;color:var(--rebeca)" id="mes-total-b">R$ 0,00</div>
+        </div>
+        <div id="dep-status-b" style="font-size:.75rem;font-weight:800;color:var(--muted)">calculando...</div>
       </div>
+      <button class="dep-btn" style="width:100%;background:linear-gradient(135deg,#9333ea,#ec4899)" id="dep-btn-b" onclick="depositar('rebeca')">💸 Depositar R$ <span id="dep-val-b">0,00</span> para Rebeca</button>
     </div>
   </div>
 </div>
@@ -529,9 +567,11 @@ function renderKid(kid){
     else if(!lied&&st==='pending')count++;
   });
   document.getElementById(p+'-earned').textContent='R$ '+earned.toFixed(2).replace('.',',');
+  const totEl=document.getElementById(p+'-total-validado');
+  if(totEl) totEl.textContent='R$ '+earned.toFixed(2).replace('.',',');
   const pct=tasks.length?Math.round(count/tasks.length*100):0;
   document.getElementById(p+'-pbar').style.width=pct+'%';
-  document.getElementById(p+'-pbar-lbl').textContent=val+'/'+tasks.length+' validadas';
+  document.getElementById(p+'-pbar-lbl').textContent=val+'/'+tasks.length;
   // comp btns
   document.getElementById(p+'-bom').className='comp-btn'+(comp==='bom'?' bom':'');
   document.getElementById(p+'-ruim').className='comp-btn'+(comp==='ruim'?' ruim':'');
@@ -601,7 +641,7 @@ function loadMesada(){
   ['rafael','rebeca'].forEach(kid=>{
     const p=kid==='rafael'?'r':'b';
     walRef(kid).get().then(snap=>{
-      const d=snap.exists?snap.data():{cc:0,inv:0,pct:50};
+      const d=snap.exists?snap.data():{cc:0,inv:0,pct:50,mesada:0,mesadaOk:false};
       const cc=parseFloat(d.cc||0), inv=parseFloat(d.inv||0), total=cc+inv||1;
       document.getElementById('val-'+p+'-cc').textContent='R$ '+cc.toFixed(2).replace('.',',');
       document.getElementById('val-'+p+'-inv').textContent='R$ '+inv.toFixed(2).replace('.',',');
@@ -611,14 +651,59 @@ function loadMesada(){
       document.getElementById('d'+p+'-inv').textContent='R$ '+inv.toFixed(2).replace('.',',');
       const pct=d.pct!=null?d.pct:50;
       document.getElementById('d'+p+'-pct').textContent='⚖️ Divisão: '+pct+'% corrente · '+(100-pct)+'% invest.';
+      // Check if already deposited this month
+      const mesadaOk=d.mesadaOk||false;
+      const btn=document.getElementById('dep-btn-'+p);
+      const st=document.getElementById('dep-status-'+p);
+      if(mesadaOk){
+        if(btn){btn.disabled=true;btn.style.opacity='.5';}
+        if(st){st.textContent='✅ Já depositado este mês';st.style.color='var(--green)';}
+      } else {
+        if(btn){btn.disabled=false;btn.style.opacity='1';}
+        if(st){st.textContent='⏳ Pendente';st.style.color='var(--muted)';}
+      }
     }).catch(()=>{});
+    // Auto-calculate month total
+    calcMesadaMes(kid, val=>{
+      const p2=kid==='rafael'?'r':'b';
+      const el=document.getElementById('mes-total-'+p2);
+      const vEl=document.getElementById('dep-val-'+p2);
+      if(el) el.textContent='R$ '+val.toFixed(2).replace('.',',');
+      if(vEl) vEl.textContent=val.toFixed(2).replace('.',',');
+    });
+  });
+}
+
+function calcMesadaMes(kid, callback){
+  const d=new Date();
+  const dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  const ps=[];
+  const dayCache2={};
+  for(let i=1;i<=dim;i++){
+    const dd=new Date(d.getFullYear(),d.getMonth(),i);
+    const k=dd.toISOString().slice(0,10);
+    ps.push(dayRef(kid,k).get().then(s=>{dayCache2[k]=s.exists?s.data():{tasks:{},flag:'none',comp:'none'};}).catch(()=>{}));
+  }
+  Promise.all(ps).then(()=>{
+    let total=0;
+    for(let i=1;i<=dim;i++){
+      const dd=new Date(d.getFullYear(),d.getMonth(),i);
+      const day=dayCache2[dd.toISOString().slice(0,10)]||{tasks:{},flag:'none'};
+      const flag=day.flag||'none';
+      TASKS[kid].forEach(t=>{
+        const lied=flag==='lied'&&!t.req;
+        const st=lied?'lied':((day.tasks&&day.tasks[t.id])||'none');
+        if(!lied&&st==='validated') total+=t.val;
+      });
+    }
+    callback(Math.round(total*100)/100);
   });
 }
 
 function depositar(kid){
   const p=kid==='rafael'?'r':'b';
-  const val=parseFloat(document.getElementById('dep-'+p).value);
-  if(!val||val<=0){showToast('💰 Coloca o valor');return;}
+  const val=parseFloat(document.getElementById('dep-val-'+p).textContent.replace(',','.'));
+  if(!val||val<=0){showToast('Nenhuma mesada acumulada este mês');return;}
   walRef(kid).get().then(snap=>{
     const d=snap.exists?snap.data():{cc:0,inv:0,pct:50,mesada:0,mesadaOk:false};
     d.mesada=(parseFloat(d.mesada||0)+val);
@@ -626,7 +711,10 @@ function depositar(kid){
     return walRef(kid).set(d);
   }).then(()=>{
     const nome=kid==='rafael'?'Rafael':'Rebeca';
-    document.getElementById('dep-'+(kid==='rafael'?'r':'b')).value='';
+    const btn=document.getElementById('dep-btn-'+p);
+    const st=document.getElementById('dep-status-'+p);
+    if(btn) btn.disabled=true;
+    if(st){st.textContent='✅ Depositado!';st.style.color='var(--green)';}
     showToast('✅ '+nome+' recebeu R$ '+val.toFixed(2).replace('.',',')+' de mesada!');
     loadMesada();
   }).catch(()=>showToast('Erro'));

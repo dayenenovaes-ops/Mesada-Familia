@@ -112,7 +112,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
 .inp:focus{border-color:var(--main)}
 .src-btns{display:flex;gap:6px;margin-bottom:10px}
 .src-btn{flex:1;padding:7px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;transition:.15s;color:var(--muted)}
-.src-btn.cc{border-color:var(--blue);background:#eff6ff;color:var(--blue)}
+.src-btn.cc{border-color:var(--blue);background:#eff6ff;color:var(--blue)}.sel-dis{border-color:#1a237e!important;background:#dbeafe!important;color:#1a237e!important}
 .src-btn.inv{border-color:var(--purple);background:#f5f3ff;color:var(--purple)}
 .adj-btns{display:flex;gap:6px;margin-bottom:8px}
 .adj-btn{flex:1;padding:7px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.78rem;color:var(--muted);transition:.15s}
@@ -134,7 +134,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
 .hist-desc{font-weight:800;font-size:.83rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hist-date{font-size:.7rem;color:var(--muted)}
 .hist-bdg{font-size:.62rem;font-weight:800;padding:2px 6px;border-radius:99px}
-.hb-cc{background:#eff6ff;color:var(--blue)}.hb-inv{background:#f5f3ff;color:var(--purple)}
+.hb-cc{background:#eff6ff;color:var(--blue)}.hb-inv{background:#f5f3ff;color:var(--purple)}.hb-dis{background:#dbeafe;color:#1a237e}
 .hist-val{font-size:.9rem;font-weight:900}
 /* DISNEY */
 .dis-hero{background:linear-gradient(135deg,#1a237e,#1565c0);border-radius:var(--r);padding:18px;margin-bottom:12px;box-shadow:var(--sh);color:#fff;position:relative;overflow:hidden}
@@ -211,7 +211,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
   <div class="hero">
     <div class="hero-info">
       <h2>Rafael 🚀</h2>
-      <div class="sub">Hoje você ganhou</div>
+      <div class="sub">Hoje você fez</div>
       <div class="hero-amount">R$ <span id="earned">0,00</span></div>
     </div>
     <div class="hero-right">
@@ -282,6 +282,12 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
       <div class="wico">🏦</div>
     </div>
   </div>
+  <div class="wallet-card" style="background:linear-gradient(135deg,#1a237e,#1565c0);margin-bottom:14px;border-radius:14px;padding:13px;box-shadow:var(--sh);position:relative;overflow:hidden">
+    <h4 style="font-size:.8rem;font-weight:800;color:rgba(255,255,255,.85);margin-bottom:2px">🏰 Disney</h4>
+    <div class="wval">U$ <span id="saldo-dis">0,00</span></div>
+    <div class="wsub" style="color:rgba(255,255,255,.75)">para gastar na viagem</div>
+    <div class="wico" style="opacity:.22">🏰</div>
+  </div>
 
   <!-- Mesada pendente -->
 
@@ -338,6 +344,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
     <div class="src-btns">
       <button class="src-btn" id="g-cc"  onclick="selFonteGasto('cc')">💳 Corrente</button>
       <button class="src-btn" id="g-inv" onclick="selFonteGasto('inv')">📈 Invest.</button>
+      <button class="src-btn" id="g-dis" onclick="selFonteGasto('dis')">🏰 Disney</button>
     </div>
     <button class="btn btn-main" onclick="gastar()">Registrar gasto</button>
   </div>
@@ -356,7 +363,10 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
     <button class="btn btn-gold" onclick="ganhar()">💛 Registrar ganho</button>
   </div>
 
-  <div class="sec">🧾 Histórico</div>
+  <div class="sec" style="display:flex;justify-content:space-between;align-items:center">
+    <span>🧾 Histórico</span>
+    <button onclick="limparHistorico()" style="font-size:.72rem;font-weight:800;padding:4px 10px;border-radius:8px;border:2px solid #fca5a5;background:#fff5f5;color:#991b1b;cursor:pointer">🗑️ Limpar tudo</button>
+  </div>
   <div class="box" style="padding:12px 14px"><div id="hist"></div></div>
 </div>
 
@@ -668,6 +678,8 @@ function loadCarteira(){
   walRef().get().then(snap=>{
     const d=snap.exists?snap.data():{cc:0,inv:0,pct:50,mesada:0,mesadaOk:false};
     document.getElementById('saldo-cc').textContent=parseFloat(d.cc||0).toFixed(2).replace('.',',');
+    const disEl=document.getElementById('saldo-dis');
+    if(disEl) disEl.textContent=parseFloat(d.dis||0).toFixed(2).replace('.',',');
     document.getElementById('saldo-inv').textContent=parseFloat(d.inv||0).toFixed(2).replace('.',',');
     const pct=d.pct!=null?d.pct:50;
     document.getElementById('slider').value=pct;
@@ -746,12 +758,26 @@ function selFonteGasto(f){
   fonteGasto=f;
   document.getElementById('g-cc').className='src-btn'+(f==='cc'?' cc':'');
   document.getElementById('g-inv').className='src-btn'+(f==='inv'?' inv':'');
+  const gdis=document.getElementById('g-dis');
+  if(gdis) gdis.className='src-btn'+(f==='dis'?' sel-dis':'');
 }
 function gastar(){
   const desc=document.getElementById('g-desc').value.trim();
   const val=parseFloat(document.getElementById('g-val').value);
   if(!desc){showToast('💬 Descreve o que compraste!');return;}
   if(!val||val<=0){showToast('💰 Coloca o valor!');return;}
+  if(!fonteGasto){showToast('💳 Escolha a origem!');return;}
+  if(fonteGasto==='dis'){
+    // Disney uses separate USD balance
+    walRef().get().then(snap=>{
+      const d=snap.exists?snap.data():{cc:0,inv:0,dis:0};
+      const saldo=parseFloat(d.dis||0);
+      if(val>saldo){showToast('❌ Saldo Disney insuficiente!');return;}
+      d.dis=Math.round((saldo-val)*100)/100;
+      return walRef().set(d).then(()=>gasRef().add({desc,val,fonte:'dis',data:new Date().toISOString(),tipo:'gasto'}));
+    }).then(()=>{document.getElementById('g-desc').value='';document.getElementById('g-val').value='';showToast('🏰 Gasto Disney registrado!');loadCarteira();}).catch(()=>showToast('Erro'));
+    return;
+  }
   walRef().get().then(snap=>{
     const d=snap.exists?snap.data():{cc:0,inv:0};
     const saldo=parseFloat(d[fonteGasto]||0);
@@ -787,7 +813,9 @@ function loadHist(){
       const it=doc.data(), isPos=it.tipo==='deposito'||it.tipo==='ganho';
       const cor=isPos?'var(--green)':it.tipo==='ajuste'?'var(--blue)':'var(--red)';
       const sinal=isPos?'+':it.tipo==='ajuste'?'±':'-';
-      const ico=it.tipo==='deposito'?'💰':it.tipo==='ganho'?'🎁':it.tipo==='ajuste'?'✏️':'🛍️';
+      const ico=it.tipo==='deposito'?'💰':it.tipo==='ganho'?'🎁':it.tipo==='ajuste'?'✏️':it.fonte==='dis'?'🏰':'🛍️';
+      const fonteLabel=it.fonte==='cc'?'💳':it.fonte==='inv'?'📈':it.fonte==='dis'?'🏰':'💳';
+      const fonteCls=it.fonte==='inv'?'hb-inv':it.fonte==='dis'?'hb-dis':'hb-cc';
       const div=document.createElement('div');div.className='hist-item';
       const dt=new Date(it.data).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
       div.innerHTML='<div class="hist-l"><span>'+ico+'</span><div><div class="hist-desc">'+it.desc+'</div><div class="hist-date">'+dt+'</div></div><span class="hist-bdg hb-'+(it.fonte||'cc')+'">'+( it.fonte==='inv'?'📈':'💳')+'</span></div><div class="hist-val" style="color:'+cor+'">'+sinal+'R$ '+parseFloat(it.val||0).toFixed(2).replace('.',',')+'</div>';
@@ -855,6 +883,16 @@ function renderDisney(notas){
   document.getElementById('d-pbar-lbl').textContent='U$ '+usd.toFixed(2)+' de U$ 150,00';
 }
 
+
+// ── HISTORICO ──
+function limparHistorico(){
+  if(!confirm('Apagar todo o histórico? Esta ação não pode ser desfeita.')) return;
+  gasRef().get().then(snap=>{
+    const batch=[];
+    snap.forEach(doc=>batch.push(doc.ref.delete()));
+    return Promise.all(batch);
+  }).then(()=>{showToast('🗑️ Histórico apagado!');loadHist();}).catch(()=>showToast('Erro ao apagar'));
+}
 
 // ── TOAST ──
 let toastTimer;
