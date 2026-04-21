@@ -668,11 +668,10 @@ function loadMesada(){
 
 function calcMesadaMes(kid, callback){
   const d=new Date();
-  // Calculate for PREVIOUS month (mesada is paid for completed month)
-  const mesRef=new Date(d.getFullYear(),d.getMonth()-1,1); // previous month
-  const ano=mesRef.getFullYear(), mes=mesRef.getMonth();
+  // Calculate for CURRENT month
+  const ano=d.getFullYear(), mes=d.getMonth();
   const dim=new Date(ano,mes+1,0).getDate();
-  // Store reference month on button
+  // Store reference month
   const p=kid==='rafael'?'r':'b';
   let el=document.getElementById('mes-ref-'+p);
   if(!el){el=document.createElement('span');el.id='mes-ref-'+p;el.style.display='none';document.body.appendChild(el);}
@@ -706,19 +705,7 @@ function depositar(kid){
   const valStr=document.getElementById('dep-val-'+p).textContent.replace(',','.');
   const val=parseFloat(valStr);
   if(!val||val<=0){showToast('Nenhuma mesada acumulada este mês');return;}
-  // Only allow deposit from the 1st of next month
-  const hoje=new Date();
-  const mesRef=document.getElementById('mes-ref-'+p);
-  if(mesRef){
-    const mesAno=mesRef.dataset.mes; // "YYYY-MM"
-    const [ano,mes]=mesAno.split('-').map(Number);
-    const proximoMes=new Date(ano,mes,1); // 1st of next month
-    if(hoje<proximoMes){
-      const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']; const nomeMes=MESES[mes];
-      showToast(`⏳ Depósito disponível a partir de 1º de ${nomeMes}`);
-      return;
-    }
-  }
+  // Deposit available anytime
   // Check if already deposited
   const btn=document.getElementById('dep-btn-'+p);
   if(btn&&btn.disabled){showToast('✅ Mesada já depositada!');return;}
