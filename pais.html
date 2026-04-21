@@ -175,7 +175,7 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf4;min-height:100vh;color:#
 <div class="sec"><span style="color:var(--rafael)">🚀 Rafael</span></div>
 <div class="kid-section">
   <div class="kid-header">
-    <span class="kid-name rafael">🚀 Rafael (9 anos)</span>
+    <span class="kid-name rafael">🚀 Rafael</span>
   </div>
   <!-- Stats row -->
   <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -214,7 +214,7 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf4;min-height:100vh;color:#
 <div class="sec"><span style="color:var(--rebeca)">🦋 Rebeca</span></div>
 <div class="kid-section">
   <div class="kid-header">
-    <span class="kid-name rebeca">🦋 Rebeca (6 anos)</span>
+    <span class="kid-name rebeca">🦋 Rebeca</span>
   </div>
   <!-- Stats row -->
   <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -314,7 +314,7 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf4;min-height:100vh;color:#
       <div class="dep-pct" id="dr-pct">⚖️ Divisão: 50% corrente · 50% invest.</div>
       <div style="background:#f0fdf4;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
         <div>
-          <div style="font-size:.72rem;font-weight:800;color:var(--muted)">💰 MESADA DO MÊS</div>
+          <div style="font-size:.72rem;font-weight:800;color:var(--muted)">💰 MESADA DO MÊS <span id="mes-nome-r" style="color:var(--green)"></span></div>
           <div style="font-size:1.3rem;font-weight:900;color:var(--green)" id="mes-total-r">R$ 0,00</div>
         </div>
         <div id="dep-status-r" style="font-size:.75rem;font-weight:800;color:var(--muted)">calculando...</div>
@@ -331,7 +331,7 @@ body{font-family:'Nunito',sans-serif;background:#f0fdf4;min-height:100vh;color:#
       <div class="dep-pct" id="db-pct">⚖️ Divisão: 50% corrente · 50% invest.</div>
       <div style="background:#fdf4ff;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
         <div>
-          <div style="font-size:.72rem;font-weight:800;color:var(--muted)">💰 MESADA DO MÊS</div>
+          <div style="font-size:.72rem;font-weight:800;color:var(--muted)">💰 MESADA DO MÊS <span id="mes-nome-b" style="color:var(--rebeca)"></span></div>
           <div style="font-size:1.3rem;font-weight:900;color:var(--rebeca)" id="mes-total-b">R$ 0,00</div>
         </div>
         <div id="dep-status-b" style="font-size:.75rem;font-weight:800;color:var(--muted)">calculando...</div>
@@ -664,30 +664,40 @@ function loadMesada(){
       }
     }).catch(()=>{});
     // Auto-calculate month total
-    calcMesadaMes(kid, val=>{
+    calcMesadaMes(kid, (val,mesNome)=>{
       const p2=kid==='rafael'?'r':'b';
       const el=document.getElementById('mes-total-'+p2);
       const vEl=document.getElementById('dep-val-'+p2);
+      const nEl=document.getElementById('mes-nome-'+p2);
       if(el) el.textContent='R$ '+val.toFixed(2).replace('.',',');
       if(vEl) vEl.textContent=val.toFixed(2).replace('.',',');
+      if(nEl) nEl.textContent='('+mesNome+')';
     });
   });
 }
 
 function calcMesadaMes(kid, callback){
   const d=new Date();
-  const dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  // Calculate for PREVIOUS month (mesada is paid for completed month)
+  const mesRef=new Date(d.getFullYear(),d.getMonth()-1,1); // previous month
+  const ano=mesRef.getFullYear(), mes=mesRef.getMonth();
+  const dim=new Date(ano,mes+1,0).getDate();
+  // Store reference month on button
+  const p=kid==='rafael'?'r':'b';
+  let el=document.getElementById('mes-ref-'+p);
+  if(!el){el=document.createElement('span');el.id='mes-ref-'+p;el.style.display='none';document.body.appendChild(el);}
+  el.dataset.mes=ano+'-'+String(mes+1).padStart(2,'0');
   const ps=[];
   const dayCache2={};
   for(let i=1;i<=dim;i++){
-    const dd=new Date(d.getFullYear(),d.getMonth(),i);
+    const dd=new Date(ano,mes,i);
     const k=dd.toISOString().slice(0,10);
     ps.push(dayRef(kid,k).get().then(s=>{dayCache2[k]=s.exists?s.data():{tasks:{},flag:'none',comp:'none'};}).catch(()=>{}));
   }
   Promise.all(ps).then(()=>{
     let total=0;
     for(let i=1;i<=dim;i++){
-      const dd=new Date(d.getFullYear(),d.getMonth(),i);
+      const dd=new Date(ano,mes,i);
       const day=dayCache2[dd.toISOString().slice(0,10)]||{tasks:{},flag:'none'};
       const flag=day.flag||'none';
       TASKS[kid].forEach(t=>{
@@ -696,28 +706,52 @@ function calcMesadaMes(kid, callback){
         if(!lied&&st==='validated') total+=t.val;
       });
     }
-    callback(Math.round(total*100)/100);
+    const nomeMes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][mes];
+    callback(Math.round(total*100)/100, nomeMes);
   });
 }
 
 function depositar(kid){
   const p=kid==='rafael'?'r':'b';
-  const val=parseFloat(document.getElementById('dep-val-'+p).textContent.replace(',','.'));
+  const valStr=document.getElementById('dep-val-'+p).textContent.replace(',','.');
+  const val=parseFloat(valStr);
   if(!val||val<=0){showToast('Nenhuma mesada acumulada este mês');return;}
+  // Only allow deposit from the 1st of next month
+  const hoje=new Date();
+  const mesRef=document.getElementById('mes-ref-'+p);
+  if(mesRef){
+    const mesAno=mesRef.dataset.mes; // "YYYY-MM"
+    const [ano,mes]=mesAno.split('-').map(Number);
+    const proximoMes=new Date(ano,mes,1); // 1st of next month
+    if(hoje<proximoMes){
+      const nomeMes=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][mes];
+      showToast('⏳ Depósito disponível a partir de 1º de '+nomeMes);
+      return;
+    }
+  }
+  // Check if already deposited
+  const btn=document.getElementById('dep-btn-'+p);
+  if(btn&&btn.disabled){showToast('✅ Mesada já depositada!');return;}
+  const nome=kid==='rafael'?'Rafael':'Rebeca';
+  // Confirmation
+  if(!confirm('Depositar R$ '+val.toFixed(2).replace('.',',')+' para '+nome+'?
+
+Este valor será enviado para a carteira e não poderá ser desfeito facilmente.')){return;}
+  // Prevent double click
+  if(btn){btn.disabled=true;btn.style.opacity='.5';}
   walRef(kid).get().then(snap=>{
     const d=snap.exists?snap.data():{cc:0,inv:0,pct:50,mesada:0,mesadaOk:false};
+    if(d.mesadaOk){showToast('✅ Mesada já depositada!');if(btn){btn.disabled=true;}return Promise.reject('already');}
     d.mesada=(parseFloat(d.mesada||0)+val);
     d.mesadaOk=false;
+    d.mesadaDepositadaEm=new Date().toISOString();
     return walRef(kid).set(d);
   }).then(()=>{
-    const nome=kid==='rafael'?'Rafael':'Rebeca';
-    const btn=document.getElementById('dep-btn-'+p);
     const st=document.getElementById('dep-status-'+p);
-    if(btn) btn.disabled=true;
     if(st){st.textContent='✅ Depositado!';st.style.color='var(--green)';}
     showToast('✅ '+nome+' recebeu R$ '+val.toFixed(2).replace('.',',')+' de mesada!');
     loadMesada();
-  }).catch(()=>showToast('Erro'));
+  }).catch(e=>{if(e!=='already')showToast('Erro ao depositar');});
 }
 
 // ── DISNEY PAIS ──
