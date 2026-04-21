@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -199,6 +200,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
 </div>
 
 <!-- TAREFAS -->
+
 <div class="panel on" id="panel-tarefas">
   <div class="date-nav">
     <button onclick="navDate(-1)">‹</button>
@@ -264,6 +266,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
 </div>
 
 <!-- CARTEIRA -->
+
 <div class="panel" id="panel-carteira">
   <div class="wallet-row">
     <div class="wallet-card cc">
@@ -281,6 +284,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
   </div>
 
   <!-- Mesada pendente -->
+
   <div class="box" id="mesada-box" style="display:none">
     <h4>🎉 Mesada disponível!</h4>
     <p>Seus pais depositaram sua mesada. Escolha a divisão e transfira:</p>
@@ -307,6 +311,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
   </div>
 
   <!-- Ajustar saldo -->
+
   <div class="box">
     <h4>✏️ Ajustar saldo</h4>
     <p>Corrija saldos se necessário (aprovado pelos pais)</p>
@@ -325,6 +330,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
   </div>
 
   <!-- Gasto -->
+
   <div class="box">
     <h4>🛍️ Registrar gasto</h4>
     <input class="inp" type="text"   id="g-desc" placeholder="No que gastou? (ex: sorvete)">
@@ -337,6 +343,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
   </div>
 
   <!-- Outros ganhos -->
+
   <div class="box">
     <h4>🎁 Outros ganhos</h4>
     <p>Dinheiro da vó, aniversário, Páscoa, etc.</p>
@@ -354,10 +361,11 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
 </div>
 
 <!-- DISNEY -->
+
 <div class="panel" id="panel-disney">
   <div class="dis-hero">
     <h2>🏰 Programa Disney</h2>
-    <p>Registre suas notas e ganhe dólares para a viagem!</p>
+    <p>Faça boas notas e ganhe dólares para a viagem! As notas são registradas pelos seus pais.</p>
     <div class="dis-totals">
       <div class="dis-total"><div class="dtv" id="d-pts">0</div><div class="dtl">Pontos</div></div>
       <div class="dis-total"><div class="dtv" id="d-usd">U$ 0,00</div><div class="dtl">Ganho</div></div>
@@ -372,11 +380,12 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
     <strong>Ordem:</strong> 1º TRIM → M2º TRI → 2º TRIM → M3º TRI → 3º TRIM<br>
     <strong>Valor:</strong> cada ponto = U$ 0,43 · máximo U$ 150,00
   </div>
-  <div class="sec">📚 Avaliações</div>
+  <div class="sec">📚 Minhas notas</div>
   <div id="dis-list"></div>
 </div>
 
 <!-- MODAL RECOMPENSA -->
+
 <div class="modal-overlay" id="rwd-modal">
   <div class="modal">
     <div class="mico" id="rwd-ico">🏆</div>
@@ -788,13 +797,12 @@ function loadHist(){
 }
 
 // ── DISNEY ──
+
 function loadDisney(){
   disRef().get().then(snap=>{
     renderDisney(snap.exists?snap.data():{});
   }).catch(()=>renderDisney({}));
 }
-
-function eqv(nota,max){ return !nota||nota<=0?0:Math.round((nota/max)*10*100)/100; }
 
 function renderDisney(notas){
   const el=document.getElementById('dis-list'); el.innerHTML='';
@@ -814,7 +822,28 @@ function renderDisney(notas){
       const tcolor=m.tipo==='AT'?'#1565c0':'#7c3aed', tbg=m.tipo==='AT'?'#dbeafe':'#ede9fe';
       const div=document.createElement('div');
       div.className='mat-card'+(tem&&ok?' ok':tem&&!ok?' low':'');
-      div.innerHTML='<div class="mat-hdr"><span class="mat-nome">'+m.nome+'</span><span class="mat-tipo" style="background:'+tbg+';color:'+tcolor+'">'+m.tipo+' máx '+m.max.toFixed(1)+'</span></div><div class="mat-body"><div class="nota-wrap"><span class="nota-lbl">Nota<br><span style="font-size:.62rem;color:var(--muted)">mín '+min+'</span></span><input class="nota-inp'+(tem?(ok?' ok':' low'):'')+'" type="number" id="ni_'+m.id+'" value="'+(tem?nota:'')+'" min="0" max="'+m.max+'" step="0.1" placeholder="0.0" oninput="prevNota(\''+m.id+'\','+m.max+')" onchange="saveNota(\''+m.id+'\','+m.max+')"></div><div class="nota-equiv'+(tem?(ok?' ok':' low'):'')+'" id="neq_'+m.id+'">'+(tem?eq.toFixed(1):'—')+'</div><div class="nota-pts'+(tem?(ok?' ok':' low'):'')+'" id="npt_'+m.id+'">'+(tem?(ok?'+U$'+(eq*D_PTS).toFixed(2):'❌'):'')+'</div></div>';
+      div.innerHTML=
+        '<div class="mat-hdr">'+
+          '<span class="mat-nome">'+m.nome+'</span>'+
+          '<span class="mat-tipo" style="background:'+tbg+';color:'+tcolor+'">'+m.tipo+' máx '+m.max.toFixed(1)+'</span>'+
+        '</div>'+
+        '<div class="mat-body" style="justify-content:space-between">'+
+          '<div style="display:flex;align-items:center;gap:8px">'+
+            '<span class="nota-lbl" style="color:var(--muted)">Nota</span>'+
+            '<span style="font-size:1.1rem;font-weight:900;color:'+(tem?(ok?'var(--gold)':'var(--red)'):'var(--muted)')+'">'+
+              (tem?nota.toFixed(1):'—')+
+            '</span>'+
+            '<span style="font-size:.72rem;color:var(--muted);font-weight:700">/ '+m.max.toFixed(1)+'</span>'+
+          '</div>'+
+          '<div style="display:flex;align-items:center;gap:8px">'+
+            '<span class="nota-equiv'+(tem?(ok?' ok':' low'):'')+'">'+
+              (tem?eq.toFixed(1)+'pts':'—')+
+            '</span>'+
+            '<span class="nota-pts'+(tem?(ok?' ok':' low'):'')+'">'+
+              (tem?(ok?'+U$'+(eq*D_PTS).toFixed(2):'❌'):'')+ 
+            '</span>'+
+          '</div>'+
+        '</div>';
       el.appendChild(div);
     });
   });
@@ -826,29 +855,6 @@ function renderDisney(notas){
   document.getElementById('d-pbar-lbl').textContent='U$ '+usd.toFixed(2)+' de U$ 150,00';
 }
 
-function prevNota(id,max){
-  const inp=document.getElementById('ni_'+id);
-  let v=parseFloat(inp.value); if(isNaN(v)||v<0)v=0; if(v>max){v=max;inp.value=max;}
-  const eq=v>0?eqv(v,max):0, ok=eq>=D_MIN, tem=v>0;
-  inp.className='nota-inp'+(tem?(ok?' ok':' low'):'');
-  const eq_el=document.getElementById('neq_'+id), pt_el=document.getElementById('npt_'+id);
-  if(eq_el){eq_el.className='nota-equiv'+(tem?(ok?' ok':' low'):'');eq_el.textContent=tem?eq.toFixed(1):'—';}
-  if(pt_el){pt_el.className='nota-pts'+(tem?(ok?' ok':' low'):'');pt_el.textContent=tem?(ok?'+U$'+(eq*D_PTS).toFixed(2):'❌'):'';}
-}
-
-function saveNota(id,max){
-  const inp=document.getElementById('ni_'+id);
-  let v=parseFloat(inp.value); if(isNaN(v)||v<0)v=0; if(v>max)v=max;
-  disRef().get().then(snap=>{
-    const notas=snap.exists?snap.data():{};
-    if(v>0) notas[id]=v; else delete notas[id];
-    return disRef().set(notas);
-  }).then(()=>{
-    loadDisney();
-    const eq=eqv(v,max), ok=eq>=D_MIN;
-    if(v>0) showToast(ok?'✅ Nota '+v+' → '+eq.toFixed(1)+' pts · U$'+(eq*D_PTS).toFixed(2):'❌ Nota '+v+' abaixo do mínimo');
-  }).catch(()=>showToast('Erro ao salvar'));
-}
 
 // ── TOAST ──
 let toastTimer;
@@ -864,5 +870,6 @@ firebase.auth().signInAnonymously()
   .then(()=>{ synced(true); listenDay(curDate); })
   .catch(()=>{ synced(false); listenDay(curDate); });
 </script>
+
 </body>
 </html>
