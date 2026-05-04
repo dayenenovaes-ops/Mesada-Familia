@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -199,6 +200,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
 </div>
 
 <!-- TAREFAS -->
+
 <div class="panel on" id="panel-tarefas">
   <div class="date-nav">
     <button onclick="navDate(-1)">‹</button>
@@ -264,6 +266,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
 </div>
 
 <!-- CARTEIRA -->
+
 <div class="panel" id="panel-carteira">
   <div class="wallet-row">
     <div class="wallet-card cc">
@@ -287,6 +290,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
   </div>
 
   <!-- Mesada pendente -->
+
   <div class="box" id="mesada-box" style="display:none">
     <h4>🎉 Mesada disponível!</h4>
     <p>Seus pais depositaram sua mesada. Escolha a divisão e transfira:</p>
@@ -313,6 +317,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
   </div>
 
   <!-- Ajustar saldo -->
+
   <div class="box">
     <h4>✏️ Ajustar saldo</h4>
     <p>Corrija saldos se necessário (aprovado pelos pais)</p>
@@ -331,6 +336,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
   </div>
 
   <!-- Gasto -->
+
   <div class="box">
     <h4>🛍️ Registrar gasto</h4>
     <input class="inp" type="text"   id="g-desc" placeholder="No que gastou? (ex: sorvete)">
@@ -344,6 +350,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
   </div>
 
   <!-- Outros ganhos -->
+
   <div class="box">
     <h4>🎁 Outros ganhos</h4>
     <p>Dinheiro da vó, aniversário, Páscoa, etc.</p>
@@ -361,6 +368,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
 </div>
 
 <!-- DISNEY -->
+
 <div class="panel" id="panel-disney">
   <div class="dis-hero">
     <h2>🏰 Programa Disney</h2>
@@ -384,6 +392,7 @@ body{font-family:'Nunito',sans-serif;background:#fff8f0;min-height:100vh;color:#
 </div>
 
 <!-- MODAL RECOMPENSA -->
+
 <div class="modal-overlay" id="rwd-modal">
   <div class="modal">
     <div class="mico" id="rwd-ico">🏆</div>
@@ -869,6 +878,16 @@ function renderDisney(notas){
   document.getElementById('d-prv').textContent=prv+'/35';
   document.getElementById('d-pbar').style.width=pct+'%';
   document.getElementById('d-pbar-lbl').textContent='U$ '+usd.toFixed(2)+' de U$ 150,00';
+  // Sync Disney wallet balance automatically
+  const disSaldo=document.getElementById('saldo-dis');
+  if(disSaldo) disSaldo.textContent=usd.toFixed(2).replace('.',',');
+  walRef().get().then(snap=>{
+    const d=snap.exists?snap.data():{cc:0,inv:0,dis:0};
+    if(Math.abs((parseFloat(d.dis)||0)-usd)>0.001){
+      d.dis=Math.round(usd*100)/100;
+      walRef().set(d);
+    }
+  }).catch(()=>{});
 }
 
 
@@ -886,5 +905,6 @@ firebase.auth().signInAnonymously()
   .then(()=>{ synced(true); listenDay(curDate); })
   .catch(()=>{ synced(false); listenDay(curDate); });
 </script>
+
 </body>
 </html>
